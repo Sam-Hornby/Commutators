@@ -2,8 +2,9 @@
 #define _expression_hpp_
 
 #include <vector>
-#include "Operator.hpp"
 #include <iostream>
+#include "Operator.hpp"
+
 
 namespace operators {
 

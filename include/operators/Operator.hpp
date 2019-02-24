@@ -4,12 +4,12 @@
 #include <boost/optional.hpp>
 #include <string>
 #include "struct_ids.hpp"
-#include "Expression.hpp"
+//#include "Expression.hpp"
 
 
 namespace operators {
 
-class Expression;
+//class Expression;
 
 struct Operator {
   std::string name;  // name of operator TODO make const
@@ -36,7 +36,7 @@ struct Operator {
     return order > other.order;
   }
 
-  Expression operator+(const Operator & A);
+  //Expression operator+(const Operator & A) const;
 
 };
 
