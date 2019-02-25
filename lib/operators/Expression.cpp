@@ -6,20 +6,55 @@
 namespace operators {
 
 //----------------------------------------------------------------------------------------------------------------------
+// operator overloads
+//----------------------------------------------------------------------------------------------------------------------
+
+
+Expression operator+(const Expression & A, const Operator & B) {
+  Expression exp = A;
+  std::vector<Operator> m;
+  m.push_back(B);
+  exp.expression.push_back(std::move(m));
+  return exp;
+}
+
+Expression operator+(const Expression & A, const Expression & B) {
+  Expression exp = A;
+  exp.expression.insert(exp.expression.end(), B.expression.begin(), B.expression.end());
+  return exp;
+}
+
+Expression operator*(const Expression & A, const Expression & B) {
+  Expression exp;
+  for (std::size_t i = 0; i < B.expression.size(); ++i) {
+    exp = exp + A;
+  }
+  for (std::size_t i = 0; i < B.expression.size(); ++i) {
+    for (std::size_t j = 0; j < A.expression.size(); ++j) {
+      const auto index = i * A.expression.size() + j;
+      exp.expression[index].insert(exp.expression[index].end(), B.expression[i].begin(), B.expression[i].end());
+    }
+  }
+  return exp;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+//----------------------------------------------------------------------------------------------------------------------
 // printing zone
 //----------------------------------------------------------------------------------------------------------------------
 
 void Expression::print(std::ostream& out) const {
-  if (expression.empty()) {
-    out << "\n";
-    return;
-  }
+
   for (std::size_t i = 0; i < expression.size(); ++i) {
-    out << "(";
     if (expression[i].empty()) {
-      out << ") + ";
       continue;
     }
+    if (i != 0) {
+      out << " + ";
+    }
+    out << "(";
     for (std::size_t j = 0; j < expression[i].size(); ++j) {
       if (j != (expression[i].size() - 1)) {
         out << expression[i][j].name << " * ";
@@ -27,12 +62,9 @@ void Expression::print(std::ostream& out) const {
         out << expression[i][j].name;
       }
     }
-    if (i != (expression.size() - 1)) {
-      out << ") + ";
-    } else {
-      out << ")\n";
-    }
+    out << ")";
   }
+  out << "\n";
 }
 
 // end printing zone

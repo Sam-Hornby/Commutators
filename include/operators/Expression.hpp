@@ -22,7 +22,16 @@ public:
   Expression simplify_numbers() const;
   Expression(std::vector<std::vector<Operator>> expression) : expression(expression) {};
   Expression() = default;
+
 };
+
+Expression operator+(const Operator & A, const Operator & B);
+Expression operator*(const Operator & A, const Operator & B);
+
+Expression operator+(const Expression & A, const Operator & B);
+
+Expression operator+(const Expression & A, const Expression & B);
+Expression operator*(const Expression & A, const Expression & B);
 
 } // end namespace operators
 
