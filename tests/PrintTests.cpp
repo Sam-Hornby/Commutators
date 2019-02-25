@@ -17,7 +17,7 @@ TEST (printing_tests, basic) {
   exp.expression[1].push_back(B);
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(A) + (B)");
+  ASSERT_EQ(ss.str(), "(A) + (B)\n");
 }
 
 int main(int argc, char **argv) {

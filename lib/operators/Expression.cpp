@@ -14,17 +14,25 @@ void Expression::print(std::ostream& out) const {
     out << "\n";
     return;
   }
-  for (std::size_t i = 0; i < expression.size() - 1; ++i) {
+  for (std::size_t i = 0; i < expression.size(); ++i) {
     out << "(";
     if (expression[i].empty()) {
+      out << ") + ";
       continue;
     }
-    for (std::size_t j = 0; j < expression[i].size() - 1; ++j) {
-      out << expression[i][j].name << " * ";
+    for (std::size_t j = 0; j < expression[i].size(); ++j) {
+      if (j != (expression[i].size() - 1)) {
+        out << expression[i][j].name << " * ";
+      } else {
+        out << expression[i][j].name;
+      }
     }
-    out << ") + (";
+    if (i != (expression.size() - 1)) {
+      out << ") + ";
+    } else {
+      out << ")\n";
+    }
   }
-  out << ")\n";
 }
 
 // end printing zone
