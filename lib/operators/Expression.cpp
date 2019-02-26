@@ -18,6 +18,14 @@ Expression operator+(const Expression & A, const Operator & B) {
   return exp;
 }
 
+Expression operator*(const Expression & A, const Operator & B) {
+  Expression exp = A;
+  for (std::size_t i = 0; i < A.expression.size(); ++i) {
+    exp.expression[i].push_back(B);
+  }
+  return exp;
+}
+
 Expression operator+(const Expression & A, const Expression & B) {
   Expression exp = A;
   exp.expression.insert(exp.expression.end(), B.expression.begin(), B.expression.end());

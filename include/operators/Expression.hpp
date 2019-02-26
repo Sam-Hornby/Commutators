@@ -29,6 +29,7 @@ Expression operator+(const Operator & A, const Operator & B);
 Expression operator*(const Operator & A, const Operator & B);
 
 Expression operator+(const Expression & A, const Operator & B);
+Expression operator*(const Expression & A, const Operator & B);
 
 Expression operator+(const Expression & A, const Expression & B);
 Expression operator*(const Expression & A, const Expression & B);

@@ -66,12 +66,13 @@ TEST(printing_tests, multiply_expressions) {
   Operator C("C", ordering_value(0), operator_id(2));
   Operator D("D", ordering_value(0), operator_id(3));
   Operator E("E", ordering_value(0), operator_id(4));
+  Operator F("F", ordering_value(0), operator_id(5));
 
-  const auto exp = (A + B + C) * (D + E);
+  const auto exp = (A + B + C) * ((D * F) + E);
 
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(A * D) + (B * D) + (C * D) + (A * E) + (B * E) + (C * E)\n");
+  ASSERT_EQ(ss.str(), "(A * D * F) + (B * D * F) + (C * D * F) + (A * E) + (B * E) + (C * E)\n");
 }
 
 

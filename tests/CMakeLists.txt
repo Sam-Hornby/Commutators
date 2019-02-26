@@ -12,3 +12,6 @@ add_executable(PrintTests PrintTests.cpp)
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 target_link_libraries(PrintTests operators gtest gtest_main)
+
+add_executable(SortTests SortTests.cpp)
+target_link_libraries(SortTests operators gtest gtest_main)
