@@ -81,6 +81,20 @@ TEST(commutator_tests, commute_four) {
                       "(B * [[A, D], C]) + ([[[A, D], B], C])\n");
 }
 
+TEST(commutator_tests, commute_and_addition) {
+  Operator A("A", ordering_value(1), operator_id(1));
+  Operator B("B", ordering_value(-1), operator_id(-1));
+  Operator C("C", ordering_value(2), operator_id(-2));
+  Operator D("D", ordering_value(-2), operator_id(-2));
+
+  auto exp = (A * B) + (C * D);
+  exp = exp.sort(commute_none);
+
+  std::stringstream ss;
+  exp.print(ss);
+  ASSERT_EQ(ss.str(), "(B * A) + ([A, B]) + (D * C) + ([C, D])\n");
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
