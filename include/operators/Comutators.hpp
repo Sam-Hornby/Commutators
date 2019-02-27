@@ -27,15 +27,12 @@ inline Expression operator_commutator(std::string name, const ordering_value ord
 }
 
 bool either_is_number(const Operator & A, const Operator & B) {
-  if (A.is_number() || B.is_number()) {
-    return true;
-  }
-  return false;
+  return A.is_number() or B.is_number();
 }
 // Takes a comutator of operators and extends it to commute all numbers
 // As simplify of expressions assumes all numbers commute best to wrap all comutators with this function
 Expression commute_numbers(const Operator & A, const Operator & B,
-                         std::function<Expression(const Operator &, const Operator &)> commute) {
+                           std::function<Expression(const Operator &, const Operator &)> commute) {
   if (either_is_number(A, B)) {
     return zero_commutator();
   }
@@ -44,6 +41,15 @@ Expression commute_numbers(const Operator & A, const Operator & B,
 // every operator is comutative
 Expression commute_all(const Operator &, const Operator &) {
   return zero_commutator();
+}
+
+Expression commute_none_(const Operator & A, const Operator & B) {
+  std::string com = "[" + A.name + ", " + B.name + "]";
+  return operator_commutator(std::move(com), ordering_value(0), operator_id(0));
+}
+
+Expression commute_none(const Operator & A, const Operator & B) {
+  return commute_numbers(A, B, commute_none_);
 }
 
 

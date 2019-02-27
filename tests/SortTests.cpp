@@ -55,7 +55,7 @@ static void random_multiply_and_addition(const unsigned seed) {
       reference[i].push_back((random_engine() % 500));
     }
   }
-  
+
   Expression exp;
   for (const auto & vec : reference) {
     Expression mul_term =  Operator(std::to_string(vec[0]), ordering_value(vec[0]), operator_id(vec[0]))
@@ -64,7 +64,7 @@ static void random_multiply_and_addition(const unsigned seed) {
       mul_term = mul_term * Operator(std::to_string(vec[j]), ordering_value(vec[j]), operator_id(vec[j]));
     }
     exp = exp + mul_term;
-  } 
+  }
 
   for (unsigned i = 0; i < reference.size(); ++i) {
     for (unsigned j = 0; j < reference[i].size(); ++j) {
@@ -104,6 +104,14 @@ TEST(sort_tests, one) {
   ASSERT_EQ(ss.str(), "(A)\n");
 }
 
+TEST(sort_tests, number) {
+  auto exp = Operator("A", ordering_value(0), operator_id(0)) * Operator(3);
+  exp = exp.sort(commute_all);
+  std::stringstream ss;
+  exp.print(ss);
+  ASSERT_EQ(ss.str(), "(3 * A)\n");
+}
+
 class RandomSortTest : public ::testing::TestWithParam<unsigned> {
   // You can implement all the usual class fixture members here.
 };
@@ -122,7 +130,7 @@ class AdditionAndMultiplyRandomSort : public ::testing::TestWithParam<unsigned> 
 
 TEST_P(AdditionAndMultiplyRandomSort, random_add_sort) {
   const unsigned m = GetParam();
-  const unsigned seed = m + 1000; // don't use same seed as random sort tests 
+  const unsigned seed = m + 1000; // don't use same seed as random sort tests
   random_multiply_and_addition(seed);
 }
 

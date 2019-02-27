@@ -4,12 +4,9 @@
 #include <boost/optional.hpp>
 #include <string>
 #include "struct_ids.hpp"
-//#include "Expression.hpp"
 
 
 namespace operators {
-
-//class Expression;
 
 struct Operator {
   std::string name;  // name of operator TODO make const

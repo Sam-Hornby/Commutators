@@ -84,12 +84,12 @@ void Expression::print(std::ostream& out) const {
 
 static void add_terms_from_comutator(std::vector<std::vector<Operator>> &sorted_terms,
                                      const Expression & com,
-                                     const std::vector<Operator> & terms_in_question,
+                                     const std::size_t term_index,
                                      const unsigned i) {
   for (const auto &mul_term : com.expression) {
     if (std::any_of(mul_term.begin(), mul_term.end(),
                     [&](const Operator &op) {
-                      return op.is_number() && op.value.get() == 0;
+                      return op.is_number() and op.value.get() == 0;
                     })) {
       continue;
     }
@@ -97,24 +97,24 @@ static void add_terms_from_comutator(std::vector<std::vector<Operator>> &sorted_
     sorted_terms.push_back(std::vector<Operator>());
     auto & new_term = sorted_terms.back();
     // insert all terms before the 2 non commuting terms here
-    new_term.insert(new_term.end(), terms_in_question.begin(), terms_in_question.begin() + i);
+    new_term.insert(new_term.end(), sorted_terms[term_index].begin(), sorted_terms[term_index].begin() + i);
     for (const auto &op : mul_term) {
       new_term.push_back(op);
     }
     // insert all terms after the 2 non commuting terms
-    new_term.insert(new_term.end(), terms_in_question.begin() + i + 2, terms_in_question.end());
+    new_term.insert(new_term.end(), sorted_terms[term_index].begin() + i + 2, sorted_terms[term_index].end());
   }
 }
 
-static bool bubble_pass(std::vector<Operator> & terms_in_question,
+static bool bubble_pass(const std::size_t term_index,
                         std::vector<std::vector<Operator>> & sorted_terms,
                         std::function<Expression(const Operator &, const Operator &)> commute) {
   bool swap_performed = false;
-  for (std::size_t i = 0; i < terms_in_question.size() - 1; ++i) { // should this really be using term
-    if (terms_in_question[i] > terms_in_question[i+1]) {
-      const auto comutator = commute(terms_in_question[i], terms_in_question[i+1]);
-      add_terms_from_comutator(sorted_terms, comutator, terms_in_question, i);
-      std::swap(sorted_terms[0][i], sorted_terms[0][i+1]);
+  for (std::size_t i = 0; i < sorted_terms[term_index].size() - 1; ++i) { // should this really be using term
+    if (sorted_terms[term_index][i] > sorted_terms[term_index][i+1]) {
+      const auto comutator = commute(sorted_terms[term_index][i], sorted_terms[term_index][i+1]);
+      add_terms_from_comutator(sorted_terms, comutator, term_index, i);
+      std::swap(sorted_terms[term_index][i], sorted_terms[term_index][i+1]);
       swap_performed = true;
     }
   }
@@ -130,7 +130,7 @@ Expression Expression::sort_multiply_term(const std::vector<Operator> & term,
     if (sorted_terms.expression[i].empty()) {
       continue;
     }
-    while(bubble_pass(sorted_terms.expression[i], sorted_terms.expression, commute));
+    while(bubble_pass(i, sorted_terms.expression, commute));
   }
   return sorted_terms;
 }
