@@ -160,15 +160,71 @@ static std::vector<Operator> simplify_multiply(const std::vector<Operator> & mul
   simplified.push_back(Operator(1));
   for (const auto & op : mul_term) {
     if (op.is_number()) {
-      *(simplified[0].value) *= op.value.get();
+      simplified[0].value = simplified[0].value.get() * op.value.get();
     } else {
       simplified.push_back(op);
     }
   }
-  if (simplified[0].is_number() && simplified[0].value.get() == 0) {
+  if (simplified[0].is_number() and simplified[0].value.get() == 0) {
     simplified.clear(); // if zero return empty vector
   }
+  if (simplified[0].is_number() and simplified[0].value.get() == 1 and simplified.size() != 1) {
+    simplified.erase(simplified.begin());
+  }
+  if (simplified[0].is_number()) {
+    simplified[0].name = std::to_string(simplified[0].value.get()); // correct name for number
+  }
   return simplified;
+}
+
+static bool expression_operators_match(const std::vector<Operator> & A, const std::vector<Operator> & B) {
+  // assumes that simplifying multiplies has moved all numbers to first position
+  if (A.empty() or B.empty()) {
+    return false;
+  }
+  unsigned size_A = A.size();
+  unsigned start_index_A = static_cast<unsigned>(A[0].is_number());
+  unsigned size_B = B.size();
+  unsigned start_index_B = static_cast<unsigned>(B[0].is_number());
+  if ((size_A - start_index_A) != (size_B - start_index_B)) {
+    return false;
+  }
+  for (unsigned i = 0; i < (size_A - start_index_A); ++i) {
+    if (A[i + start_index_A] != B[i + start_index_B]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+static std::vector<Operator> combine_expressions(const std::vector<Operator> & A, const std::vector<Operator> & B) {
+  std::vector<Operator> C;
+  C.reserve(A.size() + 1);
+  Operator number;
+  if ((!A[0].is_number()) and (!B[0].is_number())) {
+    number = Operator(2);
+  } else if ((A[0].is_number()) && (!B[0].is_number())) {
+    number = Operator(A[0].value.get() + 1);
+  } else if ((!A[0].is_number()) && B[0].is_number()) {
+    number = Operator(B[0].value.get() + 1);
+  } else {
+    number = Operator(A[0].value.get() + B[0].value.get());
+  }
+  C.push_back(number);
+  unsigned start_index = static_cast<unsigned>(A[0].is_number());
+  C.insert(C.end(), A.begin() + start_index, A.end());
+  return C;
+}
+
+static void simplify_additions(Expression & exp) {
+  for (std::size_t i = 0; i < exp.expression.size(); ++i) {
+    for (std::size_t j = i + 1; j < exp.expression.size(); ++j) {
+      if (expression_operators_match(exp.expression[i], exp.expression[j])) {
+        exp.expression[i] = combine_expressions(exp.expression[i], exp.expression[j]);
+        exp.expression[j].clear();
+      }
+    }
+  }
 }
 
 Expression Expression::simplify_numbers() const {
@@ -177,9 +233,13 @@ Expression Expression::simplify_numbers() const {
   for (std::size_t add_index = 0; add_index < expression.size(); ++add_index) {
     simplified.expression[add_index] = simplify_multiply(expression[add_index]);
   }
-  for (std::size_t add_index = 0; add_index < expression.size(); ++add_index) {
+  simplify_additions(simplified);
+  for (std::size_t add_index = 0; add_index < simplified.expression.size();) {
     if (simplified.expression[add_index].empty()) {
+      // remove empty vectors
       simplified.expression.erase(simplified.expression.begin() + add_index);
+    } else {
+      ++add_index;
     }
   }
   return simplified;

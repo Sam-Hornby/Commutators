@@ -84,7 +84,7 @@ TEST(commutator_tests, commute_four) {
 TEST(commutator_tests, commute_and_addition) {
   Operator A("A", ordering_value(1), operator_id(1));
   Operator B("B", ordering_value(-1), operator_id(-1));
-  Operator C("C", ordering_value(2), operator_id(-2));
+  Operator C("C", ordering_value(2), operator_id(2));
   Operator D("D", ordering_value(-2), operator_id(-2));
 
   auto exp = (A * B) + (C * D);

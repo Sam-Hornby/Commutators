@@ -8,6 +8,14 @@ struct operator_id {
 
   operator_id(int value) : value(value) {}
   operator_id() = default;
+
+  bool operator==(operator_id other) const {
+    return value == other.value;
+  }
+
+  bool operator!=(operator_id other) const {
+    return value != other.value;
+  }
 };
 
 struct ordering_value {
@@ -22,6 +30,14 @@ struct ordering_value {
 
   bool operator>(ordering_value other) const {
     return value > other.value;
+  }
+
+  bool operator==(ordering_value other) const {
+    return value == other.value;
+  }
+
+  bool operator!=(ordering_value other) const {
+    return value != other.value;
   }
 };
 

@@ -15,6 +15,7 @@ struct Operator {
   // if this is set operator is a number, comutators are automatically assumed zero, op_id is irelevant
   boost::optional<int> value;
 
+  Operator() = default;
   Operator(std::string name, ordering_value order, operator_id id) : name(name), order(order), id(id) {}
   Operator(int v) : id(operator_id(777777)), order(ordering_value(-7777)) {
     value = v;
@@ -31,6 +32,14 @@ struct Operator {
 
   bool operator>(Operator other) const {
     return order > other.order;
+  }
+
+  bool operator==(Operator other) const {
+    return (name == other.name) and (order == other.order) and (id == other.id);
+  }
+
+  bool operator!=(Operator other) const {
+    return !(*this == other);
   }
 
   //Expression operator+(const Operator & A) const;
