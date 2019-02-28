@@ -227,6 +227,17 @@ static void simplify_additions(Expression & exp) {
   }
 }
 
+static void removeEmptyVectors(Expression &exp) {
+  for (std::size_t add_index = 0; add_index < exp.expression.size();) {
+    if (exp.expression[add_index].empty()) {
+      // remove empty vectors
+      exp.expression.erase(exp.expression.begin() + add_index);
+    } else {
+      ++add_index;
+    }
+  }
+}
+
 Expression Expression::simplify_numbers() const {
   Expression simplified;
   simplified.expression.resize(expression.size());
@@ -234,14 +245,7 @@ Expression Expression::simplify_numbers() const {
     simplified.expression[add_index] = simplify_multiply(expression[add_index]);
   }
   simplify_additions(simplified);
-  for (std::size_t add_index = 0; add_index < simplified.expression.size();) {
-    if (simplified.expression[add_index].empty()) {
-      // remove empty vectors
-      simplified.expression.erase(simplified.expression.begin() + add_index);
-    } else {
-      ++add_index;
-    }
-  }
+  removeEmptyVectors(simplified);
   return simplified;
 }
 
