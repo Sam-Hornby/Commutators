@@ -6,8 +6,8 @@
 using namespace operators;
 
 TEST (printing_tests, basic_addition) {
-  Operator A("A", ordering_value(0), operator_id(0));
-  Operator B("B", ordering_value(0), operator_id(1));
+  Operator A("A", ordering_value(0), operator_info(0));
+  Operator B("B", ordering_value(0), operator_info(1));
 
   const auto exp = A + B;
   std::stringstream ss;
@@ -33,8 +33,8 @@ TEST(printing_tests, empty) {
 }
 
 TEST(printing_tests, basic_multiplication) {
-  Operator A("A", ordering_value(0), operator_id(0));
-  Operator B("B", ordering_value(0), operator_id(1));
+  Operator A("A", ordering_value(0), operator_info(0));
+  Operator B("B", ordering_value(0), operator_info(1));
 
   const auto exp = A * B;
   std::stringstream ss;
@@ -43,10 +43,10 @@ TEST(printing_tests, basic_multiplication) {
 }
 
 TEST(printing_tests, add_and_multiply) {
-  Operator A("A", ordering_value(0), operator_id(0));
-  Operator B("B", ordering_value(0), operator_id(1));
-  Operator C("C", ordering_value(0), operator_id(2));
-  Operator D("D", ordering_value(0), operator_id(3));
+  Operator A("A", ordering_value(0), operator_info(0));
+  Operator B("B", ordering_value(0), operator_info(1));
+  Operator C("C", ordering_value(0), operator_info(2));
+  Operator D("D", ordering_value(0), operator_info(3));
 
   const auto exp1 = A * B;
   const auto exp2 = C * D;
@@ -61,12 +61,12 @@ TEST(printing_tests, add_and_multiply) {
 }
 
 TEST(printing_tests, multiply_expressions) {
-  Operator A("A", ordering_value(0), operator_id(0));
-  Operator B("B", ordering_value(0), operator_id(1));
-  Operator C("C", ordering_value(0), operator_id(2));
-  Operator D("D", ordering_value(0), operator_id(3));
-  Operator E("E", ordering_value(0), operator_id(4));
-  Operator F("F", ordering_value(0), operator_id(5));
+  Operator A("A", ordering_value(0), operator_info(0));
+  Operator B("B", ordering_value(0), operator_info(1));
+  Operator C("C", ordering_value(0), operator_info(2));
+  Operator D("D", ordering_value(0), operator_info(3));
+  Operator E("E", ordering_value(0), operator_info(4));
+  Operator F("F", ordering_value(0), operator_info(5));
 
   const auto exp = (A + B + C) * ((D * F) + E);
 

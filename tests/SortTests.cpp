@@ -24,11 +24,11 @@ static void random_sort_test(const unsigned seed, const std::size_t n, const int
     reference.push_back((randomEngine() % mod) + min);
   }
 
-  Operator A(std::to_string(reference[0]), ordering_value(reference[0]), operator_id(reference[0]));
-  Operator B(std::to_string(reference[1]), ordering_value(reference[1]), operator_id(reference[1]));
+  Operator A(std::to_string(reference[0]), ordering_value(reference[0]), operator_info(reference[0]));
+  Operator B(std::to_string(reference[1]), ordering_value(reference[1]), operator_info(reference[1]));
   Expression exp = A * B;
   for (unsigned i = 2; i < reference.size(); ++i) {
-    exp = exp * Operator(std::to_string(reference[i]), ordering_value(reference[i]), operator_id(reference[i]));
+    exp = exp * Operator(std::to_string(reference[i]), ordering_value(reference[i]), operator_info(reference[i]));
   }
 
   for (unsigned i = 0; i < reference.size(); ++i) {
@@ -40,7 +40,7 @@ static void random_sort_test(const unsigned seed, const std::size_t n, const int
 
   for (unsigned i = 0; i < reference.size(); ++i) {
     EXPECT_EQ(new_exp.expression[0][i].order.value, reference[i]);
-    EXPECT_EQ(new_exp.expression[0][i].order.value, new_exp.expression[0][i].id.value);
+    EXPECT_EQ(new_exp.expression[0][i].order.value, new_exp.expression[0][i].info.value);
   }
 }
 
@@ -58,10 +58,10 @@ static void random_multiply_and_addition(const unsigned seed) {
 
   Expression exp;
   for (const auto & vec : reference) {
-    Expression mul_term =  Operator(std::to_string(vec[0]), ordering_value(vec[0]), operator_id(vec[0]))
-                           * Operator(std::to_string(vec[1]), ordering_value(vec[1]), operator_id(vec[1]));
+    Expression mul_term =  Operator(std::to_string(vec[0]), ordering_value(vec[0]), operator_info(vec[0]))
+                           * Operator(std::to_string(vec[1]), ordering_value(vec[1]), operator_info(vec[1]));
     for (unsigned j = 2; j < vec.size(); ++j) {
-      mul_term = mul_term * Operator(std::to_string(vec[j]), ordering_value(vec[j]), operator_id(vec[j]));
+      mul_term = mul_term * Operator(std::to_string(vec[j]), ordering_value(vec[j]), operator_info(vec[j]));
     }
     exp = exp + mul_term;
   }
@@ -80,7 +80,7 @@ static void random_multiply_and_addition(const unsigned seed) {
   for (unsigned i = 0; i < reference.size(); ++i) {
     for (unsigned j = 0; j < reference[i].size(); ++j) {
       EXPECT_EQ(new_exp.expression[i][j].order.value, reference[i][j]);
-      EXPECT_EQ(new_exp.expression[i][j].order.value, new_exp.expression[i][j].id.value);
+      EXPECT_EQ(new_exp.expression[i][j].order.value, new_exp.expression[i][j].info.value);
     }
   }
 }
@@ -95,7 +95,7 @@ TEST(sort_tests, empty) {
 
 TEST(sort_tests, one) {
   Expression exp;
-  Operator A("A", ordering_value(0), operator_id(0));
+  Operator A("A", ordering_value(0), operator_info(0));
   exp.expression.resize(3);
   exp.expression[0].push_back(A);
   auto new_exp = exp.sort(commute_all);
@@ -105,7 +105,7 @@ TEST(sort_tests, one) {
 }
 
 TEST(sort_tests, number) {
-  auto exp = Operator("A", ordering_value(0), operator_id(0)) * Operator(3);
+  auto exp = Operator("A", ordering_value(0), operator_info(0)) * Operator(3);
   exp = exp.sort(commute_all);
   std::stringstream ss;
   exp.print(ss);

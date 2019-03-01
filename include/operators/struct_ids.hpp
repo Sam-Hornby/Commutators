@@ -3,17 +3,17 @@
 
 namespace operators {
 
-struct operator_id {
+struct operator_info {
   int value;
 
-  operator_id(int value) : value(value) {}
-  operator_id() = default;
+  operator_info(int value) : value(value) {}
+  operator_info() = default;
 
-  bool operator==(operator_id other) const {
+  bool operator==(operator_info other) const {
     return value == other.value;
   }
 
-  bool operator!=(operator_id other) const {
+  bool operator!=(operator_info other) const {
     return value != other.value;
   }
 };

@@ -34,8 +34,8 @@ TEST(number_tests, two_numbers) {
 
 
 TEST(number_tests, operators_and_numbers) {
-  Expression exp = Operator("A", ordering_value(0), operator_id(0)) * Operator(4) *
-                    Operator("B", ordering_value(0), operator_id(0)) * Operator(9);
+  Expression exp = Operator("A", ordering_value(0), operator_info(0)) * Operator(4) *
+                    Operator("B", ordering_value(0), operator_info(0)) * Operator(9);
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
@@ -43,8 +43,8 @@ TEST(number_tests, operators_and_numbers) {
 }
 
 TEST(number_tests, operator_and_1) {
-  auto exp = Operator("A", ordering_value(0), operator_id(0)) * Operator(1)
-             * Operator("B", ordering_value(0), operator_id(0));
+  auto exp = Operator("A", ordering_value(0), operator_info(0)) * Operator(1)
+             * Operator("B", ordering_value(0), operator_info(0));
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
@@ -61,8 +61,8 @@ TEST(number_tests, single_one) {
 }
 
 TEST(number_tests, zero) {
-  Expression exp = Operator("A", ordering_value(0), operator_id(0)) * Operator(0) *
-                    Operator("B", ordering_value(0), operator_id(0)) * Operator(9);
+  Expression exp = Operator("A", ordering_value(0), operator_info(0)) * Operator(0) *
+                    Operator("B", ordering_value(0), operator_info(0)) * Operator(9);
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
@@ -71,7 +71,7 @@ TEST(number_tests, zero) {
 
 TEST(number_tests, addition_and_multiply) {
   Expression exp;
-  const auto A = Operator("A", ordering_value(0), operator_id(0));
+  const auto A = Operator("A", ordering_value(0), operator_info(0));
   exp = exp + A + (Operator(0) * A) + (A * Operator(1) * A) + (A * A * A);
   exp = exp.simplify_numbers();
   std::stringstream ss;
@@ -88,7 +88,7 @@ TEST(number_tests, addition) {
 }
 
 TEST(number_tests, opperator_addition) {
-  Operator A("A", ordering_value(0), operator_id(0));
+  Operator A("A", ordering_value(0), operator_info(0));
   Expression exp = A + A;
   exp = exp.simplify_numbers();
   std::stringstream ss;
@@ -97,7 +97,7 @@ TEST(number_tests, opperator_addition) {
 }
 
 TEST(number_tests, opperator_addition_multiply) {
-  Operator A("A", ordering_value(0), operator_id(0));
+  Operator A("A", ordering_value(0), operator_info(0));
   Expression exp = (A * Operator(2)) + A;
   exp = exp.simplify_numbers();
   std::stringstream ss;
@@ -106,8 +106,8 @@ TEST(number_tests, opperator_addition_multiply) {
 }
 
 TEST(number_tests, opperator_addition_multiply_2) {
-  Operator A("A", ordering_value(0), operator_id(0));
-  Operator B("B", ordering_value(0), operator_id(1));
+  Operator A("A", ordering_value(0), operator_info(0));
+  Operator B("B", ordering_value(0), operator_info(1));
   Expression exp = (A * B * Operator(2)) + (Operator(6) * A * B);
   exp = exp.simplify_numbers();
   std::stringstream ss;
@@ -116,8 +116,8 @@ TEST(number_tests, opperator_addition_multiply_2) {
 }
 
 TEST(number_tests, opperator_addition_multiply_3) {
-  Operator A("A", ordering_value(0), operator_id(0));
-  Operator B("B", ordering_value(0), operator_id(1));
+  Operator A("A", ordering_value(0), operator_info(0));
+  Operator B("B", ordering_value(0), operator_info(1));
   Expression exp = (A * B * Operator(2)) + (Operator(6) * B * A);
   exp = exp.simplify_numbers();
   std::stringstream ss;
@@ -126,8 +126,8 @@ TEST(number_tests, opperator_addition_multiply_3) {
 }
 
 TEST(number_tests, opperator_addition_multiply_4) {
-  Operator A("A", ordering_value(0), operator_id(0));
-  Operator B("B", ordering_value(0), operator_id(1));
+  Operator A("A", ordering_value(0), operator_info(0));
+  Operator B("B", ordering_value(0), operator_info(1));
   Expression exp = (A * B * Operator(2))
                     + (A * B * Operator(0))
                     + (B * A * Operator(1))

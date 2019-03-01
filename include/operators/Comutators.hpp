@@ -20,9 +20,9 @@ inline Expression numeric_commutator(const int n) {
                                                       ));
 }
 // if the commutator of 2 operatos is another operator return this
-inline Expression operator_commutator(std::string name, const ordering_value order, const operator_id id) {
+inline Expression operator_commutator(std::string name, const ordering_value order, const operator_info info) {
   return Expression(std::vector<std::vector<Operator>>(1,
-                                                       std::vector<Operator>(1, Operator(name, order, id))
+                                                       std::vector<Operator>(1, Operator(name, order, info))
                                                       ));
 }
 
@@ -45,7 +45,7 @@ Expression commute_all(const Operator &, const Operator &) {
 
 Expression commute_none_(const Operator & A, const Operator & B) {
   std::string com = "[" + A.name + ", " + B.name + "]";
-  return operator_commutator(std::move(com), ordering_value(0), operator_id(0));
+  return operator_commutator(std::move(com), ordering_value(0), operator_info(0));
 }
 
 Expression commute_none(const Operator & A, const Operator & B) {
