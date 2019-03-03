@@ -3,10 +3,20 @@
 
 namespace operators {
 
+enum class Type {
+  STATE_VECTOR,   // eg |0>
+  HC_STATE_VECTOR,  // eg <0|
+  CREATION_OPERATOR,  // fock space creation operator
+  ANIHILATION_OPERATOR,  // fock space anihilation operator (hc of creation)
+  UNSPECIFIED,  // all other operators
+};
+
 struct operator_info {
   int value;
+  Type type = Type::UNSPECIFIED;
 
   operator_info(int value) : value(value) {}
+  operator_info(int value, Type type) : value(value), type(type) {}
   operator_info() = default;
 
   bool operator==(operator_info other) const {

@@ -1,0 +1,51 @@
+#ifndef _substitutions_hpp_
+#define _substitutions_hpp_
+
+#include "Operator.hpp"
+#include "Utils.hpp"
+#include <vector>
+
+namespace operators {
+
+// substitution functions take two iterators, one where to start looking for pattern from and the other
+// the end of the sequence. If they find a pattern they must replace terms with new terms and delete and extra.
+// If they find a pattern they must also return true, otherwise return false
+
+
+// When replacement expression is smaller than what is being substituted is useful to set excess operators to 1 and then
+// adter the substitution phase call simplify numbers to remove them
+void set_to_one(std::vector<Operator>::iterator it, const std::size_t n) {
+  for (std::size_t i = 0; i < n; ++i) {
+    *(it + i) = Operator(1);
+  }
+}
+
+
+// if every state in the expression is orthognal (and you are not generating any new ones) can zero all inner products
+// between different states and set to one inner product of identical states. Assumes that the value of the operator
+// info is used to show the state
+bool all_states_orthognal(std::vector<Operator>::iterator start, std::vector<Operator> & exp) {
+  if (is_hc_state_vector(*start)) {
+    const auto value = start->info.value;
+    if ((start + 1) != exp.end() and is_state_vector(*(start + 1))) {
+      if ((start + 1)->info.value == value) {
+        *start = Operator(1);
+        set_to_one(start + 1, 1);
+      } else {
+        *start = Operator(0);
+        set_to_one(start + 1, 1);
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
+bool no_subs(std::vector<Operator>::iterator, std::vector<Operator> &) {
+  return false;
+}
+
+} // end name splace
+
+
+#endif

@@ -253,4 +253,43 @@ Expression Expression::simplify_numbers() const {
 //----------------------------------------------------------------------------------------------------------------------
 
 
+//----------------------------------------------------------------------------------------------------------------------
+// perform substitutions zone
+//----------------------------------------------------------------------------------------------------------------------
+
+static bool bubbleSubs(std::vector<Operator> &exp,
+                       std::function<bool(std::vector<Operator>::iterator,
+                                          std::vector<Operator> &)> subst) {
+  bool madeSub = false;
+  for (auto it = exp.begin(); it != exp.end(); ++it) {
+    if (subst(it, exp)) {
+      madeSub = true;
+    }
+  }
+  return madeSub;
+}
+
+static std::vector<Operator>
+performMulSubs(const std::vector<Operator> & term,
+              std::function<bool(std::vector<Operator>::iterator,
+                                 std::vector<Operator> &)> subst) {
+  std::vector<Operator> exp = term;
+  while(bubbleSubs(exp, subst));
+  return exp;
+}
+
+Expression Expression::performMultiplicationSubstitutions(
+                  std::function<bool(std::vector<Operator>::iterator,
+                                     std::vector<Operator> &)> subst) const {
+  Expression final_exp(std::vector<std::vector<Operator>>(expression.size()));
+  for (unsigned i = 0; i < expression.size(); ++i) {
+    final_exp.expression[i] = performMulSubs(expression[i], subst);
+  }
+  return final_exp;
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
 } // end name space operators

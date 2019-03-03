@@ -18,8 +18,12 @@ class Expression {
 public:
   std::vector<std::vector<Operator>> expression;  // terms in inner vectors are considered multiplied, outer added
   void print(std::ostream & out = std::cout) const;   // print the expression
-  Expression sort(std::function<Expression(const Operator &, const Operator &)> commute) const;
-  Expression simplify_numbers() const;
+  Expression sort(std::function<Expression(const Operator &, const Operator &)> commute) const; // order expresion
+  Expression simplify_numbers() const;  // combine numbers and remove zeros
+  // substitute a sequence of multiplications for return value of subst function, empty optional denotes no substitution
+  Expression performMultiplicationSubstitutions(
+                  std::function<bool(std::vector<Operator>::iterator,
+                                     std::vector<Operator> &)> subst) const;
   Expression(std::vector<std::vector<Operator>> expression) : expression(expression) {};
   Expression() = default;
 
