@@ -41,6 +41,21 @@ bool all_states_orthognal(std::vector<Operator>::iterator start, std::vector<Ope
   return false;
 }
 
+// assumes the the value of operator_info for the vacuum state and its hc is 0
+bool anihilate_vacuum(std::vector<Operator>::iterator start, std::vector<Operator> & exp) {
+  if (start + 1 == exp.end()) {
+    return false;
+  }
+  bool anihilate_hc = is_hc_state_vector(*start) and start->info.value == 0 and is_creation_op(*(start + 1));
+  bool anihilate_st = is_anihilation_op(*start) and is_state_vector(*(start + 1)) and (start + 1)->info.value == 0;
+  if (anihilate_hc or anihilate_st) {
+    *start = Operator(0);
+    set_to_one(start + 1, 1);
+    return true;
+  }
+  return false;
+}
+
 bool no_subs(std::vector<Operator>::iterator, std::vector<Operator> &) {
   return false;
 }

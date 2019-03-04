@@ -10,6 +10,17 @@ inline Operator vacuum_state() {
   return Operator("|0>", ordering_value(0), operator_info(0, Type::STATE_VECTOR));
 }
 
+inline Operator creation_op(const int info_value) {
+  return Operator("a_" + std::to_string(info_value), ordering_value(0),
+                  operator_info(info_value, Type::CREATION_OPERATOR));
+}
+
+inline Operator anihilation_op(const int info_value) {
+  return Operator("a!_" + std::to_string(info_value), ordering_value(0),
+                  operator_info(info_value, Type::ANIHILATION_OPERATOR));
+}
+
+
 Operator hermition_conjugate(const Operator & op) {
   auto type = op.info.type;
   if (type == Type::STATE_VECTOR) {

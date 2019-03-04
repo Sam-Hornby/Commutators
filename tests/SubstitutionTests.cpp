@@ -78,3 +78,19 @@ TEST(substitution_tests, op_and_state) {
   exp2.print(ss1);
   ASSERT_EQ(ss1.str(), "(|0>_dag * A)\n");
 }
+
+TEST(substitution_tests, destroy_vacuum) {
+  auto exp = anihilation_op(0) * vacuum_state();
+  exp = exp.performMultiplicationSubstitutions(anihilate_vacuum);
+  exp = exp.simplify_numbers();
+  std::stringstream ss;
+  exp.print(ss);
+  ASSERT_EQ(ss.str(), "\n");
+
+  exp = hermition_conjugate(vacuum_state()) * creation_op(0);
+  exp = exp.performMultiplicationSubstitutions(anihilate_vacuum);
+  exp = exp.simplify_numbers();
+  std::stringstream ss1;
+  exp.print(ss1);
+  ASSERT_EQ(ss1.str(), "\n");
+}
