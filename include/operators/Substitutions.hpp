@@ -13,7 +13,7 @@ namespace operators {
 
 
 // When replacement expression is smaller than what is being substituted is useful to set excess operators to 1 and then
-// adter the substitution phase call simplify numbers to remove them
+// after the substitution phase call simplify numbers to remove them
 void set_to_one(std::vector<Operator>::iterator it, const std::size_t n) {
   for (std::size_t i = 0; i < n; ++i) {
     *(it + i) = Operator(1);
@@ -57,6 +57,21 @@ bool anihilate_vacuum(std::vector<Operator>::iterator start, std::vector<Operato
 }
 
 bool no_subs(std::vector<Operator>::iterator, std::vector<Operator> &) {
+  return false;
+}
+
+bool fermion_dual_occupation(std::vector<Operator>::iterator start, std::vector<Operator> & exp) {
+  // for fermions a * a = 0 and a! * a! = 0 (from fact anti comutator is zero)
+  if (start + 1 == exp.end()) {
+    return false;
+  }
+  bool ani = is_anihilation_op(*start) and is_anihilation_op(*(start + 1));
+  bool cre = is_creation_op(*start) and is_creation_op(*(start + 1));
+  if ((ani or cre) and start->info.value == (start+1)->info.value) {
+    *start = Operator(0);
+    set_to_one(start + 1, 1);
+    return true;
+  }
   return false;
 }
 

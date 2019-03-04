@@ -11,12 +11,12 @@ inline Operator vacuum_state() {
 }
 
 inline Operator creation_op(const int info_value) {
-  return Operator("a_" + std::to_string(info_value), ordering_value(0),
+  return Operator("a!_" + std::to_string(info_value), ordering_value(0),
                   operator_info(info_value, Type::CREATION_OPERATOR));
 }
 
 inline Operator anihilation_op(const int info_value) {
-  return Operator("a!_" + std::to_string(info_value), ordering_value(0),
+  return Operator("a_" + std::to_string(info_value), ordering_value(0),
                   operator_info(info_value, Type::ANIHILATION_OPERATOR));
 }
 
@@ -51,7 +51,7 @@ bool is_anihilation_op(const Operator & A) {
   return A.info.type == Type::ANIHILATION_OPERATOR;
 }
 
-bool is_unspecified(const Operator & A) {
+bool is_unspecified_op(const Operator & A) {
   return A.info.type == Type::UNSPECIFIED;
 }
 

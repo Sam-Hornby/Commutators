@@ -13,6 +13,12 @@ TEST(substitution_tests, empty) {
   std::stringstream ss;
   exp.print(ss);
   ASSERT_EQ(ss.str(), "\n");
+
+  exp.expression = std::vector<std::vector<Operator>>(3);
+  exp = exp.performMultiplicationSubstitutions(all_states_orthognal);
+  std::stringstream ss1;
+  exp.print(ss1);
+  ASSERT_EQ(ss1.str(), "\n");
 }
 
 TEST(substitution_tests, no_subs) {
@@ -87,10 +93,45 @@ TEST(substitution_tests, destroy_vacuum) {
   exp.print(ss);
   ASSERT_EQ(ss.str(), "\n");
 
-  exp = hermition_conjugate(vacuum_state()) * creation_op(0);
+  exp = hermition_conjugate(vacuum_state()) * creation_op(0) * vacuum_state();
   exp = exp.performMultiplicationSubstitutions(anihilate_vacuum);
   exp = exp.simplify_numbers();
   std::stringstream ss1;
   exp.print(ss1);
   ASSERT_EQ(ss1.str(), "\n");
+
+  exp = creation_op(1) * vacuum_state();
+  exp = exp.performMultiplicationSubstitutions(anihilate_vacuum);
+  exp = exp.simplify_numbers();
+  std::stringstream ss2;
+  exp.print(ss2);
+  ASSERT_EQ(ss2.str(), "(a!_1 * |0>)\n");
+
+  exp = hermition_conjugate(vacuum_state()) * anihilation_op(1);
+  exp = exp.performMultiplicationSubstitutions(anihilate_vacuum);
+  exp = exp.simplify_numbers();
+  std::stringstream ss3;
+  exp.print(ss3);
+  ASSERT_EQ(ss3.str(), "(|0>_dag * a_1)\n");
+}
+
+TEST(substitution_tests, destroy_fermions) {
+  auto exp = anihilation_op(1) * anihilation_op(1) * creation_op(1) * vacuum_state();
+  exp = exp.performMultiplicationSubstitutions(fermion_dual_occupation);
+  exp = exp.simplify_numbers();
+  std::stringstream ss;
+  exp.print(ss);
+  ASSERT_EQ(ss.str(), "\n");
+
+  exp = anihilation_op(1) * anihilation_op(2) * creation_op(1) * vacuum_state();
+  exp = exp.performMultiplicationSubstitutions(fermion_dual_occupation);
+  exp = exp.simplify_numbers();
+  std::stringstream ss1;
+  exp.print(ss1);
+  ASSERT_EQ(ss1.str(), "(a_1 * a_2 * a!_1 * |0>)\n");
+}
+
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
