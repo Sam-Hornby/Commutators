@@ -108,21 +108,32 @@ static void add_terms_from_comutator(std::vector<std::vector<Operator>> &sorted_
 
 static bool bubble_pass(const std::size_t term_index,
                         std::vector<std::vector<Operator>> & sorted_terms,
-                        std::function<Expression(const Operator &, const Operator &)> commute) {
+                        std::function<Expression(const Operator &, const Operator &)> commute,
+                        const SortUsing sortUsing) {
   bool swap_performed = false;
+  int sign = 1;
   for (std::size_t i = 0; i < sorted_terms[term_index].size() - 1; ++i) { // should this really be using term
     if (sorted_terms[term_index][i] > sorted_terms[term_index][i+1]) {
       const auto comutator = commute(sorted_terms[term_index][i], sorted_terms[term_index][i+1]);
       add_terms_from_comutator(sorted_terms, comutator, term_index, i);
       std::swap(sorted_terms[term_index][i], sorted_terms[term_index][i+1]);
+      if (sortUsing == SortUsing::ANTICOMMUTATORS) {
+        if (!(sorted_terms[term_index][i].is_number() or sorted_terms[term_index][i+1].is_number())) {
+          sign = sign * -1;
+        }
+      }
       swap_performed = true;
     }
+  }
+  if (sortUsing == SortUsing::ANTICOMMUTATORS and sign == -1) {
+    sorted_terms[term_index].insert(sorted_terms[term_index].begin(), Operator(-1));
   }
   return swap_performed;
 }
 
-Expression Expression::sort_multiply_term(const std::vector<Operator> & term,
-                                          std::function<Expression(const Operator &, const Operator &)> commute) const {
+static Expression sort_multiply_term(const std::vector<Operator> & term,
+                                          std::function<Expression(const Operator &, const Operator &)> commute,
+                                          const SortUsing sortUsing) {
   Expression sorted_terms(std::vector<std::vector<Operator>>(1));
   sorted_terms.expression[0] = term;
   for (std::size_t i = 0; i < sorted_terms.expression.size(); ++i) {
@@ -130,16 +141,17 @@ Expression Expression::sort_multiply_term(const std::vector<Operator> & term,
     if (sorted_terms.expression[i].empty()) {
       continue;
     }
-    while(bubble_pass(i, sorted_terms.expression, commute));
+    while(bubble_pass(i, sorted_terms.expression, commute, sortUsing));
   }
   return sorted_terms;
 }
 
-Expression Expression::sort(std::function<Expression(const Operator &, const Operator &)> commute) const {
+Expression Expression::sort(std::function<Expression(const Operator &, const Operator &)> commute,
+                            const SortUsing sortUsing) const {
   // addition is assumed to always be comutative
   Expression sorted_expression;
   for (std::size_t add_index = 0; add_index < expression.size(); ++add_index) {
-    const auto sorted_terms = sort_multiply_term(expression[add_index], commute);
+    const auto sorted_terms = sort_multiply_term(expression[add_index], commute, sortUsing);
     sorted_expression.expression.insert(sorted_expression.expression.end(),
                                         sorted_terms.expression.begin(),
                                         sorted_terms.expression.end());
@@ -290,6 +302,18 @@ Expression Expression::performMultiplicationSubstitutions(
 
 
 //----------------------------------------------------------------------------------------------------------------------
+
+Expression Expression::evaluate(std::function<Expression(const Operator &, const Operator &)> commute,
+                            std::function<bool(std::vector<Operator>::iterator, std::vector<Operator> &)> subst) const {
+  // simplify numbers is much faster than the other functions and can make the the other functions run faster so call
+  // it frequently
+  auto exp = simplify_numbers();
+  exp = exp.sort(commute);
+  exp = exp.simplify_numbers();
+  exp = exp.performMultiplicationSubstitutions(subst);
+  exp = exp.simplify_numbers();
+  return exp;
+}
 
 
 } // end name space operators

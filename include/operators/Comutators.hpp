@@ -38,11 +38,16 @@ Expression commute_numbers(const Operator & A, const Operator & B,
   }
   return commute(A, B);
 }
+
+// Commute all
+// ---------------------------------------------------------------------------------------------------------------------
 // every operator is comutative
 Expression commute_all(const Operator &, const Operator &) {
   return zero_commutator();
 }
 
+// Commute none
+// ---------------------------------------------------------------------------------------------------------------------
 Expression commute_none_(const Operator & A, const Operator & B) {
   std::string com = "[" + A.name + ", " + B.name + "]";
   return operator_commutator(std::move(com), ordering_value(0), operator_info(0));
@@ -51,6 +56,18 @@ Expression commute_none_(const Operator & A, const Operator & B) {
 Expression commute_none(const Operator & A, const Operator & B) {
   return commute_numbers(A, B, commute_none_);
 }
+
+// Anti commute none
+// ---------------------------------------------------------------------------------------------------------------------
+Expression anticommute_none_(const Operator & A, const Operator & B) {
+  std::string com = "{" + A.name + ", " + B.name + "}";
+  return operator_commutator(std::move(com), ordering_value(0), operator_info(0));
+}
+
+Expression anticommute_none(const Operator & A, const Operator & B) {
+  return commute_numbers(A, B, anticommute_none_);
+}
+// ---------------------------------------------------------------------------------------------------------------------
 
 
 

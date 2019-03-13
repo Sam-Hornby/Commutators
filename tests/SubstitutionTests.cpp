@@ -22,10 +22,10 @@ TEST(substitution_tests, empty) {
 }
 
 TEST(substitution_tests, no_subs) {
-  Operator A("A", ordering_value(-1), operator_info(-1));
-  Operator B("B", ordering_value(-1), operator_info(-1));
-  Operator C("C", ordering_value(-1), operator_info(-1));
-  Operator D("D", ordering_value(-2), operator_info(-2));
+  Operator A("A", ordering_value(-1), operator_info(0));
+  Operator B("B", ordering_value(-1), operator_info(1));
+  Operator C("C", ordering_value(-1), operator_info(2));
+  Operator D("D", ordering_value(-2), operator_info(3));
 
   Expression exp = A * B * C * D;
 
@@ -34,6 +34,34 @@ TEST(substitution_tests, no_subs) {
   std::stringstream ss;
   exp.print(ss);
   ASSERT_EQ(ss.str(), "(A * B * C * D)\n");
+}
+
+static bool test_sub(std::vector<Operator>::iterator start, std::vector<Operator> & exp) {
+  if (start + 1 == exp.end()) {
+    return false;
+  }
+  if (start->info.value == 0 and (start + 1)->info.value == 1) {
+     *start = Operator("C", ordering_value(-1), operator_info(-1));
+     set_to_one(start + 1, 1);
+     return true;
+  }
+  return false;
+}
+
+TEST(substitution_tests, a_b_equals_c) {
+  Operator A("A", ordering_value(-1), operator_info(0));
+  Operator B("B", ordering_value(-1), operator_info(1));
+  Operator C("C", ordering_value(-1), operator_info(2));
+  Operator D("D", ordering_value(-2), operator_info(3));
+
+  Expression exp = A * B * C * D;
+
+  exp = exp.performMultiplicationSubstitutions(test_sub);
+  exp = exp.simplify_numbers();
+
+  std::stringstream ss;
+  exp.print(ss);
+  ASSERT_EQ(ss.str(), "(C * C * D)\n");
 }
 
 TEST(substitution_tests, equal_states) {

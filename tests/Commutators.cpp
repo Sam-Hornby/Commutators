@@ -95,6 +95,19 @@ TEST(commutator_tests, commute_and_addition) {
   ASSERT_EQ(ss.str(), "(B * A) + ([A, B]) + (D * C) + ([C, D])\n");
 }
 
+TEST(anti_commutator_tests, commute_two) {
+  Operator A("A", ordering_value(1), operator_info(1));
+  Operator B("B", ordering_value(-1), operator_info(-1));
+
+  auto exp = A * B;
+  exp = exp.sort(anticommute_none, SortUsing::ANTICOMMUTATORS);
+
+  std::stringstream ss;
+  exp.print(ss);
+  ASSERT_EQ(ss.str(), "(-1 * B * A) + ({A, B})\n");
+}
+
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
