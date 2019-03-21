@@ -7,8 +7,9 @@
 
 namespace operators {
 
-// substitution functions take two iterators, one where to start looking for pattern from and the other
-// the end of the sequence. If they find a pattern they must replace terms with new terms and delete and extra.
+// substitution functions take an iterator and the vector, the it is where to start looking for pattern from and the
+// vector gives the end of the sequence and if subsituting in a longer expression then for insertions.
+// If they find a pattern they must replace terms with new terms and insert any extra.
 // If they find a pattern they must also return true, otherwise return false
 
 
