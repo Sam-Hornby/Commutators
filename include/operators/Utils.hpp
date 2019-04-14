@@ -3,6 +3,7 @@
 
 #include "Operator.hpp"
 #include "struct_ids.hpp"
+#include "Expression.hpp"
 
 namespace operators {
 
@@ -33,6 +34,17 @@ Operator hermition_conjugate(const Operator & op) {
     type = Type::CREATION_OPERATOR;
   }
   return Operator(op.name + "_dag", op.order, operator_info(op.info.value, type));
+}
+
+Expression hermition_conjugate(const Expression & exp) {
+  Expression new_exp;
+  new_exp.expression.resize(exp.expression.size());
+  for (unsigned i = 0; i < new_exp.expression.size(); ++i) {
+    for (int j = exp.expression[i].size() - 1; j >= 0; --j) {
+      new_exp.expression[i].push_back(hermition_conjugate(exp.expression[i][j]));
+    }
+  }
+  return new_exp;
 }
 
 bool is_state_vector(const Operator & A) {

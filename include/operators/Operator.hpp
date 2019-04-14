@@ -17,7 +17,7 @@ struct Operator {
 
   Operator() = default;
   Operator(std::string name, ordering_value order, operator_info info) : name(name), order(order), info(info) {}
-  Operator(int v) : info(operator_info(777777)), order(ordering_value(-7777)) {
+  Operator(int v) : info(operator_info(~0)), order(ordering_value(std::numeric_limits<int>::min())) {
     value = v;
     name = std::to_string(v);
   }
@@ -43,8 +43,9 @@ struct Operator {
   }
 
   //Expression operator+(const Operator & A) const;
-
 };
+
+Operator number(const int n);
 
 } // end namespace
 

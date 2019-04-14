@@ -22,5 +22,9 @@ Expression operator*(const Operator & A, const Operator & B) {
   return exp;
 }
 
+Operator number(const int n) {
+  return Operator(n);
+}
+
 
 } // end namespace

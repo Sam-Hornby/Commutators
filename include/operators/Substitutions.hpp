@@ -76,7 +76,7 @@ bool fermion_dual_occupation(std::vector<Operator>::iterator start, std::vector<
   return false;
 }
 
-} // end name splace
+} // end name space
 
 
 #endif
