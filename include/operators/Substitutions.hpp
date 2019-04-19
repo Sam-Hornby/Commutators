@@ -17,7 +17,7 @@ namespace operators {
 // after the substitution phase call simplify numbers to remove them
 void set_to_one(std::vector<Operator>::iterator it, const std::size_t n) {
   for (std::size_t i = 0; i < n; ++i) {
-    *(it + i) = Operator(1);
+    *(it + i) = Operator(1.0);
   }
 }
 

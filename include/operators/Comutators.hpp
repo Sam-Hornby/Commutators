@@ -14,7 +14,7 @@ inline Expression zero_commutator() {
                                                       ));
 }
 // If the commutator of 2 operators is a number return this
-inline Expression numeric_commutator(const int n) {
+inline Expression numeric_commutator(const double n) {
   return Expression(std::vector<std::vector<Operator>>(1,
                                                        std::vector<Operator>(1, Operator(n))
                                                       ));

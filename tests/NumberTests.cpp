@@ -21,7 +21,7 @@ TEST(number_tests, single) {
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(5)\n");
+  ASSERT_EQ(ss.str(), "(5.000000)\n");
 }
 
 TEST(number_tests, two_numbers) {
@@ -29,7 +29,7 @@ TEST(number_tests, two_numbers) {
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(35)\n");
+  ASSERT_EQ(ss.str(), "(35.000000)\n");
 }
 
 
@@ -39,7 +39,7 @@ TEST(number_tests, operators_and_numbers) {
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(36 * A * B)\n");
+  ASSERT_EQ(ss.str(), "(36.000000 * A * B)\n");
 }
 
 TEST(number_tests, operator_and_1) {
@@ -57,7 +57,7 @@ TEST(number_tests, single_one) {
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(1)\n");
+  ASSERT_EQ(ss.str(), "(1.000000)\n");
 }
 
 TEST(number_tests, zero) {
@@ -84,7 +84,7 @@ TEST(number_tests, addition) {
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(13)\n");
+  ASSERT_EQ(ss.str(), "(13.000000)\n");
 }
 
 TEST(number_tests, opperator_addition) {
@@ -93,7 +93,7 @@ TEST(number_tests, opperator_addition) {
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(2 * A)\n");
+  ASSERT_EQ(ss.str(), "(2.000000 * A)\n");
 }
 
 TEST(number_tests, opperator_addition_multiply) {
@@ -102,7 +102,7 @@ TEST(number_tests, opperator_addition_multiply) {
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(3 * A)\n");
+  ASSERT_EQ(ss.str(), "(3.000000 * A)\n");
 }
 
 TEST(number_tests, opperator_addition_multiply_2) {
@@ -112,7 +112,7 @@ TEST(number_tests, opperator_addition_multiply_2) {
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(8 * A * B)\n");
+  ASSERT_EQ(ss.str(), "(8.000000 * A * B)\n");
 }
 
 TEST(number_tests, opperator_addition_multiply_3) {
@@ -122,7 +122,7 @@ TEST(number_tests, opperator_addition_multiply_3) {
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(2 * A * B) + (6 * B * A)\n");
+  ASSERT_EQ(ss.str(), "(2.000000 * A * B) + (6.000000 * B * A)\n");
 }
 
 TEST(number_tests, opperator_addition_multiply_4) {
@@ -135,7 +135,7 @@ TEST(number_tests, opperator_addition_multiply_4) {
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(8 * A * B) + (B * A)\n");
+  ASSERT_EQ(ss.str(), "(8.000000 * A * B) + (B * A)\n");
 }
 
 

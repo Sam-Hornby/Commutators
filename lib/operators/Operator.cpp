@@ -22,7 +22,7 @@ Expression operator*(const Operator & A, const Operator & B) {
   return exp;
 }
 
-Operator number(const int n) {
+Operator number(const double n) {
   return Operator(n);
 }
 

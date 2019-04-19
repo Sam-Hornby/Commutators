@@ -109,7 +109,7 @@ TEST(sort_tests, number) {
   exp = exp.sort(commute_all);
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(3 * A)\n");
+  ASSERT_EQ(ss.str(), "(3.000000 * A)\n");
 }
 
 class RandomSortTest : public ::testing::TestWithParam<unsigned> {

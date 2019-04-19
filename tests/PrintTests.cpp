@@ -2,6 +2,7 @@
 #include "Expression.hpp"
 #include "Operator.hpp"
 #include <sstream>
+#include <iomanip>
 
 using namespace operators;
 
@@ -29,7 +30,7 @@ TEST(printing_tests, empty) {
   exp.expression[0].push_back(Operator(5));
   std::stringstream ss3;
   exp.print(ss3);
-  ASSERT_EQ(ss3.str(), "(5)\n");
+  ASSERT_EQ(ss3.str(), "(5.000000)\n");
 }
 
 TEST(printing_tests, basic_multiplication) {

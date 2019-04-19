@@ -11,7 +11,7 @@ TEST(commutator_tests, numbers) {
   exp = exp.sort(commute_none);
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(8 * A)\n");
+  ASSERT_EQ(ss.str(), "(8.000000 * A)\n");
 }
 
 TEST(commutator_tests, commute_two) {
@@ -62,7 +62,8 @@ TEST(commutator_tests, commute_three_number) {
 
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(2 * B * C * A) + (2 * C * [A, B]) + (2 * B * [A, C]) + (2 * [[A, B], C])\n");
+  ASSERT_EQ(ss.str(), "(2.000000 * B * C * A) + (2.000000 * C * [A, B]) "
+                      "+ (2.000000 * B * [A, C]) + (2.000000 * [[A, B], C])\n");
 }
 
 TEST(commutator_tests, commute_four) {
@@ -104,7 +105,7 @@ TEST(anti_commutator_tests, commute_two) {
 
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(-1 * B * A) + ({A, B})\n");
+  ASSERT_EQ(ss.str(), "(-1.000000 * B * A) + ({A, B})\n");
 }
 
 

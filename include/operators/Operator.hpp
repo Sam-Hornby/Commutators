@@ -13,11 +13,11 @@ struct Operator {
   ordering_value order;  // when sorting this determines greater than or equal to
   operator_info info;     // should be unique for each operator TODO make const
   // if this is set operator is a number, comutators are automatically assumed zero, op_id is irelevant
-  boost::optional<int> value;
+  boost::optional<double> value;
 
   Operator() = default;
   Operator(std::string name, ordering_value order, operator_info info) : name(name), order(order), info(info) {}
-  Operator(int v) : info(operator_info(~0)), order(ordering_value(std::numeric_limits<int>::min())) {
+  Operator(double v) : info(operator_info(~0)), order(ordering_value(std::numeric_limits<int>::min())) {
     value = v;
     name = std::to_string(v);
   }
@@ -45,7 +45,7 @@ struct Operator {
   //Expression operator+(const Operator & A) const;
 };
 
-Operator number(const int n);
+Operator number(const double n);
 
 } // end namespace
 

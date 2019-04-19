@@ -2,6 +2,11 @@
 //#include "Operator.hpp"
 #include "Expression.hpp"
 #include <algorithm>
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
+#include <sstream>
+
 
 namespace operators {
 
@@ -313,15 +318,37 @@ Expression Expression::performMultiplicationSubstitutions(
 
 //----------------------------------------------------------------------------------------------------------------------
 
+static void log_expression(spdlog::logger & logger, const Expression & exp, const std::string & prefix) {
+  std::stringstream loggingStream;
+  exp.print(loggingStream);
+  logger.info("After step {}: {}",prefix, loggingStream.str());
+}
+
 Expression Expression::evaluate(std::function<Expression(const Operator &, const Operator &)> commute,
                             std::function<bool(std::vector<Operator>::iterator, std::vector<Operator> &)> subst) const {
   // simplify numbers is much faster than the other functions and can make the the other functions run faster so call
   // it frequently
+
+  // Set up logging(defaults to off)
+  //-------------------------------------------------------------------------------
+  auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+  console_sink->set_level(spdlog::level::info);
+  console_sink->set_pattern("%^\033[33m[evaluate] [%l%$] %v%$");
+  spdlog::logger logger("Operators", console_sink);
+  logger.set_level(spdlog::level::off);
+  //-------------------------------------------------------------------------------
+
+  log_expression(logger, *this, "Start");
   auto exp = simplify_numbers();
+  log_expression(logger, exp, "Simplify numbers 1");
   exp = exp.sort(commute);
+  log_expression(logger, exp, "Sort");
   exp = exp.simplify_numbers();
+  log_expression(logger, exp, "Simplify numbers 2");
   exp = exp.performMultiplicationSubstitutions(subst);
+  log_expression(logger, exp, "Perform subs");
   exp = exp.simplify_numbers();
+  log_expression(logger, exp, "Simplify numbers 3");
   return exp;
 }
 

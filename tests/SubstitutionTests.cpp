@@ -68,19 +68,19 @@ TEST(substitution_tests, equal_states) {
   auto exp = hermition_conjugate(vacuum_state()) * vacuum_state();
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(|0>_dag * |0>)\n");
+  ASSERT_EQ(ss.str(), "(<0| * |0>)\n");
 
   exp = exp.performMultiplicationSubstitutions(all_states_orthognal);
 
   std::stringstream ss1;
   exp.print(ss1);
-  ASSERT_EQ(ss1.str(), "(1 * 1)\n");
+  ASSERT_EQ(ss1.str(), "(1.000000 * 1.000000)\n");
 
   exp = exp.simplify_numbers();
 
   std::stringstream ss2;
   exp.print(ss2);
-  ASSERT_EQ(ss2.str(), "(1)\n");
+  ASSERT_EQ(ss2.str(), "(1.000000)\n");
 }
 
 TEST(substitution_tests, unequal_states) {
@@ -110,7 +110,7 @@ TEST(substitution_tests, op_and_state) {
 
   std::stringstream ss1;
   exp2.print(ss1);
-  ASSERT_EQ(ss1.str(), "(|0>_dag * A)\n");
+  ASSERT_EQ(ss1.str(), "(<0| * A)\n");
 }
 
 TEST(substitution_tests, destroy_vacuum) {
@@ -133,14 +133,14 @@ TEST(substitution_tests, destroy_vacuum) {
   exp = exp.simplify_numbers();
   std::stringstream ss2;
   exp.print(ss2);
-  ASSERT_EQ(ss2.str(), "(a!_1 * |0>)\n");
+  ASSERT_EQ(ss2.str(), "(a_1! * |0>)\n");
 
   exp = hermition_conjugate(vacuum_state()) * anihilation_op(1);
   exp = exp.performMultiplicationSubstitutions(anihilate_vacuum);
   exp = exp.simplify_numbers();
   std::stringstream ss3;
   exp.print(ss3);
-  ASSERT_EQ(ss3.str(), "(|0>_dag * a_1)\n");
+  ASSERT_EQ(ss3.str(), "(<0| * a_1)\n");
 }
 
 TEST(substitution_tests, destroy_fermions) {
@@ -156,7 +156,7 @@ TEST(substitution_tests, destroy_fermions) {
   exp = exp.simplify_numbers();
   std::stringstream ss1;
   exp.print(ss1);
-  ASSERT_EQ(ss1.str(), "(a_1 * a_2 * a!_1 * |0>)\n");
+  ASSERT_EQ(ss1.str(), "(a_1 * a_2 * a_1! * |0>)\n");
 }
 
 int main(int argc, char **argv) {
