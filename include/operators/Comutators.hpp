@@ -64,7 +64,7 @@ Expression<OperatorInfo> commute_none_(const Operator<OperatorInfo> & A, const O
 
 template <class OperatorInfo>
 Expression<OperatorInfo> commute_none(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
-  return commute_numbers<OperatorInfo>(A, B, commute_none_);
+  return commute_numbers<OperatorInfo>(A, B, commute_none_<Fock1DInfo>);
 }
 
 // Anti commute none
@@ -77,7 +77,7 @@ Expression<OperatorInfo> anticommute_none_(const Operator<OperatorInfo> & A, con
 
 template <class OperatorInfo>
 Expression<OperatorInfo> anticommute_none(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
-  return commute_numbers<OperatorInfo>(A, B, anticommute_none_);
+  return commute_numbers<OperatorInfo>(A, B, anticommute_none_<Fock1DInfo>);
 }
 // ---------------------------------------------------------------------------------------------------------------------
 

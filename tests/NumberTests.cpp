@@ -8,7 +8,7 @@ using namespace operators;
 
 
 TEST(number_tests, empty) {
-  Expression exp;
+  Expression<Fock1DInfo> exp;
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
@@ -16,8 +16,8 @@ TEST(number_tests, empty) {
 }
 
 TEST(number_tests, single) {
-  Expression exp;
-  exp = exp + Operator(5);
+  Expression<Fock1DInfo> exp;
+  exp = exp + Operator<Fock1DInfo>(5);
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
@@ -25,7 +25,7 @@ TEST(number_tests, single) {
 }
 
 TEST(number_tests, two_numbers) {
-  Expression exp = Operator(5) * Operator(7);
+  Expression<Fock1DInfo> exp = Operator<Fock1DInfo>(5) * Operator<Fock1DInfo>(7);
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
@@ -34,8 +34,8 @@ TEST(number_tests, two_numbers) {
 
 
 TEST(number_tests, operators_and_numbers) {
-  Expression exp = Operator("A", ordering_value(0), operator_info(0)) * Operator(4) *
-                    Operator("B", ordering_value(0), operator_info(0)) * Operator(9);
+  Expression<Fock1DInfo> exp = Operator<Fock1DInfo>("A", ordering_value(0), Fock1DInfo(0)) * Operator<Fock1DInfo>(4) *
+                    Operator<Fock1DInfo>("B", ordering_value(0), Fock1DInfo(0)) * Operator<Fock1DInfo>(9);
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
@@ -43,8 +43,8 @@ TEST(number_tests, operators_and_numbers) {
 }
 
 TEST(number_tests, operator_and_1) {
-  auto exp = Operator("A", ordering_value(0), operator_info(0)) * Operator(1)
-             * Operator("B", ordering_value(0), operator_info(0));
+  auto exp = Operator<Fock1DInfo>("A", ordering_value(0), Fock1DInfo(0)) * Operator<Fock1DInfo>(1)
+             * Operator<Fock1DInfo>("B", ordering_value(0), Fock1DInfo(0));
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
@@ -52,8 +52,8 @@ TEST(number_tests, operator_and_1) {
 }
 
 TEST(number_tests, single_one) {
-  Expression exp;
-  exp = exp + Operator(1);
+  Expression<Fock1DInfo> exp;
+  exp = exp + Operator<Fock1DInfo>(1);
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
@@ -61,8 +61,8 @@ TEST(number_tests, single_one) {
 }
 
 TEST(number_tests, zero) {
-  Expression exp = Operator("A", ordering_value(0), operator_info(0)) * Operator(0) *
-                    Operator("B", ordering_value(0), operator_info(0)) * Operator(9);
+  Expression<Fock1DInfo> exp = Operator<Fock1DInfo>("A", ordering_value(0), Fock1DInfo(0)) * Operator<Fock1DInfo>(0) *
+                    Operator<Fock1DInfo>("B", ordering_value(0), Fock1DInfo(0)) * Operator<Fock1DInfo>(9);
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
@@ -70,9 +70,9 @@ TEST(number_tests, zero) {
 }
 
 TEST(number_tests, addition_and_multiply) {
-  Expression exp;
-  const auto A = Operator("A", ordering_value(0), operator_info(0));
-  exp = exp + A + (Operator(0) * A) + (A * Operator(1) * A) + (A * A * A);
+  Expression<Fock1DInfo> exp;
+  const auto A = Operator<Fock1DInfo>("A", ordering_value(0), Fock1DInfo(0));
+  exp = exp + A + (Operator<Fock1DInfo>(0) * A) + (A * Operator<Fock1DInfo>(1) * A) + (A * A * A);
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
@@ -80,7 +80,7 @@ TEST(number_tests, addition_and_multiply) {
 }
 
 TEST(number_tests, addition) {
-  Expression exp = Operator(6) + Operator(7);
+  Expression<Fock1DInfo> exp = Operator<Fock1DInfo>(6) + Operator<Fock1DInfo>(7);
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
@@ -88,8 +88,8 @@ TEST(number_tests, addition) {
 }
 
 TEST(number_tests, opperator_addition) {
-  Operator A("A", ordering_value(0), operator_info(0));
-  Expression exp = A + A;
+  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
+  Expression<Fock1DInfo> exp = A + A;
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
@@ -97,8 +97,8 @@ TEST(number_tests, opperator_addition) {
 }
 
 TEST(number_tests, opperator_addition_multiply) {
-  Operator A("A", ordering_value(0), operator_info(0));
-  Expression exp = (A * Operator(2)) + A;
+  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
+  Expression<Fock1DInfo> exp = (A * Operator<Fock1DInfo>(2)) + A;
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
@@ -106,9 +106,9 @@ TEST(number_tests, opperator_addition_multiply) {
 }
 
 TEST(number_tests, opperator_addition_multiply_2) {
-  Operator A("A", ordering_value(0), operator_info(0));
-  Operator B("B", ordering_value(0), operator_info(1));
-  Expression exp = (A * B * Operator(2)) + (Operator(6) * A * B);
+  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
+  Operator<Fock1DInfo> B("B", ordering_value(0), Fock1DInfo(1));
+  Expression<Fock1DInfo> exp = (A * B * Operator<Fock1DInfo>(2)) + (Operator<Fock1DInfo>(6) * A * B);
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
@@ -116,9 +116,9 @@ TEST(number_tests, opperator_addition_multiply_2) {
 }
 
 TEST(number_tests, opperator_addition_multiply_3) {
-  Operator A("A", ordering_value(0), operator_info(0));
-  Operator B("B", ordering_value(0), operator_info(1));
-  Expression exp = (A * B * Operator(2)) + (Operator(6) * B * A);
+  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
+  Operator<Fock1DInfo> B("B", ordering_value(0), Fock1DInfo(1));
+  Expression<Fock1DInfo> exp = (A * B * Operator<Fock1DInfo>(2)) + (Operator<Fock1DInfo>(6) * B * A);
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);
@@ -126,12 +126,12 @@ TEST(number_tests, opperator_addition_multiply_3) {
 }
 
 TEST(number_tests, opperator_addition_multiply_4) {
-  Operator A("A", ordering_value(0), operator_info(0));
-  Operator B("B", ordering_value(0), operator_info(1));
-  Expression exp = (A * B * Operator(2))
-                    + (A * B * Operator(0))
-                    + (B * A * Operator(1))
-                    + (Operator(6) * A * B);
+  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
+  Operator<Fock1DInfo> B("B", ordering_value(0), Fock1DInfo(1));
+  Expression<Fock1DInfo> exp = (A * B * Operator<Fock1DInfo>(2))
+                    + (A * B * Operator<Fock1DInfo>(0))
+                    + (B * A * Operator<Fock1DInfo>(1))
+                    + (Operator<Fock1DInfo>(6) * A * B);
   exp = exp.simplify_numbers();
   std::stringstream ss;
   exp.print(ss);

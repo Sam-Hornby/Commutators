@@ -22,17 +22,17 @@ add_test(NAME "SortTests"
       WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
 target_link_libraries(SortTests gtest gtest_main)
 
-#add_executable(CommutatorTests Commutators.cpp)
-#add_test(NAME "CommutatorTests"
-#      COMMAND CommutatorTests
-#      WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-#target_link_libraries(CommutatorTests operators gtest gtest_main)
+add_executable(CommutatorTests Commutators.cpp)
+add_test(NAME "CommutatorTests"
+      COMMAND CommutatorTests
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
+target_link_libraries(CommutatorTests gtest gtest_main)
 
-#add_executable(NumberTests NumberTests.cpp)
-#add_test(NAME "NumberTests"
-#      COMMAND NumberTests
-#      WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-#target_link_libraries(NumberTests operators gtest gtest_main)
+add_executable(NumberTests NumberTests.cpp)
+add_test(NAME "NumberTests"
+      COMMAND NumberTests
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
+target_link_libraries(NumberTests gtest gtest_main)
 
 #add_executable(SubstitutionTests SubstitutionTests.cpp)
 #add_test(NAME "SubstitutionTests"

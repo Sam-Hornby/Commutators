@@ -7,19 +7,19 @@
 using namespace operators;
 
 TEST(commutator_tests, numbers) {
-  auto exp = Operator("A", ordering_value(0), operator_info(0)) * Operator(8);
-  exp = exp.sort(commute_none);
+  auto exp = Operator<Fock1DInfo>("A", ordering_value(0), Fock1DInfo(0)) * Operator<Fock1DInfo>(8);
+  exp = exp.sort(commute_none<Fock1DInfo>);
   std::stringstream ss;
   exp.print(ss);
   ASSERT_EQ(ss.str(), "(8.000000 * A)\n");
 }
 
 TEST(commutator_tests, commute_two) {
-  Operator A("A", ordering_value(1), operator_info(1));
-  Operator B("B", ordering_value(-1), operator_info(-1));
+  Operator<Fock1DInfo> A("A", ordering_value(1), Fock1DInfo(1));
+  Operator<Fock1DInfo> B("B", ordering_value(-1), Fock1DInfo(-1));
 
   auto exp = A * B;
-  exp = exp.sort(commute_none);
+  exp = exp.sort(commute_none<Fock1DInfo>);
 
   std::stringstream ss;
   exp.print(ss);
@@ -27,12 +27,12 @@ TEST(commutator_tests, commute_two) {
 }
 
 TEST(commutator_tests, commute_three_1) {
-  Operator A("A", ordering_value(1), operator_info(1));
-  Operator B("B", ordering_value(1), operator_info(1));
-  Operator C("C", ordering_value(-1), operator_info(-1));
+  Operator<Fock1DInfo> A("A", ordering_value(1), Fock1DInfo(1));
+  Operator<Fock1DInfo> B("B", ordering_value(1), Fock1DInfo(1));
+  Operator<Fock1DInfo> C("C", ordering_value(-1), Fock1DInfo(-1));
 
   auto exp = A * B * C;
-  exp = exp.sort(commute_none);
+  exp = exp.sort(commute_none<Fock1DInfo>);
 
   std::stringstream ss;
   exp.print(ss);
@@ -40,12 +40,12 @@ TEST(commutator_tests, commute_three_1) {
 }
 
 TEST(commutator_tests, commute_three_2) {
-  Operator A("A", ordering_value(1), operator_info(1));
-  Operator B("B", ordering_value(-1), operator_info(-1));
-  Operator C("C", ordering_value(-1), operator_info(-1));
+  Operator<Fock1DInfo> A("A", ordering_value(1), Fock1DInfo(1));
+  Operator<Fock1DInfo> B("B", ordering_value(-1), Fock1DInfo(-1));
+  Operator<Fock1DInfo> C("C", ordering_value(-1), Fock1DInfo(-1));
 
   auto exp = A * B * C;
-  exp = exp.sort(commute_none);
+  exp = exp.sort(commute_none<Fock1DInfo>);
 
   std::stringstream ss;
   exp.print(ss);
@@ -53,12 +53,12 @@ TEST(commutator_tests, commute_three_2) {
 }
 
 TEST(commutator_tests, commute_three_number) {
-  Operator A("A", ordering_value(1), operator_info(1));
-  Operator B("B", ordering_value(-1), operator_info(-1));
-  Operator C("C", ordering_value(-1), operator_info(-1));
+  Operator<Fock1DInfo> A("A", ordering_value(1), Fock1DInfo(1));
+  Operator<Fock1DInfo> B("B", ordering_value(-1), Fock1DInfo(-1));
+  Operator<Fock1DInfo> C("C", ordering_value(-1), Fock1DInfo(-1));
 
-  auto exp = A * B * Operator(2) * C;
-  exp = exp.sort(commute_none);
+  auto exp = A * B * Operator<Fock1DInfo>(2) * C;
+  exp = exp.sort(commute_none<Fock1DInfo>);
 
   std::stringstream ss;
   exp.print(ss);
@@ -67,13 +67,13 @@ TEST(commutator_tests, commute_three_number) {
 }
 
 TEST(commutator_tests, commute_four) {
-  Operator A("A", ordering_value(-1), operator_info(-1));
-  Operator B("B", ordering_value(-1), operator_info(-1));
-  Operator C("C", ordering_value(-1), operator_info(-1));
-  Operator D("D", ordering_value(-2), operator_info(-2));
+  Operator<Fock1DInfo> A("A", ordering_value(-1), Fock1DInfo(-1));
+  Operator<Fock1DInfo> B("B", ordering_value(-1), Fock1DInfo(-1));
+  Operator<Fock1DInfo> C("C", ordering_value(-1), Fock1DInfo(-1));
+  Operator<Fock1DInfo> D("D", ordering_value(-2), Fock1DInfo(-2));
 
   auto exp = A * B * C * D;
-  exp = exp.sort(commute_none);
+  exp = exp.sort(commute_none<Fock1DInfo>);
 
   std::stringstream ss;
   exp.print(ss);
@@ -83,13 +83,13 @@ TEST(commutator_tests, commute_four) {
 }
 
 TEST(commutator_tests, commute_and_addition) {
-  Operator A("A", ordering_value(1), operator_info(1));
-  Operator B("B", ordering_value(-1), operator_info(-1));
-  Operator C("C", ordering_value(2), operator_info(2));
-  Operator D("D", ordering_value(-2), operator_info(-2));
+  Operator<Fock1DInfo> A("A", ordering_value(1), Fock1DInfo(1));
+  Operator<Fock1DInfo> B("B", ordering_value(-1), Fock1DInfo(-1));
+  Operator<Fock1DInfo> C("C", ordering_value(2), Fock1DInfo(2));
+  Operator<Fock1DInfo> D("D", ordering_value(-2), Fock1DInfo(-2));
 
   auto exp = (A * B) + (C * D);
-  exp = exp.sort(commute_none);
+  exp = exp.sort(commute_none<Fock1DInfo>);
 
   std::stringstream ss;
   exp.print(ss);
@@ -97,11 +97,11 @@ TEST(commutator_tests, commute_and_addition) {
 }
 
 TEST(anti_commutator_tests, commute_two) {
-  Operator A("A", ordering_value(1), operator_info(1));
-  Operator B("B", ordering_value(-1), operator_info(-1));
+  Operator<Fock1DInfo> A("A", ordering_value(1), Fock1DInfo(1));
+  Operator<Fock1DInfo> B("B", ordering_value(-1), Fock1DInfo(-1));
 
   auto exp = A * B;
-  exp = exp.sort(anticommute_none, SortUsing::ANTICOMMUTATORS);
+  exp = exp.sort(anticommute_none<Fock1DInfo>, SortUsing::ANTICOMMUTATORS);
 
   std::stringstream ss;
   exp.print(ss);
