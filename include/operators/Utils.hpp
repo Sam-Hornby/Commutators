@@ -36,6 +36,7 @@ inline Expression normalised_n_occupied_state(unsigned n, unsigned creation_op_i
 
 Operator hermition_conjugate(const Operator & op) {
   if (op.is_number()) {
+    // yet to support complex numbers
     return op;
   }
   auto type = op.info.type;

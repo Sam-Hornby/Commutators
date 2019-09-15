@@ -6,6 +6,7 @@
 #include "struct_ids.hpp"
 
 
+
 namespace operators {
 
 struct Operator {
@@ -42,10 +43,17 @@ struct Operator {
     return !(*this == other);
   }
 
-  //Expression operator+(const Operator & A) const;
 };
 
 Operator number(const double n);
+
+//******************************************************************
+// All definitions below
+//******************************************************************
+
+Operator number(const double n) {
+  return Operator(n);
+}
 
 } // end namespace
 

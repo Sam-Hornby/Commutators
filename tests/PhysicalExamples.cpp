@@ -44,7 +44,6 @@ static bool check_answer(const Expression & exp, const double ans) {
 }
 
 TEST(Examples, HarmonicOscilator) {
-  // todo use floats for numbers so can have half
   auto hamiltonian = (creation_op(0) * anihilation_op(0)) + number(0.5);
   hamiltonian.print();
   // vacuum state expectation value
@@ -82,6 +81,17 @@ TEST(Examples, HarmonicOscilator) {
   quad_expectation = quad_expectation.evaluate(boson_commutator, substitutions);
   quad_expectation.print();
   ASSERT_TRUE(check_answer(quad_expectation, 4.5));
+}
+
+TEST(Examples, HarmonicOscilator_2D) {
+  // hamiltonian = w0 * (a0! * a0 + 0.5) + w1 * (a1! * a1 + 0.5)
+  // states are |x, y> represents particles in state x wrt to first
+  // 1d oscilator and y wrt to second
+  // As can get away with it in this case will use |x, y> = |x> |y>
+  // Use info value to denote which dimension operator/state is referring to
+  auto hamiltonian = (number(7.0) * ((creation_op(0) * anihilation_op(0)) + number(0.5)))
+                   + (number(5.0) * ((creation_op(1) * anihilation_op(1)) + number(0.5)));
+  hamiltonian.print();
 }
 
 int main(int argc, char **argv) {

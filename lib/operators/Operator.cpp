@@ -1,9 +1,7 @@
-//#include "Operator.hpp"
 
-#include "Expression.hpp"
 #include "Operator.hpp"
 
-namespace operators {
+/*namespace operators {
 
 Expression operator+(const Operator & A, const Operator & B) {
   Expression exp;
@@ -27,4 +25,4 @@ Operator number(const double n) {
 }
 
 
-} // end namespace
+}*/ // end namespace

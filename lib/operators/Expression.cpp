@@ -1,7 +1,6 @@
 
-//#include "Operator.hpp"
 #include "Expression.hpp"
-#include <algorithm>
+/*#include <algorithm>
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
@@ -354,3 +353,4 @@ Expression Expression::evaluate(std::function<Expression(const Operator &, const
 
 
 } // end name space operators
+*/
