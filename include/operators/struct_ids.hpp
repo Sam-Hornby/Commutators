@@ -11,20 +11,20 @@ enum class Type {
   UNSPECIFIED,  // all other operators
 };
 
-struct operator_info {
-  int value;
+struct Fock1DInfo {
+  int x_coordinate;
   Type type = Type::UNSPECIFIED;
 
-  operator_info(int value) : value(value) {}
-  operator_info(int value, Type type) : value(value), type(type) {}
-  operator_info() = default;
+  Fock1DInfo(int x_coordinate) : x_coordinate(x_coordinate) {}
+  Fock1DInfo(int x_coordinate, Type type) : x_coordinate(x_coordinate), type(type) {}
+  Fock1DInfo() = default;
 
-  bool operator==(operator_info other) const {
-    return value == other.value;
+  bool operator==(Fock1DInfo other) const {
+    return x_coordinate == other.x_coordinate;
   }
 
-  bool operator!=(operator_info other) const {
-    return value != other.value;
+  bool operator!=(Fock1DInfo other) const {
+    return x_coordinate != other.x_coordinate;
   }
 };
 

@@ -1,14 +1,14 @@
 #include "gtest/gtest.h"
 #include "Expression.hpp"
-//#include "Operator.hpp"
 #include <sstream>
 #include <iomanip>
+#include "struct_ids.hpp"
 
 using namespace operators;
 
 TEST (printing_tests, basic_addition) {
-  Operator A("A", ordering_value(0), operator_info(0));
-  Operator B("B", ordering_value(0), operator_info(1));
+  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
+  Operator<Fock1DInfo> B("B", ordering_value(0), Fock1DInfo(1));
 
   const auto exp = A + B;
   std::stringstream ss;
@@ -17,7 +17,7 @@ TEST (printing_tests, basic_addition) {
 }
 
 TEST(printing_tests, empty) {
-  Expression exp;
+  Expression<Fock1DInfo> exp;
   std::stringstream ss;
   exp.print(ss);
   ASSERT_EQ(ss.str(), "\n");
@@ -27,15 +27,15 @@ TEST(printing_tests, empty) {
   exp.print(ss2);
   ASSERT_EQ(ss2.str(), "\n");
 
-  exp.expression[0].push_back(Operator(5));
+  exp.expression[0].push_back(Operator<Fock1DInfo>(5));
   std::stringstream ss3;
   exp.print(ss3);
   ASSERT_EQ(ss3.str(), "(5.000000)\n");
 }
 
 TEST(printing_tests, basic_multiplication) {
-  Operator A("A", ordering_value(0), operator_info(0));
-  Operator B("B", ordering_value(0), operator_info(1));
+  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
+  Operator<Fock1DInfo> B("B", ordering_value(0), Fock1DInfo(1));
 
   const auto exp = A * B;
   std::stringstream ss;
@@ -44,10 +44,10 @@ TEST(printing_tests, basic_multiplication) {
 }
 
 TEST(printing_tests, add_and_multiply) {
-  Operator A("A", ordering_value(0), operator_info(0));
-  Operator B("B", ordering_value(0), operator_info(1));
-  Operator C("C", ordering_value(0), operator_info(2));
-  Operator D("D", ordering_value(0), operator_info(3));
+  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
+  Operator<Fock1DInfo> B("B", ordering_value(0), Fock1DInfo(1));
+  Operator<Fock1DInfo> C("C", ordering_value(0), Fock1DInfo(2));
+  Operator<Fock1DInfo> D("D", ordering_value(0), Fock1DInfo(3));
 
   const auto exp1 = A * B;
   const auto exp2 = C * D;
@@ -62,12 +62,12 @@ TEST(printing_tests, add_and_multiply) {
 }
 
 TEST(printing_tests, multiply_expressions) {
-  Operator A("A", ordering_value(0), operator_info(0));
-  Operator B("B", ordering_value(0), operator_info(1));
-  Operator C("C", ordering_value(0), operator_info(2));
-  Operator D("D", ordering_value(0), operator_info(3));
-  Operator E("E", ordering_value(0), operator_info(4));
-  Operator F("F", ordering_value(0), operator_info(5));
+  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
+  Operator<Fock1DInfo> B("B", ordering_value(0), Fock1DInfo(1));
+  Operator<Fock1DInfo> C("C", ordering_value(0), Fock1DInfo(2));
+  Operator<Fock1DInfo> D("D", ordering_value(0), Fock1DInfo(3));
+  Operator<Fock1DInfo> E("E", ordering_value(0), Fock1DInfo(4));
+  Operator<Fock1DInfo> F("F", ordering_value(0), Fock1DInfo(5));
 
   const auto exp = (A + B + C) * ((D * F) + E);
 

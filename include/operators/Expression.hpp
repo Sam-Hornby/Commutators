@@ -408,7 +408,7 @@ performMulSubs(const std::vector<Operator<OperatorInfo>> & term,
 
 template <class OperatorInfo>
 Expression<OperatorInfo> Expression<OperatorInfo>::performMultiplicationSubstitutions(
-                  std::function<bool(std::vector<Operator<OperatorInfo>>::iterator,
+                  std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
                                      std::vector<Operator<OperatorInfo>> &)> subst) const {
   Expression<OperatorInfo> final_exp(std::vector<std::vector<Operator<OperatorInfo>>>(expression.size()));
   for (unsigned i = 0; i < expression.size(); ++i) {
@@ -431,7 +431,7 @@ template <class OperatorInfo>
 Expression<OperatorInfo>
 Expression<OperatorInfo>::evaluate(
         std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
-        std::function<bool(std::vector<Operator<OperatorInfo>>::iterator,
+        std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
                            std::vector<Operator<OperatorInfo>> &)> subst) const {
   // simplify numbers is much faster than the other functions and can make the the other functions run faster so call
   // it frequently

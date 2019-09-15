@@ -8,33 +8,40 @@
 namespace operators {
 
 // returns zero, if 2 operators commute return this
-inline Expression zero_commutator() {
-  return Expression(std::vector<std::vector<Operator>>(1,
-                                                       std::vector<Operator>(1, Operator(0))
+template <class OperatorInfo>
+inline Expression<OperatorInfo> zero_commutator() {
+  return Expression<OperatorInfo>(std::vector<std::vector<Operator<OperatorInfo>>>(1,
+                                                       std::vector<Operator<OperatorInfo>>(1, Operator<OperatorInfo>(0))
                                                       ));
 }
 // If the commutator of 2 operators is a number return this
-inline Expression numeric_commutator(const double n) {
-  return Expression(std::vector<std::vector<Operator>>(1,
-                                                       std::vector<Operator>(1, Operator(n))
+template <class OperatorInfo>
+inline Expression<OperatorInfo> numeric_commutator(const double n) {
+  return Expression<OperatorInfo>(std::vector<std::vector<Operator<OperatorInfo>>>(1,
+                                                       std::vector<Operator<OperatorInfo>>(1, Operator<OperatorInfo>(n))
                                                       ));
 }
 // if the commutator of 2 operatos is another operator return this
-inline Expression operator_commutator(std::string name, const ordering_value order, const operator_info info) {
-  return Expression(std::vector<std::vector<Operator>>(1,
-                                                       std::vector<Operator>(1, Operator(name, order, info))
-                                                      ));
+template <class OperatorInfo>
+inline Expression<OperatorInfo>
+operator_commutator(std::string name, const ordering_value order, const OperatorInfo info) {
+  return Expression<OperatorInfo>(std::vector<std::vector<Operator<OperatorInfo>>>(1,
+                                  std::vector<Operator<OperatorInfo>>(1, Operator<OperatorInfo>(name, order, info))));
 }
 
-bool either_is_number(const Operator & A, const Operator & B) {
+template <class OperatorInfo>
+bool either_is_number(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
   return A.is_number() or B.is_number();
 }
 // Takes a comutator of operators and extends it to commute all numbers
 // As simplify of expressions assumes all numbers commute best to wrap all comutators with this function
-Expression commute_numbers(const Operator & A, const Operator & B,
-                           std::function<Expression(const Operator &, const Operator &)> commute) {
+template <class OperatorInfo>
+Expression<OperatorInfo>
+commute_numbers(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B,
+                std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &,
+                                                       const Operator<OperatorInfo> &)> commute) {
   if (either_is_number(A, B)) {
-    return zero_commutator();
+    return zero_commutator<OperatorInfo>();
   }
   return commute(A, B);
 }
@@ -42,30 +49,35 @@ Expression commute_numbers(const Operator & A, const Operator & B,
 // Commute all
 // ---------------------------------------------------------------------------------------------------------------------
 // every operator is comutative
-Expression commute_all(const Operator &, const Operator &) {
-  return zero_commutator();
+template <class OperatorInfo>
+Expression<OperatorInfo> commute_all(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &) {
+  return zero_commutator<OperatorInfo>();
 }
 
 // Commute none
 // ---------------------------------------------------------------------------------------------------------------------
-Expression commute_none_(const Operator & A, const Operator & B) {
+template <class OperatorInfo>
+Expression<OperatorInfo> commute_none_(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
   std::string com = "[" + A.name + ", " + B.name + "]";
-  return operator_commutator(std::move(com), ordering_value(0), operator_info(0));
+  return operator_commutator<OperatorInfo>(std::move(com), ordering_value(0), OperatorInfo());
 }
 
-Expression commute_none(const Operator & A, const Operator & B) {
-  return commute_numbers(A, B, commute_none_);
+template <class OperatorInfo>
+Expression<OperatorInfo> commute_none(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
+  return commute_numbers<OperatorInfo>(A, B, commute_none_);
 }
 
 // Anti commute none
 // ---------------------------------------------------------------------------------------------------------------------
-Expression anticommute_none_(const Operator & A, const Operator & B) {
+template <class OperatorInfo>
+Expression<OperatorInfo> anticommute_none_(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
   std::string com = "{" + A.name + ", " + B.name + "}";
-  return operator_commutator(std::move(com), ordering_value(0), operator_info(0));
+  return operator_commutator<OperatorInfo>(std::move(com), ordering_value(0), OperatorInfo(0));
 }
 
-Expression anticommute_none(const Operator & A, const Operator & B) {
-  return commute_numbers(A, B, anticommute_none_);
+template <class OperatorInfo>
+Expression<OperatorInfo> anticommute_none(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
+  return commute_numbers<OperatorInfo>(A, B, anticommute_none_);
 }
 // ---------------------------------------------------------------------------------------------------------------------
 

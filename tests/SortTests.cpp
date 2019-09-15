@@ -24,11 +24,11 @@ static void random_sort_test(const unsigned seed, const std::size_t n, const int
     reference.push_back((randomEngine() % mod) + min);
   }
 
-  Operator A(std::to_string(reference[0]), ordering_value(reference[0]), operator_info(reference[0]));
-  Operator B(std::to_string(reference[1]), ordering_value(reference[1]), operator_info(reference[1]));
-  Expression exp = A * B;
+  Operator<Fock1DInfo> A(std::to_string(reference[0]), ordering_value(reference[0]), Fock1DInfo(reference[0]));
+  Operator<Fock1DInfo> B(std::to_string(reference[1]), ordering_value(reference[1]), Fock1DInfo(reference[1]));
+  Expression<Fock1DInfo> exp = A * B;
   for (unsigned i = 2; i < reference.size(); ++i) {
-    exp = exp * Operator(std::to_string(reference[i]), ordering_value(reference[i]), operator_info(reference[i]));
+    exp = exp * Operator<Fock1DInfo>(std::to_string(reference[i]), ordering_value(reference[i]), Fock1DInfo(reference[i]));
   }
 
   for (unsigned i = 0; i < reference.size(); ++i) {
@@ -36,11 +36,11 @@ static void random_sort_test(const unsigned seed, const std::size_t n, const int
   }
 
   std::sort(reference.begin(), reference.end());
-  const auto new_exp = exp.sort(commute_all);
+  const auto new_exp = exp.sort(commute_all<Fock1DInfo>);
 
   for (unsigned i = 0; i < reference.size(); ++i) {
     EXPECT_EQ(new_exp.expression[0][i].order.value, reference[i]);
-    EXPECT_EQ(new_exp.expression[0][i].order.value, new_exp.expression[0][i].info.value);
+    EXPECT_EQ(new_exp.expression[0][i].order.value, new_exp.expression[0][i].info.x_coordinate);
   }
 }
 
@@ -56,12 +56,12 @@ static void random_multiply_and_addition(const unsigned seed) {
     }
   }
 
-  Expression exp;
+  Expression<Fock1DInfo> exp;
   for (const auto & vec : reference) {
-    Expression mul_term =  Operator(std::to_string(vec[0]), ordering_value(vec[0]), operator_info(vec[0]))
-                           * Operator(std::to_string(vec[1]), ordering_value(vec[1]), operator_info(vec[1]));
+    Expression<Fock1DInfo> mul_term =  Operator<Fock1DInfo>(std::to_string(vec[0]), ordering_value(vec[0]), Fock1DInfo(vec[0]))
+                           * Operator<Fock1DInfo>(std::to_string(vec[1]), ordering_value(vec[1]), Fock1DInfo(vec[1]));
     for (unsigned j = 2; j < vec.size(); ++j) {
-      mul_term = mul_term * Operator(std::to_string(vec[j]), ordering_value(vec[j]), operator_info(vec[j]));
+      mul_term = mul_term * Operator<Fock1DInfo>(std::to_string(vec[j]), ordering_value(vec[j]), Fock1DInfo(vec[j]));
     }
     exp = exp + mul_term;
   }
@@ -75,38 +75,38 @@ static void random_multiply_and_addition(const unsigned seed) {
   for (auto & vec : reference) {
     std::sort(vec.begin(), vec.end());
   }
-  const auto new_exp = exp.sort(commute_all);
+  const auto new_exp = exp.sort(commute_all<Fock1DInfo>);
 
   for (unsigned i = 0; i < reference.size(); ++i) {
     for (unsigned j = 0; j < reference[i].size(); ++j) {
       EXPECT_EQ(new_exp.expression[i][j].order.value, reference[i][j]);
-      EXPECT_EQ(new_exp.expression[i][j].order.value, new_exp.expression[i][j].info.value);
+      EXPECT_EQ(new_exp.expression[i][j].order.value, new_exp.expression[i][j].info.x_coordinate);
     }
   }
 }
 
 TEST(sort_tests, empty) {
-  Expression exp;
-  auto new_exp = exp.sort(commute_all);
+  Expression<Fock1DInfo> exp;
+  auto new_exp = exp.sort(commute_all<Fock1DInfo>);
   std::stringstream ss;
   new_exp.print(ss);
   ASSERT_EQ(ss.str(), "\n");
 }
 
 TEST(sort_tests, one) {
-  Expression exp;
-  Operator A("A", ordering_value(0), operator_info(0));
+  Expression<Fock1DInfo> exp;
+  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
   exp.expression.resize(3);
   exp.expression[0].push_back(A);
-  auto new_exp = exp.sort(commute_all);
+  auto new_exp = exp.sort(commute_all<Fock1DInfo>);
   std::stringstream ss;
   new_exp.print(ss);
   ASSERT_EQ(ss.str(), "(A)\n");
 }
 
 TEST(sort_tests, number) {
-  auto exp = Operator("A", ordering_value(0), operator_info(0)) * Operator(3);
-  exp = exp.sort(commute_all);
+  auto exp = Operator<Fock1DInfo>("A", ordering_value(0), Fock1DInfo(0)) * Operator<Fock1DInfo>(3);
+  exp = exp.sort(commute_all<Fock1DInfo>);
   std::stringstream ss;
   exp.print(ss);
   ASSERT_EQ(ss.str(), "(3.000000 * A)\n");
