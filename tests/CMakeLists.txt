@@ -34,11 +34,11 @@ add_test(NAME "NumberTests"
       WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
 target_link_libraries(NumberTests gtest gtest_main)
 
-#add_executable(SubstitutionTests SubstitutionTests.cpp)
-#add_test(NAME "SubstitutionTests"
-#         COMMAND SubstitutionTests
-#         WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-#target_link_libraries(SubstitutionTests operators gtest gtest_main)
+add_executable(SubstitutionTests SubstitutionTests.cpp)
+add_test(NAME "SubstitutionTests"
+         COMMAND SubstitutionTests
+         WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
+target_link_libraries(SubstitutionTests operators gtest gtest_main)
 
 #add_executable(PhysicalExamples PhysicalExamples.cpp)
 #add_test(NAME "PhysicalExamples"
