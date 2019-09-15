@@ -9,16 +9,17 @@
 
 namespace operators {
 
+template <class OperatorInfo>
 struct Operator {
   std::string name;  // name of operator TODO make const
   ordering_value order;  // when sorting this determines greater than or equal to
-  operator_info info;     // should be unique for each operator TODO make const
+  OperatorInfo info;     // should be unique for each operator TODO make const
   // if this is set operator is a number, comutators are automatically assumed zero, op_id is irelevant
   boost::optional<double> value;
 
   Operator() = default;
-  Operator(std::string name, ordering_value order, operator_info info) : name(name), order(order), info(info) {}
-  Operator(double v) : info(operator_info(~0)), order(ordering_value(std::numeric_limits<int>::min())) {
+  Operator(std::string name, ordering_value order, OperatorInfo info) : name(name), order(order), info(info) {}
+  Operator(double v) : order(ordering_value(std::numeric_limits<int>::min())) {
     value = v;
     name = std::to_string(v);
   }
@@ -45,14 +46,16 @@ struct Operator {
 
 };
 
-Operator number(const double n);
+template <class OperatorInfo>
+Operator<OperatorInfo> number(const double n);
 
 //******************************************************************
 // All definitions below
 //******************************************************************
 
-Operator number(const double n) {
-  return Operator(n);
+template <class OperatorInfo>
+Operator<OperatorInfo> number(const double n) {
+  return Operator<OperatorInfo>(n);
 }
 
 } // end namespace
