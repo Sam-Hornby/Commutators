@@ -29,11 +29,11 @@ struct Fock1DInfo {
   Fock1DInfo() = default;
 
   bool operator==(Fock1DInfo other) const {
-    return x_coordinate == other.x_coordinate;
+    return x_coordinate == other.x_coordinate and state == other.state && type == other.type;
   }
 
   bool operator!=(Fock1DInfo other) const {
-    return x_coordinate != other.x_coordinate;
+    return not (*this == other);
   }
   static Fock1DInfo vacuumState() {
     return Fock1DInfo(0, 0, Type::STATE_VECTOR);
