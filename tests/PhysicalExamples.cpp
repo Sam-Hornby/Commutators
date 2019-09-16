@@ -10,26 +10,57 @@
 
 using namespace operators;
 
-Expression boson_commutator_(const Operator & A, const Operator & B) {
-  if (is_anihilation_op(A) and is_creation_op(B)) {
-    return Expression({{number(1)}});
+struct Fock0DInfo {
+  // struct where only degree of freedom is energy value and only vacuum state represented
+  // other states representedwith fock operators
+  Type type = Type::UNSPECIFIED;
+  Fock0DInfo() = default;
+  Fock0DInfo(Type type) : type(type) {}
+  static Fock0DInfo vacuumState() {
+    return Fock0DInfo(Type::STATE_VECTOR);
+  }
+  bool isVacuumState() {
+    return type == Type::STATE_VECTOR;
+  }
+  bool isHCVacuumState() {
+    return type == Type::HC_STATE_VECTOR;
+  }
+  bool match(const Fock1DInfo & other) {
+    if (isFockOpType(type) and isFockOpType(other.type)) {
+      return true;
+    }
+    if (isVectorType(type) and isVectorType(other.type)) {
+      return true;
+    }
+    return false;
+  }
+};
+
+template <class OperatorInfo>
+Expression<OperatorInfo> boson_commutator_(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
+  if (is_anihilation_op<OperatorInfo>(A) and is_creation_op<OperatorInfo>(B) and A.match(B)) {
+    return Expression<OperatorInfo>({{number<OperatorInfo>(1)}});
   }
   throw std::logic_error("Shouldn't be commuting anything else");
 }
 
-Expression boson_commutator(const Operator & A, const Operator & B) {
-  return commute_numbers(A, B, boson_commutator_);
+template <class OperatorInfo>
+Expression<OperatorInfo> boson_commutator(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
+  return commute_numbers<OperatorInfo>(A, B, boson_commutator_<OperatorInfo>);
 }
 
-bool substitutions(std::vector<Operator>::iterator start, std::vector<Operator> & exp) {
-  return anihilate_vacuum(start, exp) or all_states_orthognal(start, exp);
+template <class OperatorInfo>
+bool substitutions(typename std::vector<Operator<OperatorInfo>>::iterator start,
+                   std::vector<Operator<OperatorInfo>> & exp) {
+  return anihilate_vacuum<OperatorInfo>(start, exp) or all_states_orthognal<OperatorInfo>(start, exp);
 }
 
 static double round_to_3_dp(double x) {
   return round(x * 1000) / 1000;
 }
 
-static bool check_answer(const Expression & exp, const double ans) {
+template <class OperatorInfo>
+static bool check_answer(const Expression<OperatorInfo> & exp, const double ans) {
   if (exp.expression.size() != 1) {
     return false;
   }
