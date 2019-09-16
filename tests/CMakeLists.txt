@@ -40,8 +40,8 @@ add_test(NAME "SubstitutionTests"
          WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
 target_link_libraries(SubstitutionTests operators gtest gtest_main)
 
-#add_executable(PhysicalExamples PhysicalExamples.cpp)
-#add_test(NAME "PhysicalExamples"
-#         COMMAND PhysicalExamples
-#         WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-#target_link_libraries(PhysicalExamples operators gtest gtest_main)
+add_executable(PhysicalExamples PhysicalExamples.cpp)
+add_test(NAME "PhysicalExamples"
+         COMMAND PhysicalExamples
+         WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
+target_link_libraries(PhysicalExamples gtest gtest_main)

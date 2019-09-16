@@ -38,13 +38,13 @@ struct Fock1DInfo {
   static Fock1DInfo vacuumState() {
     return Fock1DInfo(0, 0, Type::STATE_VECTOR);
   }
-  bool isVacuumState() {
+  bool isVacuumState() const {
     return type == Type::STATE_VECTOR and state == 0;
   }
-  bool isHCVacuumState() {
+  bool isHCVacuumState() const {
     return type == Type::HC_STATE_VECTOR and state == 0;
   }
-  bool match(const Fock1DInfo & other) {
+  bool match(const Fock1DInfo & other) const {
     if (isFockOpType(type) and isFockOpType(other.type)) {
       return x_coordinate == other.x_coordinate;
     }

@@ -24,7 +24,7 @@ inline Operator<Fock1DInfo> anihilation_op(const int info_value) {
                   Fock1DInfo(info_value, Type::ANIHILATION_OPERATOR));
 }
 
-inline Expression<Fock1DInfo> normalised_n_occupied_state(unsigned n, unsigned creation_op_index = 0) {
+inline Expression<Fock1DInfo> normalised_n_occupied_state(unsigned n, unsigned creation_op_index) {
   Expression<Fock1DInfo> exp;
   exp.expression.push_back({vacuum_state<Fock1DInfo>()});
   double normalisation_factor = 1.0 / std::sqrt(tgamma(static_cast<double>(n + 1)));
