@@ -2,6 +2,7 @@
 #define _expression_hpp_
 
 #include <vector>
+#include <map>
 #include <iostream>
 #include "Operator.hpp"
 #include <algorithm>
@@ -31,6 +32,7 @@ public:
   Expression sort(std::function<Expression(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
                   const SortUsing s = SortUsing::COMMUTATORS) const; // order expresion
   Expression simplify_numbers() const;  // combine numbers and remove zeros
+  Expression simplify_multiplications() const;  // simplify zeros and ones
   // substitute a sequence of multiplications for return value of subst function, empty optional denotes no substitution
   Expression performMultiplicationSubstitutions(
                   std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
@@ -192,13 +194,27 @@ static void add_terms_from_comutator(std::vector<std::vector<Operator<OperatorIn
                     })) {
       continue;
     }
+    const bool all_numbers = std::all_of(mul_term.begin(), mul_term.end(),
+                                        [&](const Operator<OperatorInfo> &op) {
+          return op.is_number();
+        });
+    const bool all_one = std::all_of(mul_term.begin(), mul_term.end(),
+                                        [&](const Operator<OperatorInfo> &op) {
+          return op.is_number() and op.value.get() == 1.0;
+        });
     // as commuter has value means new addition term must be added
     sorted_terms.push_back(std::vector<Operator<OperatorInfo>>());
     auto & new_term = sorted_terms.back();
+    if (all_numbers and (not all_one)) {
+      // numbers commute so send straight to the front. if they are one don't bother
+      new_term.insert(new_term.end(), mul_term.begin(), mul_term.end());
+    }
     // insert all terms before the 2 non commuting terms here
     new_term.insert(new_term.end(), sorted_terms[term_index].begin(), sorted_terms[term_index].begin() + i);
-    for (const auto &op : mul_term) {
-      new_term.push_back(op);
+    if (not all_numbers) {
+      for (const auto &op : mul_term) {
+        new_term.push_back(op);
+      }
     }
     // insert all terms after the 2 non commuting terms
     new_term.insert(new_term.end(), sorted_terms[term_index].begin() + i + 2, sorted_terms[term_index].end());
@@ -340,36 +356,80 @@ combine_expressions(const std::vector<Operator<OperatorInfo>> & A, const std::ve
 }
 
 template <class OperatorInfo>
-static void simplify_additions(Expression<OperatorInfo> & exp) {
-  for (std::size_t i = 0; i < exp.expression.size(); ++i) {
-    for (std::size_t j = i + 1; j < exp.expression.size(); ++j) {
-      if (expression_operators_match(exp.expression[i], exp.expression[j])) {
-        exp.expression[i] = combine_expressions(exp.expression[i], exp.expression[j]);
-        exp.expression[j].clear();
+struct ComparisonStruct {
+  const std::vector<Operator<OperatorInfo>> &full;
+  ComparisonStruct() = default;
+  ComparisonStruct(const std::vector<Operator<OperatorInfo>> &full) : full(full) {}
+
+  std::size_t num_operators() const {
+    // uses fact that simpilifying multiply terms has moved numbers to start
+    if (full.empty()) {
+      return 0U;
+    }
+    return full.size() - static_cast<unsigned>(full[0].is_number());
+  }
+
+  bool operator<(ComparisonStruct other) const {
+    if (num_operators() != other.num_operators()) {
+      return num_operators() < other.num_operators();
+    }
+    if (full.empty()) {
+      // if both empty return false
+      return false;
+    }
+    const unsigned first_A = full.size() - num_operators();
+    const unsigned first_B = other.full.size() - other.num_operators();
+    for (unsigned i = 0; i < num_operators(); ++i) {
+      const auto & op_A = full.at(first_A + i);
+      const auto & op_B = other.full.at(first_B + i);
+      const auto tie_A = std::tie(op_A.name, op_A.order, op_A.info);
+      const auto tie_B = std::tie(op_B.name, op_B.order, op_B.info);
+      if (tie_A != tie_B) {
+        return tie_A < tie_B;
       }
+    }
+    return false;
+  }
+};
+
+template <class OperatorInfo>
+static void simplify_additions(Expression<OperatorInfo> & exp) {
+  std::map<ComparisonStruct<OperatorInfo>, unsigned> unique_mul_terms;
+  for (std::size_t i = 0; i < exp.expression.size(); ++i) {
+    ComparisonStruct<OperatorInfo> comp(exp.expression[i]);
+    const auto it = unique_mul_terms.emplace(comp, i);
+    if (not it.second) {
+      exp.expression[it.first->second] = combine_expressions(exp.expression[it.first->second], exp.expression[i]);
+      exp.expression[i].clear();
     }
   }
 }
 
 template <class OperatorInfo>
 static void removeEmptyVectors(Expression<OperatorInfo> &exp) {
-  for (std::size_t add_index = 0; add_index < exp.expression.size();) {
-    if (exp.expression[add_index].empty()) {
-      // remove empty vectors
-      exp.expression.erase(exp.expression.begin() + add_index);
-    } else {
-      ++add_index;
+  Expression<OperatorInfo> new_exp;
+  for (std::size_t add_index = 0; add_index < exp.expression.size(); ++add_index) {
+    if (!exp.expression[add_index].empty()) {
+      new_exp.expression.emplace_back(std::move(exp.expression[add_index]));
     }
   }
+  exp = std::move(new_exp);
+}
+template <class OperatorInfo>
+Expression<OperatorInfo> Expression<OperatorInfo>::simplify_multiplications() const {
+  Expression<OperatorInfo> simplified;
+  simplified.expression.resize(expression.size());
+
+  for (std::size_t add_index = 0; add_index < expression.size(); ++add_index) {
+    simplified.expression[add_index] = simplify_multiply(expression[add_index]);
+  }
+  removeEmptyVectors(simplified);
+  return simplified;
 }
 
 template <class OperatorInfo>
 Expression<OperatorInfo> Expression<OperatorInfo>::simplify_numbers() const {
-  Expression<OperatorInfo> simplified;
-  simplified.expression.resize(expression.size());
-  for (std::size_t add_index = 0; add_index < expression.size(); ++add_index) {
-    simplified.expression[add_index] = simplify_multiply(expression[add_index]);
-  }
+  Expression<OperatorInfo> simplified = simplify_multiplications();
   simplify_additions(simplified);
   removeEmptyVectors(simplified);
   return simplified;
@@ -440,22 +500,29 @@ Expression<OperatorInfo>::evaluate(
   //-------------------------------------------------------------------------------
   auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
   console_sink->set_level(spdlog::level::info);
-  console_sink->set_pattern("%^\033[33m[evaluate] [%l%$] %v%$");
+  console_sink->set_pattern("%^\033[33m[evaluate] [%l%$] [%H:%M:%S] %v%$");
   spdlog::logger logger("Operators", console_sink);
-  logger.set_level(spdlog::level::off);
+  logger.set_level(spdlog::level::critical);
   //-------------------------------------------------------------------------------
 
+  logger.critical("Start evaluation: Simplift numbers");
   log_expression(logger, *this, "Start");
   auto exp = simplify_numbers();
   log_expression(logger, exp, "Simplify numbers 1");
+  logger.critical("Sort");
   exp = exp.sort(commute);
   log_expression(logger, exp, "Sort");
+  logger.critical("Simplify multiplications");
+  //exp = exp.simplify_multiplications();
   exp = exp.simplify_numbers();
   log_expression(logger, exp, "Simplify numbers 2");
+  logger.critical("Substitutions");
   exp = exp.performMultiplicationSubstitutions(subst);
   log_expression(logger, exp, "Perform subs");
+  logger.critical("Simplify");
   exp = exp.simplify_numbers();
   log_expression(logger, exp, "Simplify numbers 3");
+  logger.critical("End");
   return exp;
 }
 

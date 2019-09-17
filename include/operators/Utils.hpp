@@ -34,6 +34,16 @@ inline Expression<Fock1DInfo> normalised_n_occupied_state(unsigned n, unsigned c
   return number<Fock1DInfo>(normalisation_factor) * exp;
 }
 
+inline Expression<Fock1DInfo> normalised_n_occupied_ops(unsigned n, unsigned creation_op_index) {
+  Expression<Fock1DInfo> exp;
+  exp.expression.push_back({number<Fock1DInfo>(1.0)});
+  double normalisation_factor = 1.0 / std::sqrt(tgamma(static_cast<double>(n + 1)));
+  for (unsigned i = 0; i < n; ++i) {
+    exp = creation_op(creation_op_index) * exp;
+  }
+  return number<Fock1DInfo>(normalisation_factor) * exp;
+}
+
 template <class OperatorInfo>
 Operator<OperatorInfo> hermition_conjugate(const Operator<OperatorInfo> & op) {
   if (op.is_number()) {

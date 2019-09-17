@@ -23,6 +23,9 @@ struct Fock0DInfo {
   bool operator!=(Fock0DInfo other) const {
     return not (*this == other);
   }
+  bool operator<(Fock0DInfo other) const {
+    return type < other.type;
+  }
   static Fock0DInfo vacuumState() {
     return Fock0DInfo(Type::STATE_VECTOR);
   }
@@ -63,8 +66,12 @@ Expression<Fock0DInfo> normalised_n_occupied_state(unsigned n) {
 
 template <class OperatorInfo>
 Expression<OperatorInfo> boson_commutator_(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
-  if (is_anihilation_op<OperatorInfo>(A) and is_creation_op<OperatorInfo>(B) and A.info.match(B.info)) {
-    return Expression<OperatorInfo>({{number<OperatorInfo>(1)}});
+  if (is_anihilation_op<OperatorInfo>(A) and is_creation_op<OperatorInfo>(B)) {
+    if (A.info.match(B.info)) {
+      return Expression<OperatorInfo>({{number<OperatorInfo>(1)}});
+    } else {
+      return zero_commutator<OperatorInfo>();
+    }
   }
   throw std::logic_error("Shouldn't be commuting anything else");
 }
@@ -143,11 +150,45 @@ TEST(Examples, HarmonicOscilator_2D) {
   // hamiltonian = w0 * (a0! * a0 + 0.5) + w1 * (a1! * a1 + 0.5)
   // states are |x, y> represents particles in state x wrt to first
   // 1d oscilator and y wrt to second
-  // As can get away with it in this case will use |x, y> = |x> |y>
-  // Use info value to denote which dimension operator/state is referring to
-  //auto hamiltonian = (number(7.0) * ((creation_op(0) * anihilation_op(0)) + number(0.5)))
-  //                 + (number(5.0) * ((creation_op(1) * anihilation_op(1)) + number(0.5)));
-  //hamiltonian.print();
+  // Use the x coordinate in the operator info to tell which dimension the operators belong. As only having vacuum state
+  // all vaccum states will have zero as they belong to both
+  auto hamiltonian = (number<Fock1DInfo>(7.0) * ((creation_op(0) * anihilation_op(0)) + number<Fock1DInfo>(0.5)))
+                   + (number<Fock1DInfo>(5.0) * ((creation_op(1) * anihilation_op(1)) + number<Fock1DInfo>(0.5)));
+  hamiltonian.print();
+  // vacuum state expectation value
+  Expression<Fock1DInfo> zero_occupied_state = normalised_n_occupied_state(0, 0);
+  auto vacuum_expectation = hermition_conjugate<Fock1DInfo>(zero_occupied_state) * hamiltonian * zero_occupied_state;
+  vacuum_expectation = normal_order<Fock1DInfo>(vacuum_expectation);
+  vacuum_expectation = vacuum_expectation.evaluate(boson_commutator<Fock1DInfo>, substitutions<Fock1DInfo>);
+  vacuum_expectation.print();
+  ASSERT_TRUE(check_answer(vacuum_expectation, 6.0));
+
+  // single occupied state in first HO
+  Expression<Fock1DInfo> single_occupied_state = normalised_n_occupied_state(1, 0);
+  auto expectation = hermition_conjugate<Fock1DInfo>(single_occupied_state) * hamiltonian * single_occupied_state;
+  expectation = normal_order<Fock1DInfo>(expectation);
+  expectation = expectation.evaluate(boson_commutator<Fock1DInfo>, substitutions<Fock1DInfo>);
+  expectation.print();
+  ASSERT_TRUE(check_answer(expectation, 13.0));
+
+  // single occupied state in second HO
+  single_occupied_state = normalised_n_occupied_state(1, 1);
+  expectation = hermition_conjugate<Fock1DInfo>(single_occupied_state) * hamiltonian * single_occupied_state;
+  expectation = normal_order<Fock1DInfo>(expectation);
+  expectation = expectation.evaluate(boson_commutator<Fock1DInfo>, substitutions<Fock1DInfo>);
+  expectation.print();
+  ASSERT_TRUE(check_answer(expectation, 11.0));
+
+  // both H0s occupied
+  single_occupied_state = normalised_n_occupied_ops(3, 0) *
+                          normalised_n_occupied_ops(6, 1) *
+                          vacuum_state<Fock1DInfo>();
+  expectation = hermition_conjugate<Fock1DInfo>(single_occupied_state) * hamiltonian * single_occupied_state;
+  expectation = normal_order<Fock1DInfo>(expectation);
+  expectation = expectation.evaluate(boson_commutator<Fock1DInfo>, substitutions<Fock1DInfo>);
+  expectation.print();
+  ASSERT_TRUE(check_answer(expectation, 57.0));
+
 }
 
 int main(int argc, char **argv) {

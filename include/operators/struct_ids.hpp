@@ -35,6 +35,10 @@ struct Fock1DInfo {
   bool operator!=(Fock1DInfo other) const {
     return not (*this == other);
   }
+  bool operator<(Fock1DInfo other) const {
+    return std::tie(x_coordinate, state, type) <
+           std::tie(other.x_coordinate, other.state, other.type);
+  }
   static Fock1DInfo vacuumState() {
     return Fock1DInfo(0, 0, Type::STATE_VECTOR);
   }
