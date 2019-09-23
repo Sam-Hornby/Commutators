@@ -138,6 +138,15 @@ TEST(number_tests, opperator_addition_multiply_4) {
   ASSERT_EQ(ss.str(), "(8.000000 * A * B) + (B * A)\n");
 }
 
+TEST(number_tests, ones) {
+  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
+  Expression<Fock1DInfo> exp = A + number<Fock1DInfo>(1.0);
+  exp = exp.simplify_numbers();
+  std::stringstream ss;
+  exp.print(ss);
+  ASSERT_EQ(ss.str(), "(A) + (1.000000)\n");
+}
+
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

@@ -16,7 +16,7 @@ using namespace operators;
 
 // If all operators commute  then should produce same results as std::sort
 // Gerenate tests comparing 2
-static void random_sort_test(const unsigned seed, const std::size_t n, const int max, const int min) {
+static void random_sort_test(const unsigned seed, const std::size_t n, const int max, const int min, const bool inter) {
   std::mt19937 randomEngine(seed);
   const int mod = max - min;
   std::vector<int> reference;
@@ -36,7 +36,15 @@ static void random_sort_test(const unsigned seed, const std::size_t n, const int
   }
 
   std::sort(reference.begin(), reference.end());
-  const auto new_exp = exp.sort(commute_all<Fock1DInfo>);
+  const Expression<Fock1DInfo> new_exp = [&] () {
+    if (inter) {
+      return exp.interleaved_evaluate(commute_all<Fock1DInfo>,
+                                          [](typename std::vector<Operator<Fock1DInfo>>::iterator,
+                                                    std::vector<Operator<Fock1DInfo>> &) {return false;});
+    } else {
+      return exp.sort(commute_all<Fock1DInfo>);
+    }
+  } ();
 
   for (unsigned i = 0; i < reference.size(); ++i) {
     EXPECT_EQ(new_exp.expression[0][i].order.value, reference[i]);
@@ -44,7 +52,7 @@ static void random_sort_test(const unsigned seed, const std::size_t n, const int
   }
 }
 
-static void random_multiply_and_addition(const unsigned seed) {
+static void random_multiply_and_addition(const unsigned seed, const bool inter) {
   std::mt19937 random_engine(seed);
   const unsigned num_add = (random_engine() % 20) + 2;
 
@@ -75,8 +83,15 @@ static void random_multiply_and_addition(const unsigned seed) {
   for (auto & vec : reference) {
     std::sort(vec.begin(), vec.end());
   }
-  const auto new_exp = exp.sort(commute_all<Fock1DInfo>);
-
+  const auto new_exp = [&] () {
+    if (inter) {
+      return exp.interleaved_evaluate(commute_all<Fock1DInfo>,
+                                          [](typename std::vector<Operator<Fock1DInfo>>::iterator,
+                                                    std::vector<Operator<Fock1DInfo>> &) {return false;});
+    } else {
+      return exp.sort(commute_all<Fock1DInfo>);
+    }
+  } ();
   for (unsigned i = 0; i < reference.size(); ++i) {
     for (unsigned j = 0; j < reference[i].size(); ++j) {
       EXPECT_EQ(new_exp.expression[i][j].order.value, reference[i][j]);
@@ -112,17 +127,62 @@ TEST(sort_tests, number) {
   ASSERT_EQ(ss.str(), "(3.000000 * A)\n");
 }
 
+// interleaver_evaluate with empty substitutions tests
+TEST(sort_tests, inter_empty) {
+  Expression<Fock1DInfo> exp;
+  auto new_exp = exp.interleaved_evaluate(commute_all<Fock1DInfo>,
+                                          [](typename std::vector<Operator<Fock1DInfo>>::iterator,
+                                                    std::vector<Operator<Fock1DInfo>> &) {return false;});
+  std::stringstream ss;
+  new_exp.print(ss);
+  ASSERT_EQ(ss.str(), "\n");
+}
+
+TEST(sort_tests, inter_one) {
+  Expression<Fock1DInfo> exp;
+  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
+  exp.expression.resize(3);
+  exp.expression[0].push_back(A);
+  auto new_exp = exp.interleaved_evaluate(commute_all<Fock1DInfo>,
+                                          [](typename std::vector<Operator<Fock1DInfo>>::iterator,
+                                                    std::vector<Operator<Fock1DInfo>> &) {return false;});
+  std::stringstream ss;
+  new_exp.print(ss);
+  ASSERT_EQ(ss.str(), "(A)\n");
+}
+
+TEST(sort_tests, inter_number) {
+  auto exp = Operator<Fock1DInfo>("A", ordering_value(0), Fock1DInfo(0)) * Operator<Fock1DInfo>(3);
+  exp = exp.interleaved_evaluate(commute_all<Fock1DInfo>,
+                                          [](typename std::vector<Operator<Fock1DInfo>>::iterator,
+                                                    std::vector<Operator<Fock1DInfo>> &) {return false;});
+  std::stringstream ss;
+  exp.print(ss);
+  ASSERT_EQ(ss.str(), "(3.000000 * A)\n");
+}
+
 class RandomSortTest : public ::testing::TestWithParam<unsigned> {
+  // You can implement all the usual class fixture members here.
+};
+
+class InterRandomSortTest : public ::testing::TestWithParam<unsigned> {
   // You can implement all the usual class fixture members here.
 };
 
 TEST_P (RandomSortTest, random_sort) {
   const unsigned seed = GetParam();
   const unsigned n = seed;
-  random_sort_test(seed, n, 100, -100);
+  random_sort_test(seed, n, 100, -100, false);
+}
+
+TEST_P (InterRandomSortTest, inter_random_sort) {
+  const unsigned seed = GetParam();
+  const unsigned n = seed;
+  random_sort_test(seed, n, 100, -100, true);
 }
 
 INSTANTIATE_TEST_SUITE_P(RandomSortingTests, RandomSortTest, testing::Range(3U, 100U));
+INSTANTIATE_TEST_SUITE_P(InterRandomSortingTests, InterRandomSortTest, testing::Range(3U, 100U));
 
 class AdditionAndMultiplyRandomSort : public ::testing::TestWithParam<unsigned> {
   // You can implement all the usual class fixture members here.
@@ -131,10 +191,17 @@ class AdditionAndMultiplyRandomSort : public ::testing::TestWithParam<unsigned> 
 TEST_P(AdditionAndMultiplyRandomSort, random_add_sort) {
   const unsigned m = GetParam();
   const unsigned seed = m + 1000; // don't use same seed as random sort tests
-  random_multiply_and_addition(seed);
+  random_multiply_and_addition(seed, false);
+}
+
+TEST_P(AdditionAndMultiplyRandomSort, inter_random_add_sort) {
+  const unsigned m = GetParam();
+  const unsigned seed = m + 1000; // don't use same seed as random sort tests
+  random_multiply_and_addition(seed, true);
 }
 
 INSTANTIATE_TEST_SUITE_P(AdditionAndMultiplyTests, AdditionAndMultiplyRandomSort, testing::Range(0U, 30U));
+INSTANTIATE_TEST_SUITE_P(InterAdditionAndMultiplyTests, AdditionAndMultiplyRandomSort, testing::Range(0U, 30U));
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

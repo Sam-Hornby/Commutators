@@ -40,7 +40,11 @@ public:
   Expression evaluate(std::function<Expression(const Operator<OperatorInfo> &,
                       const Operator<OperatorInfo> &)> commute,
                       std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
-                      std::vector<Operator<OperatorInfo>> &)> subst) const;
+                                         std::vector<Operator<OperatorInfo>> &)> subst) const;
+  Expression interleaved_evaluate(
+      std::function<Expression(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
+      std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
+                         std::vector<Operator<OperatorInfo>> &)> subst) const;
   Expression(std::vector<std::vector<Operator<OperatorInfo>>> expression) : expression(expression) {};
   Expression() = default;
 
@@ -269,6 +273,7 @@ Expression<OperatorInfo>
 Expression<OperatorInfo>::sort(std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &,
                                const Operator<OperatorInfo> &)> commute,
                                const SortUsing sortUsing) const {
+
   // addition is assumed to always be comutative
   Expression<OperatorInfo> sorted_expression;
   for (std::size_t add_index = 0; add_index < expression.size(); ++add_index) {
@@ -291,6 +296,9 @@ Expression<OperatorInfo>::sort(std::function<Expression<OperatorInfo>(const Oper
 template <class OperatorInfo>
 static std::vector<Operator<OperatorInfo>>
 simplify_multiply(const std::vector<Operator<OperatorInfo>> & mul_term) {
+  if (mul_term.empty()) {
+    return mul_term;
+  }
   std::vector<Operator<OperatorInfo>> simplified;
   simplified.push_back(Operator<OperatorInfo>(1));
   for (const auto & op : mul_term) {
@@ -480,6 +488,49 @@ Expression<OperatorInfo> Expression<OperatorInfo>::performMultiplicationSubstitu
 
 //----------------------------------------------------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------------------------------------------------
+// all at once zone
+//----------------------------------------------------------------------------------------------------------------------
+template <class OperatorInfo>
+static Expression<OperatorInfo>
+interleaved_sort_sub_simple(Expression<OperatorInfo> exp,
+      std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
+      std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
+                         std::vector<Operator<OperatorInfo>> &)> subst) {
+
+  // the thinking behind this approach is the bubble pass will ensure that the
+  // last item is the highest, so in theory if there is one annihilation op this
+  // will make it to the end after one bubble pass. Then run substitution step
+  // here to remove that term before commuting any further. This stops the
+  // sort adding too many unnecessary terms that will slow everything that comes
+  // after down
+  bool madeChanges = true;
+  while (madeChanges) {
+    madeChanges = false;
+    for (unsigned i = 0; i < exp.expression.size(); ++i) {
+      if (exp.expression[i].empty()) {
+        continue;
+      }
+      madeChanges |= bubble_pass(i, exp.expression, commute, SortUsing::COMMUTATORS);
+    }
+    exp = exp.performMultiplicationSubstitutions(subst);
+    exp = exp.simplify_multiplications();
+  }
+  return exp;
+}
+
+template <class OperatorInfo>
+Expression<OperatorInfo> Expression<OperatorInfo>::interleaved_evaluate(
+      std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
+      std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
+                         std::vector<Operator<OperatorInfo>> &)> subst) const {
+
+   return interleaved_sort_sub_simple(*this, commute, subst);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
 template <class OperatorInfo>
 static void log_expression(spdlog::logger & logger, const Expression<OperatorInfo> & exp, const std::string & prefix) {
   std::stringstream loggingStream;
@@ -509,19 +560,11 @@ Expression<OperatorInfo>::evaluate(
   log_expression(logger, *this, "Start");
   auto exp = simplify_numbers();
   log_expression(logger, exp, "Simplify numbers 1");
-  logger.critical("Sort");
-  exp = exp.sort(commute);
-  log_expression(logger, exp, "Sort");
+  logger.critical("Interleaved evaluate");
+  exp = exp.interleaved_evaluate(commute, subst);
   logger.critical("Simplify multiplications");
-  //exp = exp.simplify_multiplications();
   exp = exp.simplify_numbers();
   log_expression(logger, exp, "Simplify numbers 2");
-  logger.critical("Substitutions");
-  exp = exp.performMultiplicationSubstitutions(subst);
-  log_expression(logger, exp, "Perform subs");
-  logger.critical("Simplify");
-  exp = exp.simplify_numbers();
-  log_expression(logger, exp, "Simplify numbers 3");
   logger.critical("End");
   return exp;
 }
