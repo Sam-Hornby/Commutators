@@ -4,6 +4,8 @@
 
 #add_test(PrintTests PrintTests)
 
+add_subdirectory(Examples)
+
 include_directories(${operators_SOURCE_DIR}/include/operators)
 link_directories(${operators_SOURCE_DIR}/lib/operators)
 
@@ -39,9 +41,3 @@ add_test(NAME "SubstitutionTests"
          COMMAND SubstitutionTests
          WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
 target_link_libraries(SubstitutionTests operators gtest gtest_main)
-
-add_executable(PhysicalExamples PhysicalExamples.cpp)
-add_test(NAME "PhysicalExamples"
-         COMMAND PhysicalExamples
-         WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-target_link_libraries(PhysicalExamples gtest gtest_main)

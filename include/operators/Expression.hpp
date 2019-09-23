@@ -40,11 +40,13 @@ public:
   Expression evaluate(std::function<Expression(const Operator<OperatorInfo> &,
                       const Operator<OperatorInfo> &)> commute,
                       std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
-                                         std::vector<Operator<OperatorInfo>> &)> subst) const;
+                                         std::vector<Operator<OperatorInfo>> &)> subst,
+                      const SortUsing s = SortUsing::COMMUTATORS) const;
   Expression interleaved_evaluate(
       std::function<Expression(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
       std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
-                         std::vector<Operator<OperatorInfo>> &)> subst) const;
+                         std::vector<Operator<OperatorInfo>> &)> subst,
+      const SortUsing s = SortUsing::COMMUTATORS) const;
   Expression(std::vector<std::vector<Operator<OperatorInfo>>> expression) : expression(expression) {};
   Expression() = default;
 
@@ -496,7 +498,8 @@ static Expression<OperatorInfo>
 interleaved_sort_sub_simple(Expression<OperatorInfo> exp,
       std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
       std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
-                         std::vector<Operator<OperatorInfo>> &)> subst) {
+                         std::vector<Operator<OperatorInfo>> &)> subst,
+      const SortUsing s) {
 
   // the thinking behind this approach is the bubble pass will ensure that the
   // last item is the highest, so in theory if there is one annihilation op this
@@ -505,16 +508,21 @@ interleaved_sort_sub_simple(Expression<OperatorInfo> exp,
   // sort adding too many unnecessary terms that will slow everything that comes
   // after down
   bool madeChanges = true;
+  unsigned count = 0;
   while (madeChanges) {
+    spdlog::info("Interleaved bubble loop {}", count++);
+    spdlog::info("Size of expression {}", exp.expression.size());
     madeChanges = false;
     for (unsigned i = 0; i < exp.expression.size(); ++i) {
       if (exp.expression[i].empty()) {
         continue;
       }
-      madeChanges |= bubble_pass(i, exp.expression, commute, SortUsing::COMMUTATORS);
+      madeChanges |= bubble_pass(i, exp.expression, commute, s);
     }
+    spdlog::info("Size of expression {}", exp.expression.size());
     exp = exp.performMultiplicationSubstitutions(subst);
     exp = exp.simplify_multiplications();
+    spdlog::info("Size of expression {}", exp.expression.size());
   }
   return exp;
 }
@@ -523,9 +531,10 @@ template <class OperatorInfo>
 Expression<OperatorInfo> Expression<OperatorInfo>::interleaved_evaluate(
       std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
       std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
-                         std::vector<Operator<OperatorInfo>> &)> subst) const {
+                         std::vector<Operator<OperatorInfo>> &)> subst,
+      const SortUsing s) const {
 
-   return interleaved_sort_sub_simple(*this, commute, subst);
+   return interleaved_sort_sub_simple(*this, commute, subst, s);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -543,17 +552,18 @@ Expression<OperatorInfo>
 Expression<OperatorInfo>::evaluate(
         std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
         std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
-                           std::vector<Operator<OperatorInfo>> &)> subst) const {
+                           std::vector<Operator<OperatorInfo>> &)> subst,
+        const SortUsing s) const {
   // simplify numbers is much faster than the other functions and can make the the other functions run faster so call
   // it frequently
 
   // Set up logging(defaults to off)
   //-------------------------------------------------------------------------------
   auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-  console_sink->set_level(spdlog::level::info);
+  console_sink->set_level(spdlog::level::debug);
   console_sink->set_pattern("%^\033[33m[evaluate] [%l%$] [%H:%M:%S] %v%$");
   spdlog::logger logger("Operators", console_sink);
-  logger.set_level(spdlog::level::critical);
+  logger.set_level(spdlog::level::debug);
   //-------------------------------------------------------------------------------
 
   logger.critical("Start evaluation: Simplift numbers");
@@ -561,7 +571,7 @@ Expression<OperatorInfo>::evaluate(
   auto exp = simplify_numbers();
   log_expression(logger, exp, "Simplify numbers 1");
   logger.critical("Interleaved evaluate");
-  exp = exp.interleaved_evaluate(commute, subst);
+  exp = exp.interleaved_evaluate(commute, subst, s);
   logger.critical("Simplify multiplications");
   exp = exp.simplify_numbers();
   log_expression(logger, exp, "Simplify numbers 2");
