@@ -2,6 +2,7 @@
 #define _commutators_hpp_
 
 #include "Expression.hpp"
+#include "Utils.hpp"
 
 // file of helpful comutator functions
 
@@ -78,6 +79,27 @@ Expression<OperatorInfo> anticommute_none_(const Operator<OperatorInfo> & A, con
 template <class OperatorInfo>
 Expression<OperatorInfo> anticommute_none(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
   return commute_numbers<OperatorInfo>(A, B, anticommute_none_<Fock1DInfo>);
+}
+// ---------------------------------------------------------------------------------------------------------------------
+
+
+// Boson comutator
+// ---------------------------------------------------------------------------------------------------------------------
+template <class OperatorInfo>
+Expression<OperatorInfo> boson_commutator_(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
+  if (is_anihilation_op<OperatorInfo>(A) and is_creation_op<OperatorInfo>(B)) {
+    if (A.info.match(B.info)) {
+      return Expression<OperatorInfo>({{number<OperatorInfo>(1)}});
+    } else {
+      return zero_commutator<OperatorInfo>();
+    }
+  }
+  throw std::logic_error("Shouldn't be commuting anything else");
+}
+
+template <class OperatorInfo>
+Expression<OperatorInfo> boson_commutator(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
+  return commute_numbers<OperatorInfo>(A, B, boson_commutator_<OperatorInfo>);
 }
 // ---------------------------------------------------------------------------------------------------------------------
 
