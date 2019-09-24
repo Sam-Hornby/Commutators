@@ -11,16 +11,16 @@ namespace operators {
 
 template <class OperatorInfo>
 inline Operator<OperatorInfo> vacuum_state() {
-  return Operator<OperatorInfo>("|0>", ordering_value(0), OperatorInfo::vacuumState());
+  return Operator<OperatorInfo>(ordering_value(0), OperatorInfo::vacuumState());
 }
 
 inline Operator<Fock1DInfo> creation_op(const int info_value) {
-  return Operator<Fock1DInfo>("a_" + std::to_string(info_value) + "!", ordering_value(0),
+  return Operator<Fock1DInfo>(ordering_value(0),
                   Fock1DInfo(info_value, Type::CREATION_OPERATOR));
 }
 
 inline Operator<Fock1DInfo> anihilation_op(const int info_value) {
-  return Operator<Fock1DInfo>("a_" + std::to_string(info_value), ordering_value(0),
+  return Operator<Fock1DInfo>(ordering_value(0),
                   Fock1DInfo(info_value, Type::ANIHILATION_OPERATOR));
 }
 
@@ -62,30 +62,7 @@ Operator<OperatorInfo> hermition_conjugate(const Operator<OperatorInfo> & op) {
   }
   auto info = op.info;
   info.type = type;
-  if (op.info.type == Type::CREATION_OPERATOR) {
-    if (op.name[op.name.size() - 1] == '!') {
-      std::string new_name(op.name, 0, op.name.size() - 1);
-      return Operator<OperatorInfo>(std::move(new_name), op.order, info);
-    }
-  }
-  if (op.info.type == Type::STATE_VECTOR) {
-    if (op.name[0] == '|' and op.name[op.name.size() - 1] == '>') {
-      std::string new_name = op.name;
-      new_name[0] = '<';
-      new_name[new_name.size() - 1] = '|';
-      return Operator<OperatorInfo>(std::move(new_name), op.order, info);
-    }
-  }
-  if (op.info.type == Type::HC_STATE_VECTOR) {
-    if (op.name[0] == '<' and op.name[op.name.size() - 1] == '|') {
-      std::string new_name = op.name;
-      new_name[0] = '|';
-      new_name[new_name.size() - 1] = '>';
-      return Operator<OperatorInfo>(std::move(new_name), op.order, info);
-    }
-  }
-
-  return Operator<OperatorInfo>(op.name + "!", op.order, info);
+  return Operator<OperatorInfo>(op.order, info);
 }
 
 template <class OperatorInfo>

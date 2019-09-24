@@ -25,9 +25,9 @@ inline Expression<OperatorInfo> numeric_commutator(const double n) {
 // if the commutator of 2 operatos is another operator return this
 template <class OperatorInfo>
 inline Expression<OperatorInfo>
-operator_commutator(std::string name, const ordering_value order, const OperatorInfo info) {
+operator_commutator(const ordering_value order, const OperatorInfo info) {
   return Expression<OperatorInfo>(std::vector<std::vector<Operator<OperatorInfo>>>(1,
-                                  std::vector<Operator<OperatorInfo>>(1, Operator<OperatorInfo>(name, order, info))));
+                                  std::vector<Operator<OperatorInfo>>(1, Operator<OperatorInfo>(order, info))));
 }
 
 template <class OperatorInfo>
@@ -57,28 +57,47 @@ Expression<OperatorInfo> commute_all(const Operator<OperatorInfo> &, const Opera
 
 // Commute none
 // ---------------------------------------------------------------------------------------------------------------------
-template <class OperatorInfo>
-Expression<OperatorInfo> commute_none_(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
-  std::string com = "[" + A.name + ", " + B.name + "]";
-  return operator_commutator<OperatorInfo>(std::move(com), ordering_value(0), OperatorInfo());
+struct GenericInfo {
+  Type type = Type::UNSPECIFIED;
+  std::string op_name;
+  GenericInfo() = default;
+  GenericInfo(std::string op_name) : op_name(op_name) {}
+  std::string name() const {return op_name;}
+  bool operator==(GenericInfo other) const {
+    return type == other.type and op_name == other.op_name;
+  }
+
+  bool operator!=(GenericInfo other) const {
+    return not (*this == other);
+  }
+  bool operator<(GenericInfo other) const {
+    return std::tie(type, op_name) <
+           std::tie(other.type, other.op_name);
+  }
+  bool isVacuumState() const {return false;}
+  bool isHCVacuumState() const {return false;}
+  bool match(const Fock1DInfo & other) const {return true;}
+};
+
+Expression<GenericInfo> commute_none_(const Operator<GenericInfo> & A, const Operator<GenericInfo> & B) {
+  std::string com = "[" + A.info.name() + ", " + B.info.name() + "]";
+  return Expression<GenericInfo>({{Operator<GenericInfo>(ordering_value(0), GenericInfo(com))}});
 }
 
-template <class OperatorInfo>
-Expression<OperatorInfo> commute_none(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
-  return commute_numbers<OperatorInfo>(A, B, commute_none_<Fock1DInfo>);
+Expression<GenericInfo> commute_none(const Operator<GenericInfo> & A, const Operator<GenericInfo> & B) {
+  return commute_numbers<GenericInfo>(A, B, commute_none_);
 }
 
 // Anti commute none
 // ---------------------------------------------------------------------------------------------------------------------
-template <class OperatorInfo>
-Expression<OperatorInfo> anticommute_none_(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
-  std::string com = "{" + A.name + ", " + B.name + "}";
-  return operator_commutator<OperatorInfo>(std::move(com), ordering_value(0), OperatorInfo(0));
+
+Expression<GenericInfo> anticommute_none_(const Operator<GenericInfo> & A, const Operator<GenericInfo> & B) {
+  std::string com = "{" + A.info.name() + ", " + B.info.name() + "}";
+  return Expression<GenericInfo>({{Operator<GenericInfo>(ordering_value(0), com)}});
 }
 
-template <class OperatorInfo>
-Expression<OperatorInfo> anticommute_none(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
-  return commute_numbers<OperatorInfo>(A, B, anticommute_none_<Fock1DInfo>);
+Expression<GenericInfo> anticommute_none(const Operator<GenericInfo> & A, const Operator<GenericInfo> & B) {
+  return commute_numbers<GenericInfo>(A, B, anticommute_none_);
 }
 // ---------------------------------------------------------------------------------------------------------------------
 

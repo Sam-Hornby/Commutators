@@ -24,11 +24,11 @@ static void random_sort_test(const unsigned seed, const std::size_t n, const int
     reference.push_back((randomEngine() % mod) + min);
   }
 
-  Operator<Fock1DInfo> A(std::to_string(reference[0]), ordering_value(reference[0]), Fock1DInfo(reference[0]));
-  Operator<Fock1DInfo> B(std::to_string(reference[1]), ordering_value(reference[1]), Fock1DInfo(reference[1]));
-  Expression<Fock1DInfo> exp = A * B;
+  Operator<GenericInfo> A(ordering_value(reference[0]), GenericInfo(std::to_string(reference[0])));
+  Operator<GenericInfo> B(ordering_value(reference[1]), GenericInfo(std::to_string(reference[1])));
+  Expression<GenericInfo> exp = A * B;
   for (unsigned i = 2; i < reference.size(); ++i) {
-    exp = exp * Operator<Fock1DInfo>(std::to_string(reference[i]), ordering_value(reference[i]), Fock1DInfo(reference[i]));
+    exp = exp * Operator<GenericInfo>(ordering_value(reference[i]), GenericInfo(std::to_string(reference[i])));
   }
 
   for (unsigned i = 0; i < reference.size(); ++i) {
@@ -36,19 +36,19 @@ static void random_sort_test(const unsigned seed, const std::size_t n, const int
   }
 
   std::sort(reference.begin(), reference.end());
-  const Expression<Fock1DInfo> new_exp = [&] () {
+  const Expression<GenericInfo> new_exp = [&] () {
     if (inter) {
-      return exp.interleaved_evaluate(commute_all<Fock1DInfo>,
-                                          [](typename std::vector<Operator<Fock1DInfo>>::iterator,
-                                                    std::vector<Operator<Fock1DInfo>> &) {return false;});
+      return exp.interleaved_evaluate(commute_all<GenericInfo>,
+                                          [](typename std::vector<Operator<GenericInfo>>::iterator,
+                                                    std::vector<Operator<GenericInfo>> &) {return false;});
     } else {
-      return exp.sort(commute_all<Fock1DInfo>);
+      return exp.sort(commute_all<GenericInfo>);
     }
   } ();
 
   for (unsigned i = 0; i < reference.size(); ++i) {
     EXPECT_EQ(new_exp.expression[0][i].order.value, reference[i]);
-    EXPECT_EQ(new_exp.expression[0][i].order.value, new_exp.expression[0][i].info.x_coordinate);
+    EXPECT_EQ(std::to_string(new_exp.expression[0][i].order.value), new_exp.expression[0][i].info.name());
   }
 }
 
@@ -64,12 +64,12 @@ static void random_multiply_and_addition(const unsigned seed, const bool inter) 
     }
   }
 
-  Expression<Fock1DInfo> exp;
+  Expression<GenericInfo> exp;
   for (const auto & vec : reference) {
-    Expression<Fock1DInfo> mul_term =  Operator<Fock1DInfo>(std::to_string(vec[0]), ordering_value(vec[0]), Fock1DInfo(vec[0]))
-                           * Operator<Fock1DInfo>(std::to_string(vec[1]), ordering_value(vec[1]), Fock1DInfo(vec[1]));
+    Expression<GenericInfo> mul_term =  Operator<GenericInfo>(ordering_value(vec[0]), GenericInfo(std::to_string(vec[0])))
+                           * Operator<GenericInfo>(ordering_value(vec[1]), GenericInfo(std::to_string(vec[1])));
     for (unsigned j = 2; j < vec.size(); ++j) {
-      mul_term = mul_term * Operator<Fock1DInfo>(std::to_string(vec[j]), ordering_value(vec[j]), Fock1DInfo(vec[j]));
+      mul_term = mul_term * Operator<GenericInfo>(ordering_value(vec[j]), GenericInfo(std::to_string(vec[j])));
     }
     exp = exp + mul_term;
   }
@@ -85,17 +85,17 @@ static void random_multiply_and_addition(const unsigned seed, const bool inter) 
   }
   const auto new_exp = [&] () {
     if (inter) {
-      return exp.interleaved_evaluate(commute_all<Fock1DInfo>,
-                                          [](typename std::vector<Operator<Fock1DInfo>>::iterator,
-                                                    std::vector<Operator<Fock1DInfo>> &) {return false;});
+      return exp.interleaved_evaluate(commute_all<GenericInfo>,
+                                          [](typename std::vector<Operator<GenericInfo>>::iterator,
+                                                    std::vector<Operator<GenericInfo>> &) {return false;});
     } else {
-      return exp.sort(commute_all<Fock1DInfo>);
+      return exp.sort(commute_all<GenericInfo>);
     }
   } ();
   for (unsigned i = 0; i < reference.size(); ++i) {
     for (unsigned j = 0; j < reference[i].size(); ++j) {
       EXPECT_EQ(new_exp.expression[i][j].order.value, reference[i][j]);
-      EXPECT_EQ(new_exp.expression[i][j].order.value, new_exp.expression[i][j].info.x_coordinate);
+      EXPECT_EQ(std::to_string(new_exp.expression[i][j].order.value), new_exp.expression[i][j].info.name());
     }
   }
 }
@@ -109,19 +109,19 @@ TEST(sort_tests, empty) {
 }
 
 TEST(sort_tests, one) {
-  Expression<Fock1DInfo> exp;
-  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
+  Expression<GenericInfo> exp;
+  Operator<GenericInfo> A(ordering_value(0), GenericInfo("A"));
   exp.expression.resize(3);
   exp.expression[0].push_back(A);
-  auto new_exp = exp.sort(commute_all<Fock1DInfo>);
+  auto new_exp = exp.sort(commute_all<GenericInfo>);
   std::stringstream ss;
   new_exp.print(ss);
   ASSERT_EQ(ss.str(), "(A)\n");
 }
 
 TEST(sort_tests, number) {
-  auto exp = Operator<Fock1DInfo>("A", ordering_value(0), Fock1DInfo(0)) * Operator<Fock1DInfo>(3);
-  exp = exp.sort(commute_all<Fock1DInfo>);
+  auto exp = Operator<GenericInfo>(ordering_value(0), GenericInfo("A")) * Operator<GenericInfo>(3);
+  exp = exp.sort(commute_all<GenericInfo>);
   std::stringstream ss;
   exp.print(ss);
   ASSERT_EQ(ss.str(), "(3.000000 * A)\n");
@@ -139,23 +139,23 @@ TEST(sort_tests, inter_empty) {
 }
 
 TEST(sort_tests, inter_one) {
-  Expression<Fock1DInfo> exp;
-  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
+  Expression<GenericInfo> exp;
+  Operator<GenericInfo> A(ordering_value(0), GenericInfo("A"));
   exp.expression.resize(3);
   exp.expression[0].push_back(A);
-  auto new_exp = exp.interleaved_evaluate(commute_all<Fock1DInfo>,
-                                          [](typename std::vector<Operator<Fock1DInfo>>::iterator,
-                                                    std::vector<Operator<Fock1DInfo>> &) {return false;});
+  auto new_exp = exp.interleaved_evaluate(commute_all<GenericInfo>,
+                                          [](typename std::vector<Operator<GenericInfo>>::iterator,
+                                                    std::vector<Operator<GenericInfo>> &) {return false;});
   std::stringstream ss;
   new_exp.print(ss);
   ASSERT_EQ(ss.str(), "(A)\n");
 }
 
 TEST(sort_tests, inter_number) {
-  auto exp = Operator<Fock1DInfo>("A", ordering_value(0), Fock1DInfo(0)) * Operator<Fock1DInfo>(3);
-  exp = exp.interleaved_evaluate(commute_all<Fock1DInfo>,
-                                          [](typename std::vector<Operator<Fock1DInfo>>::iterator,
-                                                    std::vector<Operator<Fock1DInfo>> &) {return false;});
+  auto exp = Operator<GenericInfo>(ordering_value(0), GenericInfo("A")) * Operator<GenericInfo>(3);
+  exp = exp.interleaved_evaluate(commute_all<GenericInfo>,
+                                          [](typename std::vector<Operator<GenericInfo>>::iterator,
+                                                    std::vector<Operator<GenericInfo>> &) {return false;});
   std::stringstream ss;
   exp.print(ss);
   ASSERT_EQ(ss.str(), "(3.000000 * A)\n");

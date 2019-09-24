@@ -171,9 +171,9 @@ void Expression<OperatorInfo>::print(std::ostream& out) const {
     out << "(";
     for (std::size_t j = 0; j < expression[i].size(); ++j) {
       if (j != (expression[i].size() - 1)) {
-        out << expression[i][j].name << " * ";
+        out << expression[i][j].name() << " * ";
       } else {
-        out << expression[i][j].name;
+        out << expression[i][j].name();
       }
     }
     out << ")";
@@ -316,9 +316,6 @@ simplify_multiply(const std::vector<Operator<OperatorInfo>> & mul_term) {
   if (simplified[0].is_number() and simplified[0].value.get() == 1 and simplified.size() != 1) {
     simplified.erase(simplified.begin());
   }
-  if (simplified[0].is_number()) {
-    simplified[0].name = std::to_string(simplified[0].value.get()); // correct name for number
-  }
   return simplified;
 }
 
@@ -392,8 +389,8 @@ struct ComparisonStruct {
     for (unsigned i = 0; i < num_operators(); ++i) {
       const auto & op_A = full.at(first_A + i);
       const auto & op_B = other.full.at(first_B + i);
-      const auto tie_A = std::tie(op_A.name, op_A.order, op_A.info);
-      const auto tie_B = std::tie(op_B.name, op_B.order, op_B.info);
+      const auto tie_A = std::tie(op_A.order, op_A.info);
+      const auto tie_B = std::tie(op_B.order, op_B.info);
       if (tie_A != tie_B) {
         return tie_A < tie_B;
       }

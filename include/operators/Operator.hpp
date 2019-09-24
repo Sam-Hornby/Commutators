@@ -11,17 +11,22 @@ namespace operators {
 
 template <class OperatorInfo>
 struct Operator {
-  std::string name;  // name of operator TODO make const
   ordering_value order;  // when sorting this determines greater than or equal to
   OperatorInfo info;     // should be unique for each operator TODO make const
   // if this is set operator is a number, comutators are automatically assumed zero, op_id is irelevant
   boost::optional<double> value;
 
   Operator() = default;
-  Operator(std::string name, ordering_value order, OperatorInfo info) : name(name), order(order), info(info) {}
+  Operator(ordering_value order, OperatorInfo info) : order(order), info(info) {}
   Operator(double v) : order(ordering_value(std::numeric_limits<int>::min())) {
     value = v;
-    name = std::to_string(v);
+  }
+
+  std::string name() const {
+    if (value) {
+      return std::to_string(value.get());
+    }
+    return info.name();
   }
 
   bool is_number() const {
@@ -37,7 +42,7 @@ struct Operator {
   }
 
   bool operator==(Operator other) const {
-    return (name == other.name) and (order == other.order) and (info == other.info);
+    return (order == other.order) and (info == other.info) and (value == other.value);
   }
 
   bool operator!=(Operator other) const {

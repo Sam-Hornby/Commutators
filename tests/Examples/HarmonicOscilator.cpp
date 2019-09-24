@@ -16,6 +16,22 @@ struct Fock0DInfo {
   Type type = Type::UNSPECIFIED;
   Fock0DInfo() = default;
   Fock0DInfo(Type type) : type(type) {}
+  std::string name() const {
+    std::string result;
+    if (isFockOpType(type)) {
+      result += "a_0";
+      if (type == Type::CREATION_OPERATOR) {
+        result += "!";
+      }
+      return result;
+    } else if (type == Type::STATE_VECTOR) {
+      return "|0>";
+    } else if (type == Type::HC_STATE_VECTOR) {
+      return "<0|";
+    } else {
+      std::abort();
+    }
+  }
   bool operator==(Fock0DInfo other) const {
     return type == other.type;
   }
@@ -47,11 +63,11 @@ struct Fock0DInfo {
 };
 
 Operator<Fock0DInfo> creation_op() {
-  return Operator<Fock0DInfo>("a_0!", ordering_value(0),
+  return Operator<Fock0DInfo>(ordering_value(0),
                   Fock0DInfo(Type::CREATION_OPERATOR));
 }
 Operator<Fock0DInfo> anihilation_op() {
-  return Operator<Fock0DInfo>("a_0", ordering_value(0),
+  return Operator<Fock0DInfo>(ordering_value(0),
                   Fock0DInfo(Type::ANIHILATION_OPERATOR));
 }
 Expression<Fock0DInfo> normalised_n_occupied_state(unsigned n) {

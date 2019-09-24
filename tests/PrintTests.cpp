@@ -3,12 +3,13 @@
 #include <sstream>
 #include <iomanip>
 #include "struct_ids.hpp"
+#include "Comutators.hpp"
 
 using namespace operators;
 
 TEST (printing_tests, basic_addition) {
-  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
-  Operator<Fock1DInfo> B("B", ordering_value(0), Fock1DInfo(1));
+  Operator<GenericInfo> A(ordering_value(0), GenericInfo("A"));
+  Operator<GenericInfo> B(ordering_value(0), GenericInfo("B"));
 
   const auto exp = A + B;
   std::stringstream ss;
@@ -34,8 +35,8 @@ TEST(printing_tests, empty) {
 }
 
 TEST(printing_tests, basic_multiplication) {
-  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
-  Operator<Fock1DInfo> B("B", ordering_value(0), Fock1DInfo(1));
+  Operator<GenericInfo> A(ordering_value(0), GenericInfo("A"));
+  Operator<GenericInfo> B(ordering_value(0), GenericInfo("B"));
 
   const auto exp = A * B;
   std::stringstream ss;
@@ -44,10 +45,10 @@ TEST(printing_tests, basic_multiplication) {
 }
 
 TEST(printing_tests, add_and_multiply) {
-  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
-  Operator<Fock1DInfo> B("B", ordering_value(0), Fock1DInfo(1));
-  Operator<Fock1DInfo> C("C", ordering_value(0), Fock1DInfo(2));
-  Operator<Fock1DInfo> D("D", ordering_value(0), Fock1DInfo(3));
+  Operator<GenericInfo> A(ordering_value(0), GenericInfo("A"));
+  Operator<GenericInfo> B(ordering_value(0), GenericInfo("B"));
+  Operator<GenericInfo> C(ordering_value(0), GenericInfo("C"));
+  Operator<GenericInfo> D(ordering_value(0), GenericInfo("D"));
 
   const auto exp1 = A * B;
   const auto exp2 = C * D;
@@ -62,12 +63,12 @@ TEST(printing_tests, add_and_multiply) {
 }
 
 TEST(printing_tests, multiply_expressions) {
-  Operator<Fock1DInfo> A("A", ordering_value(0), Fock1DInfo(0));
-  Operator<Fock1DInfo> B("B", ordering_value(0), Fock1DInfo(1));
-  Operator<Fock1DInfo> C("C", ordering_value(0), Fock1DInfo(2));
-  Operator<Fock1DInfo> D("D", ordering_value(0), Fock1DInfo(3));
-  Operator<Fock1DInfo> E("E", ordering_value(0), Fock1DInfo(4));
-  Operator<Fock1DInfo> F("F", ordering_value(0), Fock1DInfo(5));
+  Operator<GenericInfo> A(ordering_value(0), GenericInfo("A"));
+  Operator<GenericInfo> B(ordering_value(0), GenericInfo("B"));
+  Operator<GenericInfo> C(ordering_value(0), GenericInfo("C"));
+  Operator<GenericInfo> D(ordering_value(0), GenericInfo("D"));
+  Operator<GenericInfo> E(ordering_value(0), GenericInfo("E"));
+  Operator<GenericInfo> F(ordering_value(0), GenericInfo("F"));
 
   const auto exp = (A + B + C) * ((D * F) + E);
 

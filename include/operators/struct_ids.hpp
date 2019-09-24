@@ -28,6 +28,27 @@ struct Fock1DInfo {
   Fock1DInfo(int x_coordinate, int state, Type type) : x_coordinate(x_coordinate), state(state), type(type) {}
   Fock1DInfo() = default;
 
+  std::string name() const {
+    std::string result;
+    if (isFockOpType(type)) {
+      result += ("a_" + std::to_string(x_coordinate));
+      if (type == Type::CREATION_OPERATOR) {
+        result += "!";
+      }
+    } else if (isVectorType(type)) {
+      result += (type == Type::STATE_VECTOR ? "|" : "<");
+      if (x_coordinate == 0 and state == 0) {
+        result += "0";
+      } else {
+        result += (std::to_string(x_coordinate) + "," + std::to_string(state));
+      }
+      result += (type == Type::STATE_VECTOR ? ">" : "|");
+    } else {
+      throw std::logic_error("No naming convention for unspecified");
+    }
+    return result;
+  }
+
   bool operator==(Fock1DInfo other) const {
     return x_coordinate == other.x_coordinate and state == other.state && type == other.type;
   }

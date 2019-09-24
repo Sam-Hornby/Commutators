@@ -8,3 +8,10 @@ add_test(NAME "HarmonicOscilator"
          COMMAND HarmonicOscilator
          WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
 target_link_libraries(HarmonicOscilator gtest gtest_main)
+
+
+add_executable(SimpleFermions SimpleFermions.cpp)
+add_test(NAME "SimpleFermions"
+         COMMAND SimpleFermions
+         WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
+target_link_libraries(SimpleFermions gtest gtest_main)
