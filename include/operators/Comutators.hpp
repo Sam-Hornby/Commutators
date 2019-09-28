@@ -80,7 +80,7 @@ struct GenericInfo {
 };
 
 Expression<GenericInfo> commute_none_(const Operator<GenericInfo> & A, const Operator<GenericInfo> & B) {
-  std::string com = "[" + A.info.name() + ", " + B.info.name() + "]";
+  std::string com = "[" + A.name() + ", " + B.name() + "]";
   return Expression<GenericInfo>({{Operator<GenericInfo>(ordering_value(0), GenericInfo(com))}});
 }
 
@@ -92,7 +92,7 @@ Expression<GenericInfo> commute_none(const Operator<GenericInfo> & A, const Oper
 // ---------------------------------------------------------------------------------------------------------------------
 
 Expression<GenericInfo> anticommute_none_(const Operator<GenericInfo> & A, const Operator<GenericInfo> & B) {
-  std::string com = "{" + A.info.name() + ", " + B.info.name() + "}";
+  std::string com = "{" + A.name() + ", " + B.name() + "}";
   return Expression<GenericInfo>({{Operator<GenericInfo>(ordering_value(0), com)}});
 }
 
@@ -107,7 +107,7 @@ Expression<GenericInfo> anticommute_none(const Operator<GenericInfo> & A, const 
 template <class OperatorInfo>
 Expression<OperatorInfo> boson_commutator_(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
   if (is_anihilation_op<OperatorInfo>(A) and is_creation_op<OperatorInfo>(B)) {
-    if (A.info.match(B.info)) {
+    if (A.info().match(B.info())) {
       return Expression<OperatorInfo>({{number<OperatorInfo>(1)}});
     } else {
       return zero_commutator<OperatorInfo>();

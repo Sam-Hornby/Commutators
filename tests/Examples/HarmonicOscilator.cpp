@@ -102,7 +102,7 @@ static bool check_answer(const Expression<OperatorInfo> & exp, const double ans)
     return false;
   }
 
-  return round_to_3_dp(exp.expression[0][0].value.get()) == round_to_3_dp(ans);
+  return round_to_3_dp(exp.expression[0][0].value()) == round_to_3_dp(ans);
 }
 
 TEST(Examples, HarmonicOscilator) {

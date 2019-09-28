@@ -196,7 +196,7 @@ static void add_terms_from_comutator(std::vector<std::vector<Operator<OperatorIn
   for (const auto &mul_term : com.expression) {
     if (std::any_of(mul_term.begin(), mul_term.end(),
                     [&](const Operator<OperatorInfo> &op) {
-                      return op.is_number() and op.value.get() == 0;
+                      return op.is_number() and op.value() == 0;
                     })) {
       continue;
     }
@@ -206,7 +206,7 @@ static void add_terms_from_comutator(std::vector<std::vector<Operator<OperatorIn
         });
     const bool all_one = std::all_of(mul_term.begin(), mul_term.end(),
                                         [&](const Operator<OperatorInfo> &op) {
-          return op.is_number() and op.value.get() == 1.0;
+          return op.is_number() and op.value() == 1.0;
         });
     // as commuter has value means new addition term must be added
     sorted_terms.push_back(std::vector<Operator<OperatorInfo>>());
@@ -305,15 +305,15 @@ simplify_multiply(const std::vector<Operator<OperatorInfo>> & mul_term) {
   simplified.push_back(Operator<OperatorInfo>(1));
   for (const auto & op : mul_term) {
     if (op.is_number()) {
-      simplified[0].value = simplified[0].value.get() * op.value.get();
+      simplified[0].data = simplified[0].value() * op.value();
     } else {
       simplified.push_back(op);
     }
   }
-  if (simplified[0].is_number() and simplified[0].value.get() == 0) {
+  if (simplified[0].is_number() and simplified[0].value() == 0) {
     simplified.clear(); // if zero return empty vector
   }
-  if (simplified[0].is_number() and simplified[0].value.get() == 1 and simplified.size() != 1) {
+  if (simplified[0].is_number() and simplified[0].value() == 1 and simplified.size() != 1) {
     simplified.erase(simplified.begin());
   }
   return simplified;
@@ -350,11 +350,11 @@ combine_expressions(const std::vector<Operator<OperatorInfo>> & A, const std::ve
   if ((!A[0].is_number()) and (!B[0].is_number())) {
     number = Operator<OperatorInfo>(2);
   } else if ((A[0].is_number()) && (!B[0].is_number())) {
-    number = Operator<OperatorInfo>(A[0].value.get() + 1);
+    number = Operator<OperatorInfo>(A[0].value() + 1);
   } else if ((!A[0].is_number()) && B[0].is_number()) {
-    number = Operator<OperatorInfo>(B[0].value.get() + 1);
+    number = Operator<OperatorInfo>(B[0].value() + 1);
   } else {
-    number = Operator<OperatorInfo>(A[0].value.get() + B[0].value.get());
+    number = Operator<OperatorInfo>(A[0].value() + B[0].value());
   }
   C.push_back(number);
   unsigned start_index = static_cast<unsigned>(A[0].is_number());
@@ -389,8 +389,8 @@ struct ComparisonStruct {
     for (unsigned i = 0; i < num_operators(); ++i) {
       const auto & op_A = full.at(first_A + i);
       const auto & op_B = other.full.at(first_B + i);
-      const auto tie_A = std::tie(op_A.order, op_A.info);
-      const auto tie_B = std::tie(op_B.order, op_B.info);
+      const auto tie_A = std::tie(op_A.order, op_A.info());
+      const auto tie_B = std::tie(op_B.order, op_B.info());
       if (tie_A != tie_B) {
         return tie_A < tie_B;
       }

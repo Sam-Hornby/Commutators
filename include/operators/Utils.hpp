@@ -50,7 +50,7 @@ Operator<OperatorInfo> hermition_conjugate(const Operator<OperatorInfo> & op) {
     // yet to support complex numbers
     return op;
   }
-  auto type = op.info.type;
+  auto type = op.info().type;
   if (type == Type::STATE_VECTOR) {
     type = Type::HC_STATE_VECTOR;
   } else if (type == Type::HC_STATE_VECTOR) {
@@ -60,7 +60,7 @@ Operator<OperatorInfo> hermition_conjugate(const Operator<OperatorInfo> & op) {
   } else if (type == Type::ANIHILATION_OPERATOR) {
     type = Type::CREATION_OPERATOR;
   }
-  auto info = op.info;
+  OperatorInfo info = op.info();
   info.type = type;
   return Operator<OperatorInfo>(op.order, info);
 }
@@ -79,23 +79,28 @@ Expression<OperatorInfo> hermition_conjugate(const Expression<OperatorInfo> & ex
 
 template <class OperatorInfo>
 bool is_state_vector(const Operator<OperatorInfo> & A) {
-  return A.info.type == Type::STATE_VECTOR;
+  if (A.is_number()) {return false;}
+  return A.info().type == Type::STATE_VECTOR;
 }
 template <class OperatorInfo>
 bool is_hc_state_vector(const Operator<OperatorInfo> & A) {
-  return A.info.type == Type::HC_STATE_VECTOR;
+  if (A.is_number()) {return false;}
+  return A.info().type == Type::HC_STATE_VECTOR;
 }
 template <class OperatorInfo>
 bool is_creation_op(const Operator<OperatorInfo> & A) {
-  return A.info.type == Type::CREATION_OPERATOR;
+  if (A.is_number()) {return false;}
+  return A.info().type == Type::CREATION_OPERATOR;
 }
 template <class OperatorInfo>
 bool is_anihilation_op(const Operator<OperatorInfo> & A) {
-  return A.info.type == Type::ANIHILATION_OPERATOR;
+  if (A.is_number()) {return false;}
+  return A.info().type == Type::ANIHILATION_OPERATOR;
 }
 template <class OperatorInfo>
 bool is_unspecified_op(const Operator<OperatorInfo> & A) {
-  return A.info.type == Type::UNSPECIFIED;
+  if (A.is_number()) {return false;}
+  return A.info().type == Type::UNSPECIFIED;
 }
 
 } // end namspace

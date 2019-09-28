@@ -30,9 +30,9 @@ template <class OperatorInfo>
 bool all_states_orthognal(typename std::vector<Operator<OperatorInfo>>::iterator start,
                           std::vector<Operator<OperatorInfo>> & exp) {
   if (is_hc_state_vector(*start)) {
-    const auto & info = start->info;
+    const auto & info = start->info();
     if ((start + 1) != exp.end() and is_state_vector(*(start + 1))) {
-      if ((start + 1)->info.match(info)) {
+      if ((start + 1)->info().match(info)) {
         *start = Operator<OperatorInfo>(1);
         set_to_one<OperatorInfo>(start + 1, 1);
       } else {
@@ -52,8 +52,11 @@ bool anihilate_vacuum(typename std::vector<Operator<OperatorInfo>>::iterator sta
   if (start + 1 == exp.end()) {
     return false;
   }
-  bool anihilate_hc = start->info.isHCVacuumState() and is_creation_op(*(start + 1));
-  bool anihilate_st = is_anihilation_op(*start) and (start + 1)->info.isVacuumState();
+  if (start->is_number() or (start + 1)->is_number()) {
+    return false;
+  }
+  bool anihilate_hc = start->info().isHCVacuumState() and is_creation_op(*(start + 1));
+  bool anihilate_st = is_anihilation_op(*start) and (start + 1)->info().isVacuumState();
   if (anihilate_hc or anihilate_st) {
     *start = Operator<OperatorInfo>(0);
     set_to_one<OperatorInfo>(start + 1, 1);
@@ -74,9 +77,12 @@ bool fermion_dual_occupation(typename std::vector<Operator<OperatorInfo>>::itera
   if (start + 1 == exp.end()) {
     return false;
   }
+  if (start->is_number() or (start + 1)->is_number()) {
+    return false;
+  }
   bool ani = is_anihilation_op<OperatorInfo>(*start) and is_anihilation_op<OperatorInfo>(*(start + 1));
   bool cre = is_creation_op<OperatorInfo>(*start) and is_creation_op<OperatorInfo>(*(start + 1));
-  if ((ani or cre) and start->info.match((start + 1)->info)) {
+  if ((ani or cre) and start->info().match((start + 1)->info())) {
     *start = Operator<OperatorInfo>(0);
     set_to_one<OperatorInfo>(start + 1, 1);
     return true;

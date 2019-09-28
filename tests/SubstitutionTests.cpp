@@ -42,7 +42,7 @@ static bool test_sub(typename std::vector<Operator<GenericInfo>>::iterator start
   if (start + 1 == exp.end()) {
     return false;
   }
-  if (start->info.name() == "A" and (start + 1)->info.name() == "B") {
+  if (start->name() == "A" and (start + 1)->name() == "B") {
      *start = Operator<GenericInfo>(ordering_value(-1), GenericInfo("C"));
      set_to_one<GenericInfo>(start + 1, 1);
      return true;

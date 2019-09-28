@@ -48,7 +48,7 @@ static void random_sort_test(const unsigned seed, const std::size_t n, const int
 
   for (unsigned i = 0; i < reference.size(); ++i) {
     EXPECT_EQ(new_exp.expression[0][i].order.value, reference[i]);
-    EXPECT_EQ(std::to_string(new_exp.expression[0][i].order.value), new_exp.expression[0][i].info.name());
+    EXPECT_EQ(std::to_string(new_exp.expression[0][i].order.value), new_exp.expression[0][i].name());
   }
 }
 
@@ -95,7 +95,7 @@ static void random_multiply_and_addition(const unsigned seed, const bool inter) 
   for (unsigned i = 0; i < reference.size(); ++i) {
     for (unsigned j = 0; j < reference[i].size(); ++j) {
       EXPECT_EQ(new_exp.expression[i][j].order.value, reference[i][j]);
-      EXPECT_EQ(std::to_string(new_exp.expression[i][j].order.value), new_exp.expression[i][j].info.name());
+      EXPECT_EQ(std::to_string(new_exp.expression[i][j].order.value), new_exp.expression[i][j].name());
     }
   }
 }
