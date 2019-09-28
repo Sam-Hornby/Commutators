@@ -44,7 +44,7 @@ struct ConstInfoVisitor : public boost::static_visitor<const OperatorInfo &>{
 struct NumberVisitor : public boost::static_visitor<ComplexNumber>{
   template <typename T>
   ComplexNumber operator() (const T) const {
-    throw std::logic_error("Trying to access value on operator or Imaginary");
+    throw std::logic_error("Trying to access value on operator");
   }
   ComplexNumber operator() (const ComplexNumber value) const {return value;}
 };
