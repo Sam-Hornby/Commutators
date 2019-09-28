@@ -196,7 +196,7 @@ static void add_terms_from_comutator(std::vector<std::vector<Operator<OperatorIn
   for (const auto &mul_term : com.expression) {
     if (std::any_of(mul_term.begin(), mul_term.end(),
                     [&](const Operator<OperatorInfo> &op) {
-                      return op.is_number() and op.value() == 0;
+                      return op.is_number() and op.value() == ComplexNumber(0);
                     })) {
       continue;
     }
@@ -206,7 +206,7 @@ static void add_terms_from_comutator(std::vector<std::vector<Operator<OperatorIn
         });
     const bool all_one = std::all_of(mul_term.begin(), mul_term.end(),
                                         [&](const Operator<OperatorInfo> &op) {
-          return op.is_number() and op.value() == 1.0;
+          return op.is_number() and op.value() == ComplexNumber(1.0);
         });
     // as commuter has value means new addition term must be added
     sorted_terms.push_back(std::vector<Operator<OperatorInfo>>());
@@ -310,10 +310,10 @@ simplify_multiply(const std::vector<Operator<OperatorInfo>> & mul_term) {
       simplified.push_back(op);
     }
   }
-  if (simplified[0].is_number() and simplified[0].value() == 0) {
+  if (simplified[0].is_number() and simplified[0].value() == ComplexNumber(0)) {
     simplified.clear(); // if zero return empty vector
   }
-  if (simplified[0].is_number() and simplified[0].value() == 1 and simplified.size() != 1) {
+  if (simplified[0].is_number() and simplified[0].value() == ComplexNumber(1) and simplified.size() != 1) {
     simplified.erase(simplified.begin());
   }
   return simplified;

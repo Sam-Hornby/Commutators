@@ -13,15 +13,13 @@ namespace operators {
 
 template <class OperatorInfo>
 struct IsNumberVisitor : public boost::static_visitor<bool>{
-  bool operator() (const double) const {return true;}
-  bool operator() (const ImaginaryNumber) const {return true;}
+  bool operator() (const ComplexNumber) const {return true;}
   bool operator() (const OperatorInfo) const {return false;}
 };
 
 template <class OperatorInfo>
 struct NameVisitor : public boost::static_visitor<std::string>{
-  std::string operator() (const double &a) const {return std::to_string(a);}
-  std::string operator() (const ImaginaryNumber &i) const {return std::to_string(i.value) + " * i";}
+  std::string operator() (const ComplexNumber &a) const {return a.name();}
   std::string operator() (const OperatorInfo &info) const {return info.name();}
 };
 
@@ -43,26 +41,12 @@ struct ConstInfoVisitor : public boost::static_visitor<const OperatorInfo &>{
   const OperatorInfo & operator() (const OperatorInfo &info) const {return info;}
 };
 
-struct RealVisitor : public boost::static_visitor<double>{
+struct NumberVisitor : public boost::static_visitor<ComplexNumber>{
   template <typename T>
-  double operator() (const T) const {
+  ComplexNumber operator() (const T) const {
     throw std::logic_error("Trying to access value on operator or Imaginary");
   }
-  double operator() (const double value) const {return value;}
-};
-
-struct ImaginaryVisitor : public boost::static_visitor<ImaginaryNumber>{
-  template <typename T>
-  ImaginaryNumber operator() (const T) const {
-    throw std::logic_error("Trying to access value on operator or Imaginary");
-  }
-  ImaginaryNumber operator() (const ImaginaryNumber value) const {return value;}
-};
-
-struct IsImaginary : public boost::static_visitor<bool>{
-  template <typename T>
-  double operator() (const T) const {return false;}
-  bool operator() (const ImaginaryNumber) const {return true;}
+  ComplexNumber operator() (const ComplexNumber value) const {return value;}
 };
 
 template <class OperatorInfo>
@@ -70,12 +54,12 @@ struct Operator {
   ordering_value order;  // when sorting this determines greater than or equal to
   //OperatorInfo info;     // should be unique for each operator TODO make const
   // if this is set operator is a number, comutators are automatically assumed zero, op_id is irelevant
-  boost::variant<double, ImaginaryNumber, OperatorInfo> data;
+  boost::variant<ComplexNumber, OperatorInfo> data;
 
   Operator() = default;
   Operator(ordering_value order, OperatorInfo info) : order(order), data(info) {}
-  Operator(double v) : order(ordering_value(std::numeric_limits<int>::min())), data(v) {}
-  Operator(ImaginaryNumber i) : order(ordering_value(std::numeric_limits<int>::min())), data(i) {}
+  Operator(ComplexNumber i) : order(ordering_value(std::numeric_limits<int>::min())), data(i) {}
+
 
   std::string name() const {
     return boost::apply_visitor(NameVisitor<OperatorInfo>{}, data);
@@ -85,16 +69,8 @@ struct Operator {
     return boost::apply_visitor(IsNumberVisitor<OperatorInfo>{}, data);
   }
 
-  bool is_imaginary() const {
-    return boost::apply_visitor(IsImaginary{}, data);
-  }
-
-  bool is_real() const {
-    return is_number() and not is_imaginary();
-  }
-
-  double value() const {
-    return boost::apply_visitor(RealVisitor{}, data);
+  ComplexNumber value() const {
+    return boost::apply_visitor(NumberVisitor{}, data);
   }
 
   OperatorInfo & info() {

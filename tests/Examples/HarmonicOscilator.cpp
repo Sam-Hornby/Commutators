@@ -91,7 +91,7 @@ static double round_to_3_dp(double x) {
 }
 
 template <class OperatorInfo>
-static bool check_answer(const Expression<OperatorInfo> & exp, const double ans) {
+static bool check_answer(const Expression<OperatorInfo> & exp, const ComplexNumber ans) {
   if (exp.expression.size() != 1) {
     return false;
   }
@@ -102,7 +102,8 @@ static bool check_answer(const Expression<OperatorInfo> & exp, const double ans)
     return false;
   }
 
-  return round_to_3_dp(exp.expression[0][0].value()) == round_to_3_dp(ans);
+  return round_to_3_dp(exp.expression[0][0].value().real_part) == round_to_3_dp(ans.real_part) and
+         round_to_3_dp(exp.expression[0][0].value().imaginary_part) == round_to_3_dp(ans.imaginary_part);
 }
 
 TEST(Examples, HarmonicOscilator) {
