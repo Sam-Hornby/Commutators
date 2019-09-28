@@ -147,6 +147,49 @@ TEST(number_tests, ones) {
   ASSERT_EQ(ss.str(), "(A) + (1.000000)\n");
 }
 
+TEST(number_tests, imaginary_numbers) {
+  Operator<GenericInfo> A(ImaginaryNumber(2.0) * 4.0);
+  Expression<GenericInfo> exp = {{{A}}};
+  std::stringstream ss;
+  exp.print(ss);
+  ASSERT_EQ(ss.str(), "(8.000000 * i)\n");
+
+  auto B = ImaginaryNumber(2.0) * ImaginaryNumber(5.0);
+  ASSERT_EQ(B, -10.0);
+  auto C = ImaginaryNumber(-1) * ImaginaryNumber(3);
+  ASSERT_EQ(C, 3);
+
+  ComplexNumber D = ComplexNumber(2) * ImaginaryNumber(4.0);
+  ASSERT_EQ(D.real_part, 0);
+  ASSERT_EQ(D.imaginary_part, 8.0);
+  ASSERT_EQ(D.name(), "8.000000 * i");
+
+  D = ImaginaryNumber(5) * ComplexNumber(0, 1);
+  ASSERT_EQ(D.real_part, -5.0);
+  ASSERT_EQ(D.imaginary_part, 0);
+  ASSERT_EQ(D.name(), "-5.000000");
+
+  D = ComplexNumber(1, 1) * ComplexNumber(2, 3);
+  ASSERT_EQ(D.real_part, -1.0);
+  ASSERT_EQ(D.imaginary_part, 5.0);
+  ASSERT_EQ(D.name(), "(-1.000000 + 5.000000i)");
+
+  D = ComplexNumber(3, 4) + ComplexNumber(7, 8);
+  ASSERT_EQ(D.real_part, 10.0);
+  ASSERT_EQ(D.imaginary_part, 12.0);
+  ASSERT_EQ(D.name(), "(10.000000 + 12.000000i)");
+
+}
+
+
+/*TEST(number_tests, ones) {
+  auto exp =
+  exp = exp.simplify_numbers();
+  std::stringstream ss;
+  exp.print(ss);
+  ASSERT_EQ(ss.str(), "(A) + (1.000000)\n");
+}*/
+
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
