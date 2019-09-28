@@ -5,14 +5,11 @@
 #include <boost/variant.hpp>
 #include <string>
 #include "struct_ids.hpp"
+#include "ImaginaryNumber.hpp"
 
 
 
 namespace operators {
-
-struct ImaginaryNumber {
-  double value;
-};
 
 template <class OperatorInfo>
 struct IsNumberVisitor : public boost::static_visitor<bool>{
@@ -24,7 +21,7 @@ struct IsNumberVisitor : public boost::static_visitor<bool>{
 template <class OperatorInfo>
 struct NameVisitor : public boost::static_visitor<std::string>{
   std::string operator() (const double &a) const {return std::to_string(a);}
-  std::string operator() (const ImaginaryNumber) const {return "i";}
+  std::string operator() (const ImaginaryNumber &i) const {return std::to_string(i.value) + " * i";}
   std::string operator() (const OperatorInfo &info) const {return info.name();}
 };
 
@@ -78,6 +75,7 @@ struct Operator {
   Operator() = default;
   Operator(ordering_value order, OperatorInfo info) : order(order), data(info) {}
   Operator(double v) : order(ordering_value(std::numeric_limits<int>::min())), data(v) {}
+  Operator(ImaginaryNumber i) : order(ordering_value(std::numeric_limits<int>::min())), data(i) {}
 
   std::string name() const {
     return boost::apply_visitor(NameVisitor<OperatorInfo>{}, data);
@@ -127,6 +125,11 @@ struct Operator {
 
 template <class OperatorInfo>
 Operator<OperatorInfo> number(const double n);
+
+template <class OperatorInfo>
+Operator<OperatorInfo> im_number(const double n) {
+  return Operator<OperatorInfo>(ImaginaryNumber(n));
+}
 
 //******************************************************************
 // All definitions below

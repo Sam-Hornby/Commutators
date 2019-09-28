@@ -77,6 +77,19 @@ TEST(printing_tests, multiply_expressions) {
   ASSERT_EQ(ss.str(), "(A * D * F) + (B * D * F) + (C * D * F) + (A * E) + (B * E) + (C * E)\n");
 }
 
+TEST(printing_tests, imaginary_numbers) {
+  Expression<GenericInfo> exp = {{{Operator<GenericInfo>(ImaginaryNumber(1.0))}}};
+  std::stringstream ss;
+  exp.print(ss);
+  ASSERT_EQ(ss.str(), "(1.000000 * i)\n");
+
+  exp = im_number<GenericInfo>(3.0) * number<GenericInfo>(2.0) *
+              Operator<GenericInfo>(ordering_value(0), GenericInfo("A"));
+  std::stringstream ss2;
+  exp.print(ss2);
+  ASSERT_EQ(ss2.str(), "(3.000000 * i * 2.000000 * A)\n");
+}
+
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
