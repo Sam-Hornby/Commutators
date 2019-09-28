@@ -179,14 +179,14 @@ TEST(Examples, HarmonicOscilator_2D) {
   ASSERT_TRUE(check_answer(expectation, 11.0));
 
   // both H0s occupied
-  single_occupied_state = normalised_n_occupied_ops(3, 0) *
+  single_occupied_state = normalised_n_occupied_ops(5, 0) *
                           normalised_n_occupied_ops(6, 1) *
                           vacuum_state<Fock1DInfo>();
   expectation = hermition_conjugate<Fock1DInfo>(single_occupied_state) * hamiltonian * single_occupied_state;
   expectation = normal_order<Fock1DInfo>(expectation);
   expectation = expectation.evaluate(boson_commutator<Fock1DInfo>, substitutions<Fock1DInfo>);
   expectation.print();
-  ASSERT_TRUE(check_answer(expectation, 57.0));
+  ASSERT_TRUE(check_answer(expectation, 71.0));
 
 }
 
