@@ -28,7 +28,7 @@ template <class OperatorInfo>
 class Expression {
 public:
   std::vector<std::vector<Operator<OperatorInfo>>> expression;  // terms in inner vectors are considered multiplied, outer added
-  void print(std::ostream & out = std::cout) const;   // print the expression
+  void print(std::ostream & out = std::cout, const bool add_newline = true) const;   // print the expression
   Expression sort(std::function<Expression(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
                   const SortUsing s = SortUsing::COMMUTATORS) const; // order expresion
   Expression simplify_numbers() const;  // combine numbers and remove zeros
@@ -159,7 +159,7 @@ Expression<OperatorInfo> operator*(const Expression<OperatorInfo> & A, const Exp
 //----------------------------------------------------------------------------------------------------------------------
 
 template <class OperatorInfo>
-void Expression<OperatorInfo>::print(std::ostream& out) const {
+void Expression<OperatorInfo>::print(std::ostream& out, const bool add_newline) const {
 
   for (std::size_t i = 0; i < expression.size(); ++i) {
     if (expression[i].empty()) {
@@ -178,7 +178,9 @@ void Expression<OperatorInfo>::print(std::ostream& out) const {
     }
     out << ")";
   }
-  out << "\n";
+  if (add_newline) {
+    out << "\n";
+  }
 }
 
 // end printing zone
