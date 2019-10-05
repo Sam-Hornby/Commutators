@@ -10,6 +10,7 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include <sstream>
+#include <boost/container/small_vector.hpp>
 
 namespace operators {
 
@@ -24,10 +25,13 @@ enum class SortUsing {
 // {A, B} = AB + BA
 // AB = -BA + {A, B}
 
+template <class T>
+using vector_type = boost::container::small_vector<T, 1>;
+
 template <class OperatorInfo>
 class Expression {
 public:
-  std::vector<std::vector<Operator<OperatorInfo>>> expression;  // terms in inner vectors are considered multiplied, outer added
+  vector_type<vector_type<Operator<OperatorInfo>>> expression;  // terms in inner vectors are considered multiplied, outer added
   void print(std::ostream & out = std::cout, const bool add_newline = true) const;   // print the expression
   Expression sort(std::function<Expression(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
                   const SortUsing s = SortUsing::COMMUTATORS) const; // order expresion
@@ -35,19 +39,19 @@ public:
   Expression simplify_multiplications() const;  // simplify zeros and ones
   // substitute a sequence of multiplications for return value of subst function, empty optional denotes no substitution
   Expression performMultiplicationSubstitutions(
-                  std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
-                                     std::vector<Operator<OperatorInfo>> &)> subst) const;
+                  std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
+                                     vector_type<Operator<OperatorInfo>> &)> subst) const;
   Expression evaluate(std::function<Expression(const Operator<OperatorInfo> &,
                       const Operator<OperatorInfo> &)> commute,
-                      std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
-                                         std::vector<Operator<OperatorInfo>> &)> subst,
+                      std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
+                                         vector_type<Operator<OperatorInfo>> &)> subst,
                       const SortUsing s = SortUsing::COMMUTATORS) const;
   Expression interleaved_evaluate(
       std::function<Expression(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
-      std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
-                         std::vector<Operator<OperatorInfo>> &)> subst,
+      std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
+                         vector_type<Operator<OperatorInfo>> &)> subst,
       const SortUsing s = SortUsing::COMMUTATORS) const;
-  Expression(std::vector<std::vector<Operator<OperatorInfo>>> expression) : expression(expression) {};
+  Expression(vector_type<vector_type<Operator<OperatorInfo>>> expression) : expression(expression) {};
   Expression() = default;
 
 };
@@ -102,7 +106,7 @@ Expression<OperatorInfo> operator*(const Operator<OperatorInfo> & A, const Opera
 template <class OperatorInfo>
 Expression<OperatorInfo> operator+(const Expression<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
   Expression<OperatorInfo> exp = A;
-  std::vector<Operator<OperatorInfo>> m;
+  vector_type<Operator<OperatorInfo>> m;
   m.push_back(B);
   exp.expression.push_back(std::move(m));
   return exp;
@@ -191,7 +195,7 @@ void Expression<OperatorInfo>::print(std::ostream& out, const bool add_newline) 
 //----------------------------------------------------------------------------------------------------------------------
 
 template <class OperatorInfo>
-static void add_terms_from_comutator(std::vector<std::vector<Operator<OperatorInfo>>> &sorted_terms,
+static void add_terms_from_comutator(vector_type<vector_type<Operator<OperatorInfo>>> &sorted_terms,
                                      const Expression<OperatorInfo> & com,
                                      const std::size_t term_index,
                                      const unsigned i) {
@@ -211,7 +215,7 @@ static void add_terms_from_comutator(std::vector<std::vector<Operator<OperatorIn
           return op.is_number() and op.value() == ComplexNumber(1.0);
         });
     // as commuter has value means new addition term must be added
-    sorted_terms.push_back(std::vector<Operator<OperatorInfo>>());
+    sorted_terms.push_back(vector_type<Operator<OperatorInfo>>());
     auto & new_term = sorted_terms.back();
     if (all_numbers and (not all_one)) {
       // numbers commute so send straight to the front. if they are one don't bother
@@ -232,7 +236,7 @@ static void add_terms_from_comutator(std::vector<std::vector<Operator<OperatorIn
 template <class OperatorInfo>
 static bool
 bubble_pass(const std::size_t term_index,
-            std::vector<std::vector<Operator<OperatorInfo>>> & sorted_terms,
+            vector_type<vector_type<Operator<OperatorInfo>>> & sorted_terms,
             std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
             const SortUsing sortUsing) {
   bool swap_performed = false;
@@ -257,10 +261,10 @@ bubble_pass(const std::size_t term_index,
 }
 template <class OperatorInfo>
 static Expression<OperatorInfo>
-sort_multiply_term(const std::vector<Operator<OperatorInfo>> & term,
+sort_multiply_term(const vector_type<Operator<OperatorInfo>> & term,
                   std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
                   const SortUsing sortUsing) {
-  Expression<OperatorInfo> sorted_terms(std::vector<std::vector<Operator<OperatorInfo>>>(1));
+  Expression<OperatorInfo> sorted_terms(vector_type<vector_type<Operator<OperatorInfo>>>(1));
   sorted_terms.expression[0] = term;
   for (std::size_t i = 0; i < sorted_terms.expression.size(); ++i) {
     // when this loop is entered the size will be one but every non zero commutator will add extra terms to sorted terms
@@ -298,32 +302,37 @@ Expression<OperatorInfo>::sort(std::function<Expression<OperatorInfo>(const Oper
 //----------------------------------------------------------------------------------------------------------------------
 
 template <class OperatorInfo>
-static std::vector<Operator<OperatorInfo>>
-simplify_multiply(const std::vector<Operator<OperatorInfo>> & mul_term) {
+static vector_type<Operator<OperatorInfo>>
+simplify_multiply(const vector_type<Operator<OperatorInfo>> & mul_term) {
+  spdlog::trace("simplify single multiply begin");
   if (mul_term.empty()) {
     return mul_term;
   }
-  std::vector<Operator<OperatorInfo>> simplified;
+  vector_type<Operator<OperatorInfo>> simplified;
   simplified.push_back(Operator<OperatorInfo>(1));
   for (const auto & op : mul_term) {
+    spdlog::trace("iterating ops");
     if (op.is_number()) {
       simplified[0].data = simplified[0].value() * op.value();
     } else {
       simplified.push_back(op);
     }
   }
+  spdlog::trace("Simply first term");
   if (simplified[0].is_number() and simplified[0].value() == ComplexNumber(0)) {
     simplified.clear(); // if zero return empty vector
+    return simplified;
   }
   if (simplified[0].is_number() and simplified[0].value() == ComplexNumber(1) and simplified.size() != 1) {
     simplified.erase(simplified.begin());
   }
+  spdlog::trace("simplify single multiply end");
   return simplified;
 }
 
 template <class OperatorInfo>
-static bool expression_operators_match(const std::vector<Operator<OperatorInfo>> & A,
-                                       const std::vector<Operator<OperatorInfo>> & B) {
+static bool expression_operators_match(const vector_type<Operator<OperatorInfo>> & A,
+                                       const vector_type<Operator<OperatorInfo>> & B) {
   // assumes that simplifying multiplies has moved all numbers to first position
   if (A.empty() or B.empty()) {
     return false;
@@ -344,9 +353,9 @@ static bool expression_operators_match(const std::vector<Operator<OperatorInfo>>
 }
 
 template <class OperatorInfo>
-static std::vector<Operator<OperatorInfo>>
-combine_expressions(const std::vector<Operator<OperatorInfo>> & A, const std::vector<Operator<OperatorInfo>> & B) {
-  std::vector<Operator<OperatorInfo>> C;
+static vector_type<Operator<OperatorInfo>>
+combine_expressions(const vector_type<Operator<OperatorInfo>> & A, const vector_type<Operator<OperatorInfo>> & B) {
+  vector_type<Operator<OperatorInfo>> C;
   C.reserve(A.size() + 1);
   Operator<OperatorInfo> number;
   if ((!A[0].is_number()) and (!B[0].is_number())) {
@@ -366,9 +375,9 @@ combine_expressions(const std::vector<Operator<OperatorInfo>> & A, const std::ve
 
 template <class OperatorInfo>
 struct ComparisonStruct {
-  const std::vector<Operator<OperatorInfo>> &full;
+  const vector_type<Operator<OperatorInfo>> &full;
   ComparisonStruct() = default;
-  ComparisonStruct(const std::vector<Operator<OperatorInfo>> &full) : full(full) {}
+  ComparisonStruct(const vector_type<Operator<OperatorInfo>> &full) : full(full) {}
 
   std::size_t num_operators() const {
     // uses fact that simpilifying multiply terms has moved numbers to start
@@ -403,6 +412,7 @@ struct ComparisonStruct {
 
 template <class OperatorInfo>
 static void simplify_additions(Expression<OperatorInfo> & exp) {
+  spdlog::debug("simplify additions begin");
   std::map<ComparisonStruct<OperatorInfo>, unsigned> unique_mul_terms;
   for (std::size_t i = 0; i < exp.expression.size(); ++i) {
     ComparisonStruct<OperatorInfo> comp(exp.expression[i]);
@@ -412,10 +422,12 @@ static void simplify_additions(Expression<OperatorInfo> & exp) {
       exp.expression[i].clear();
     }
   }
+  spdlog::debug("simplify additions end");
 }
 
 template <class OperatorInfo>
 static void removeEmptyVectors(Expression<OperatorInfo> &exp) {
+  spdlog::debug("remove empty vectors begin");
   Expression<OperatorInfo> new_exp;
   for (std::size_t add_index = 0; add_index < exp.expression.size(); ++add_index) {
     if (!exp.expression[add_index].empty()) {
@@ -423,15 +435,18 @@ static void removeEmptyVectors(Expression<OperatorInfo> &exp) {
     }
   }
   exp = std::move(new_exp);
+  spdlog::debug("remove empty vectors end");
 }
 template <class OperatorInfo>
 Expression<OperatorInfo> Expression<OperatorInfo>::simplify_multiplications() const {
+  spdlog::debug("simplify multiplications begin");
   Expression<OperatorInfo> simplified;
   simplified.expression.resize(expression.size());
 
   for (std::size_t add_index = 0; add_index < expression.size(); ++add_index) {
     simplified.expression[add_index] = simplify_multiply(expression[add_index]);
   }
+  spdlog::debug("simplify multiplications end");
   removeEmptyVectors(simplified);
   return simplified;
 }
@@ -453,36 +468,42 @@ Expression<OperatorInfo> Expression<OperatorInfo>::simplify_numbers() const {
 //----------------------------------------------------------------------------------------------------------------------
 
 template <class OperatorInfo>
-static bool bubbleSubs(std::vector<Operator<OperatorInfo>> &exp,
-                       std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
-                                          std::vector<Operator<OperatorInfo>> &)> subst) {
+static bool bubbleSubs(vector_type<Operator<OperatorInfo>> &exp,
+                       std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
+                                          vector_type<Operator<OperatorInfo>> &)> subst) {
+  spdlog::debug("bubbleSubs begin");
   bool madeSub = false;
   for (auto it = exp.begin(); it != exp.end(); ++it) {
     if (subst(it, exp)) {
       madeSub = true;
     }
   }
+  spdlog::debug("bubbleSubs begin");
   return madeSub;
 }
 
 template <class OperatorInfo>
-static std::vector<Operator<OperatorInfo>>
-performMulSubs(const std::vector<Operator<OperatorInfo>> & term,
-              std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
-                                 std::vector<Operator<OperatorInfo>> &)> subst) {
-  std::vector<Operator<OperatorInfo>> exp = term;
+static vector_type<Operator<OperatorInfo>>
+performMulSubs(const vector_type<Operator<OperatorInfo>> & term,
+              std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
+                                 vector_type<Operator<OperatorInfo>> &)> subst) {
+  spdlog::debug("performMulSubs begin");
+  vector_type<Operator<OperatorInfo>> exp = term;
   while(bubbleSubs(exp, subst));
+  spdlog::debug("performMulSubs end");
   return exp;
 }
 
 template <class OperatorInfo>
 Expression<OperatorInfo> Expression<OperatorInfo>::performMultiplicationSubstitutions(
-                  std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
-                                     std::vector<Operator<OperatorInfo>> &)> subst) const {
-  Expression<OperatorInfo> final_exp(std::vector<std::vector<Operator<OperatorInfo>>>(expression.size()));
+                  std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
+                                     vector_type<Operator<OperatorInfo>> &)> subst) const {
+  spdlog::debug("performMultiplicationSubstitutions begin");
+  Expression<OperatorInfo> final_exp(vector_type<vector_type<Operator<OperatorInfo>>>(expression.size()));
   for (unsigned i = 0; i < expression.size(); ++i) {
     final_exp.expression[i] = performMulSubs(expression[i], subst);
   }
+  spdlog::debug("performMultiplicationSubstitutions end");
   return final_exp;
 }
 
@@ -496,8 +517,8 @@ template <class OperatorInfo>
 static Expression<OperatorInfo>
 interleaved_sort_sub_simple(Expression<OperatorInfo> exp,
       std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
-      std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
-                         std::vector<Operator<OperatorInfo>> &)> subst,
+      std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
+                         vector_type<Operator<OperatorInfo>> &)> subst,
       const SortUsing s) {
 
   // the thinking behind this approach is the bubble pass will ensure that the
@@ -529,8 +550,8 @@ interleaved_sort_sub_simple(Expression<OperatorInfo> exp,
 template <class OperatorInfo>
 Expression<OperatorInfo> Expression<OperatorInfo>::interleaved_evaluate(
       std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
-      std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
-                         std::vector<Operator<OperatorInfo>> &)> subst,
+      std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
+                         vector_type<Operator<OperatorInfo>> &)> subst,
       const SortUsing s) const {
 
    return interleaved_sort_sub_simple(*this, commute, subst, s);
@@ -550,8 +571,8 @@ template <class OperatorInfo>
 Expression<OperatorInfo>
 Expression<OperatorInfo>::evaluate(
         std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
-        std::function<bool(typename std::vector<Operator<OperatorInfo>>::iterator,
-                           std::vector<Operator<OperatorInfo>> &)> subst,
+        std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
+                           vector_type<Operator<OperatorInfo>> &)> subst,
         const SortUsing s) const {
   // simplify numbers is much faster than the other functions and can make the the other functions run faster so call
   // it frequently

@@ -81,8 +81,8 @@ Expression<Fock0DInfo> normalised_n_occupied_state(unsigned n) {
 }
 
 template <class OperatorInfo>
-bool substitutions(typename std::vector<Operator<OperatorInfo>>::iterator start,
-                   std::vector<Operator<OperatorInfo>> & exp) {
+bool substitutions(typename vector_type<Operator<OperatorInfo>>::iterator start,
+                   vector_type<Operator<OperatorInfo>> & exp) {
   return anihilate_vacuum<OperatorInfo>(start, exp) or all_states_orthognal<OperatorInfo>(start, exp);
 }
 

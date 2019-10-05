@@ -19,7 +19,7 @@ using namespace operators;
 static void random_sort_test(const unsigned seed, const std::size_t n, const int max, const int min, const bool inter) {
   std::mt19937 randomEngine(seed);
   const int mod = max - min;
-  std::vector<int> reference;
+  vector_type<int> reference;
   for (unsigned i = 0; i < n; ++i) {
     reference.push_back((randomEngine() % mod) + min);
   }
@@ -39,8 +39,8 @@ static void random_sort_test(const unsigned seed, const std::size_t n, const int
   const Expression<GenericInfo> new_exp = [&] () {
     if (inter) {
       return exp.interleaved_evaluate(commute_all<GenericInfo>,
-                                          [](typename std::vector<Operator<GenericInfo>>::iterator,
-                                                    std::vector<Operator<GenericInfo>> &) {return false;});
+                                          [](typename vector_type<Operator<GenericInfo>>::iterator,
+                                                    vector_type<Operator<GenericInfo>> &) {return false;});
     } else {
       return exp.sort(commute_all<GenericInfo>);
     }
@@ -56,7 +56,7 @@ static void random_multiply_and_addition(const unsigned seed, const bool inter) 
   std::mt19937 random_engine(seed);
   const unsigned num_add = (random_engine() % 20) + 2;
 
-  std::vector<std::vector<int>> reference(num_add);
+  vector_type<vector_type<int>> reference(num_add);
   for (unsigned i = 0; i < reference.size(); ++i) {
     const unsigned num_mult = (random_engine() % 20) + 2;
     for (unsigned j = 0; j < num_mult; ++j) {
@@ -86,8 +86,8 @@ static void random_multiply_and_addition(const unsigned seed, const bool inter) 
   const auto new_exp = [&] () {
     if (inter) {
       return exp.interleaved_evaluate(commute_all<GenericInfo>,
-                                          [](typename std::vector<Operator<GenericInfo>>::iterator,
-                                                    std::vector<Operator<GenericInfo>> &) {return false;});
+                                          [](typename vector_type<Operator<GenericInfo>>::iterator,
+                                                    vector_type<Operator<GenericInfo>> &) {return false;});
     } else {
       return exp.sort(commute_all<GenericInfo>);
     }
@@ -131,8 +131,8 @@ TEST(sort_tests, number) {
 TEST(sort_tests, inter_empty) {
   Expression<Fock1DInfo> exp;
   auto new_exp = exp.interleaved_evaluate(commute_all<Fock1DInfo>,
-                                          [](typename std::vector<Operator<Fock1DInfo>>::iterator,
-                                                    std::vector<Operator<Fock1DInfo>> &) {return false;});
+                                          [](typename vector_type<Operator<Fock1DInfo>>::iterator,
+                                                    vector_type<Operator<Fock1DInfo>> &) {return false;});
   std::stringstream ss;
   new_exp.print(ss);
   ASSERT_EQ(ss.str(), "\n");
@@ -144,8 +144,8 @@ TEST(sort_tests, inter_one) {
   exp.expression.resize(3);
   exp.expression[0].push_back(A);
   auto new_exp = exp.interleaved_evaluate(commute_all<GenericInfo>,
-                                          [](typename std::vector<Operator<GenericInfo>>::iterator,
-                                                    std::vector<Operator<GenericInfo>> &) {return false;});
+                                          [](typename vector_type<Operator<GenericInfo>>::iterator,
+                                                    vector_type<Operator<GenericInfo>> &) {return false;});
   std::stringstream ss;
   new_exp.print(ss);
   ASSERT_EQ(ss.str(), "(A)\n");
@@ -154,8 +154,8 @@ TEST(sort_tests, inter_one) {
 TEST(sort_tests, inter_number) {
   auto exp = Operator<GenericInfo>(ordering_value(0), GenericInfo("A")) * Operator<GenericInfo>(3);
   exp = exp.interleaved_evaluate(commute_all<GenericInfo>,
-                                          [](typename std::vector<Operator<GenericInfo>>::iterator,
-                                                    std::vector<Operator<GenericInfo>> &) {return false;});
+                                          [](typename vector_type<Operator<GenericInfo>>::iterator,
+                                                    vector_type<Operator<GenericInfo>> &) {return false;});
   std::stringstream ss;
   exp.print(ss);
   ASSERT_EQ(ss.str(), "(3.000000 * A)\n");

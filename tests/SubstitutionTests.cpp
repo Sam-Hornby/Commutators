@@ -5,6 +5,7 @@
 #include "Utils.hpp"
 #include <sstream>
 #include <Comutators.hpp>
+#include <spdlog/spdlog.h>
 
 using namespace operators;
 
@@ -15,7 +16,7 @@ TEST(substitution_tests, empty) {
   exp.print(ss);
   ASSERT_EQ(ss.str(), "\n");
 
-  exp.expression = std::vector<std::vector<Operator<Fock1DInfo>>>(3);
+  exp.expression = vector_type<vector_type<Operator<Fock1DInfo>>>(3);
   exp = exp.performMultiplicationSubstitutions(all_states_orthognal<Fock1DInfo>);
   std::stringstream ss1;
   exp.print(ss1);
@@ -37,8 +38,8 @@ TEST(substitution_tests, no_subs) {
   ASSERT_EQ(ss.str(), "(A * B * C * D)\n");
 }
 
-static bool test_sub(typename std::vector<Operator<GenericInfo>>::iterator start,
-                     std::vector<Operator<GenericInfo>> & exp) {
+static bool test_sub(typename vector_type<Operator<GenericInfo>>::iterator start,
+                     vector_type<Operator<GenericInfo>> & exp) {
   if (start + 1 == exp.end()) {
     return false;
   }
@@ -163,6 +164,7 @@ TEST(substitution_tests, destroy_fermions) {
 }
 
 int main(int argc, char **argv) {
+  spdlog::set_level(spdlog::level::trace);
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

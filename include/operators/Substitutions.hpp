@@ -4,6 +4,9 @@
 #include "Operator.hpp"
 #include "Utils.hpp"
 #include <vector>
+#include <boost/container/small_vector.hpp>
+#include <spdlog/spdlog.h>
+#include "Expression.hpp"
 
 namespace operators {
 
@@ -16,7 +19,7 @@ namespace operators {
 // When replacement expression is smaller than what is being substituted is useful to set excess operators to 1 and then
 // after the substitution phase call simplify numbers to remove them
 template <class OperatorInfo>
-void set_to_one(typename std::vector<Operator<OperatorInfo>>::iterator it, const std::size_t n) {
+void set_to_one(typename vector_type<Operator<OperatorInfo>>::iterator it, const std::size_t n) {
   for (std::size_t i = 0; i < n; ++i) {
     *(it + i) = Operator<OperatorInfo>(1.0);
   }
@@ -27,8 +30,9 @@ void set_to_one(typename std::vector<Operator<OperatorInfo>>::iterator it, const
 // between different states and set to one inner product of identical states. Assumes that the value of the operator
 // info is used to show the state
 template <class OperatorInfo>
-bool all_states_orthognal(typename std::vector<Operator<OperatorInfo>>::iterator start,
-                          std::vector<Operator<OperatorInfo>> & exp) {
+bool all_states_orthognal(typename vector_type<Operator<OperatorInfo>>::iterator start,
+                          vector_type<Operator<OperatorInfo>> & exp) {
+  assert(start != exp.end());
   if (is_hc_state_vector(*start)) {
     const auto & info = start->info();
     if ((start + 1) != exp.end() and is_state_vector(*(start + 1))) {
@@ -47,8 +51,8 @@ bool all_states_orthognal(typename std::vector<Operator<OperatorInfo>>::iterator
 
 // assumes the the value of operator_info for the vacuum state and its hc is 0
 template <class OperatorInfo>
-bool anihilate_vacuum(typename std::vector<Operator<OperatorInfo>>::iterator start,
-                      std::vector<Operator<OperatorInfo>> & exp) {
+bool anihilate_vacuum(typename vector_type<Operator<OperatorInfo>>::iterator start,
+                      vector_type<Operator<OperatorInfo>> & exp) {
   if (start + 1 == exp.end()) {
     return false;
   }
@@ -66,13 +70,13 @@ bool anihilate_vacuum(typename std::vector<Operator<OperatorInfo>>::iterator sta
 }
 
 template <class OperatorInfo>
-bool no_subs(typename std::vector<Operator<OperatorInfo>>::iterator, std::vector<Operator<OperatorInfo>> &) {
+bool no_subs(typename vector_type<Operator<OperatorInfo>>::iterator, vector_type<Operator<OperatorInfo>> &) {
   return false;
 }
 
 template <class OperatorInfo>
-bool fermion_dual_occupation(typename std::vector<Operator<OperatorInfo>>::iterator start,
-                             std::vector<Operator<OperatorInfo>> & exp) {
+bool fermion_dual_occupation(typename vector_type<Operator<OperatorInfo>>::iterator start,
+                             vector_type<Operator<OperatorInfo>> & exp) {
   // for fermions a * a = 0 and a! * a! = 0 (from fact anti comutator is zero)
   if (start + 1 == exp.end()) {
     return false;

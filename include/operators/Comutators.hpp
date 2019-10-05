@@ -11,23 +11,23 @@ namespace operators {
 // returns zero, if 2 operators commute return this
 template <class OperatorInfo>
 inline Expression<OperatorInfo> zero_commutator() {
-  return Expression<OperatorInfo>(std::vector<std::vector<Operator<OperatorInfo>>>(1,
-                                                       std::vector<Operator<OperatorInfo>>(1, Operator<OperatorInfo>(0))
+  return Expression<OperatorInfo>(vector_type<vector_type<Operator<OperatorInfo>>>(1,
+                                                       vector_type<Operator<OperatorInfo>>(1, Operator<OperatorInfo>(0))
                                                       ));
 }
 // If the commutator of 2 operators is a number return this
 template <class OperatorInfo>
 inline Expression<OperatorInfo> numeric_commutator(const double n) {
-  return Expression<OperatorInfo>(std::vector<std::vector<Operator<OperatorInfo>>>(1,
-                                                       std::vector<Operator<OperatorInfo>>(1, Operator<OperatorInfo>(n))
+  return Expression<OperatorInfo>(vector_type<vector_type<Operator<OperatorInfo>>>(1,
+                                                       vector_type<Operator<OperatorInfo>>(1, Operator<OperatorInfo>(n))
                                                       ));
 }
 // if the commutator of 2 operatos is another operator return this
 template <class OperatorInfo>
 inline Expression<OperatorInfo>
 operator_commutator(const ordering_value order, const OperatorInfo info) {
-  return Expression<OperatorInfo>(std::vector<std::vector<Operator<OperatorInfo>>>(1,
-                                  std::vector<Operator<OperatorInfo>>(1, Operator<OperatorInfo>(order, info))));
+  return Expression<OperatorInfo>(vector_type<vector_type<Operator<OperatorInfo>>>(1,
+                                  vector_type<Operator<OperatorInfo>>(1, Operator<OperatorInfo>(order, info))));
 }
 
 template <class OperatorInfo>
