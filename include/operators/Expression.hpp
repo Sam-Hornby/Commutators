@@ -471,14 +471,14 @@ template <class OperatorInfo>
 static bool bubbleSubs(vector_type<Operator<OperatorInfo>> &exp,
                        std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
                                           vector_type<Operator<OperatorInfo>> &)> subst) {
-  spdlog::debug("bubbleSubs begin");
+  spdlog::trace("bubbleSubs begin");
   bool madeSub = false;
   for (auto it = exp.begin(); it != exp.end(); ++it) {
     if (subst(it, exp)) {
       madeSub = true;
     }
   }
-  spdlog::debug("bubbleSubs begin");
+  spdlog::trace("bubbleSubs begin");
   return madeSub;
 }
 
@@ -487,10 +487,10 @@ static vector_type<Operator<OperatorInfo>>
 performMulSubs(const vector_type<Operator<OperatorInfo>> & term,
               std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
                                  vector_type<Operator<OperatorInfo>> &)> subst) {
-  spdlog::debug("performMulSubs begin");
+  spdlog::trace("performMulSubs begin");
   vector_type<Operator<OperatorInfo>> exp = term;
   while(bubbleSubs(exp, subst));
-  spdlog::debug("performMulSubs end");
+  spdlog::trace("performMulSubs end");
   return exp;
 }
 
@@ -533,7 +533,12 @@ interleaved_sort_sub_simple(Expression<OperatorInfo> exp,
     spdlog::info("Interleaved bubble loop {}", count++);
     spdlog::info("Size of expression {}", exp.expression.size());
     madeChanges = false;
+    std::size_t mul_size = 0;
     for (unsigned i = 0; i < exp.expression.size(); ++i) {
+      if (mul_size != exp.expression[i].size()) {
+        mul_size = exp.expression[i].size();
+        spdlog::debug("Doing size {}", mul_size);
+      }
       if (exp.expression[i].empty()) {
         continue;
       }

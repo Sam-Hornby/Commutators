@@ -3,7 +3,7 @@
 
 namespace operators {
 
-enum class Type {
+enum class Type : std::uint16_t{
   STATE_VECTOR,   // eg |0>
   HC_STATE_VECTOR,  // eg <0|
   CREATION_OPERATOR,  // fock space creation operator
@@ -22,16 +22,20 @@ struct Fock1DInfo {
   int x_coordinate;
   int state = 0;   // This field is only used for state not creation/anihilation ops
   Type type = Type::UNSPECIFIED;
+  // TODO make const
+  char symbol = 'a';
 
   Fock1DInfo(int x_coordinate) : x_coordinate(x_coordinate) {}
   Fock1DInfo(int x_coordinate, Type type) : x_coordinate(x_coordinate), type(type) {}
   Fock1DInfo(int x_coordinate, int state, Type type) : x_coordinate(x_coordinate), state(state), type(type) {}
+  Fock1DInfo(int x_coordinate, int state, Type type, char symbol) :
+      x_coordinate(x_coordinate), state(state), type(type), symbol(symbol) {}
   Fock1DInfo() = default;
 
   std::string name() const {
     std::string result;
     if (isFockOpType(type)) {
-      result += ("a_" + std::to_string(x_coordinate));
+      result += (symbol + std::string("_") + std::to_string(x_coordinate));
       if (type == Type::CREATION_OPERATOR) {
         result += "!";
       }
