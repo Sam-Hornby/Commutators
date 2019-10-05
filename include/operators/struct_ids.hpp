@@ -19,8 +19,8 @@ static bool isFockOpType(const Type type) {
 }
 
 struct Fock1DInfo {
-  int x_coordinate;
-  int state = 0;   // This field is only used for state not creation/anihilation ops
+  short int x_coordinate;
+  short int state = 0;   // This field is only used for state not creation/anihilation ops
   Type type = Type::UNSPECIFIED;
   // TODO make const
   char symbol = 'a';
