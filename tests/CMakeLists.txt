@@ -41,3 +41,9 @@ add_test(NAME "SubstitutionTests"
          COMMAND SubstitutionTests
          WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
 target_link_libraries(SubstitutionTests operators gtest gtest_main)
+
+add_executable(TransformTests TransformTests.cpp)
+add_test(NAME "TransformTests"
+         COMMAND TransformTests
+         WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
+target_link_libraries(TransformTests operators gtest gtest_main)
