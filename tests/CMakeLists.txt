@@ -21,19 +21,15 @@ add_test(NAME "PrintTests"
       WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
 
 
-include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-
 add_executable(SortTests SortTests.cpp)
 add_test(NAME "SortTests"
       COMMAND SortTests
       WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-target_link_libraries(SortTests gtest gtest_main)
 
 add_executable(CommutatorTests Commutators.cpp)
 add_test(NAME "CommutatorTests"
       COMMAND CommutatorTests
       WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-target_link_libraries(CommutatorTests)
 
 add_executable(NumberTests NumberTests.cpp)
 add_test(NAME "NumberTests"
@@ -44,10 +40,8 @@ add_executable(SubstitutionTests SubstitutionTests.cpp)
 add_test(NAME "SubstitutionTests"
          COMMAND SubstitutionTests
          WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-target_link_libraries(SubstitutionTests operators)
 
 add_executable(TransformTests TransformTests.cpp)
 add_test(NAME "TransformTests"
          COMMAND TransformTests
          WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-target_link_libraries(TransformTests operators)

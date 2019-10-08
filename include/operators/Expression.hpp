@@ -597,7 +597,7 @@ Expression<OperatorInfo>::evaluate(
   console_sink->set_level(spdlog::level::debug);
   console_sink->set_pattern("%^\033[33m[evaluate] [%l%$] [%H:%M:%S] %v%$");
   spdlog::logger logger("Operators", console_sink);
-  logger.set_level(spdlog::level::debug);
+  logger.set_level(spdlog::level::off);
   //-------------------------------------------------------------------------------
 
   logger.critical("Start evaluation: Simplift numbers");
