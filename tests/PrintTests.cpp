@@ -1,50 +1,52 @@
-#include "gtest/gtest.h"
 #include "Expression.hpp"
 #include <sstream>
 #include <iomanip>
 #include "struct_ids.hpp"
 #include "Comutators.hpp"
+#define BOOST_TEST_MODULE Sort
+#include <boost/test/included/unit_test.hpp>
+
 
 using namespace operators;
 
-TEST (printing_tests, basic_addition) {
+BOOST_AUTO_TEST_CASE(basic_addition) {
   Operator<GenericInfo> A(ordering_value(0), GenericInfo("A"));
   Operator<GenericInfo> B(ordering_value(0), GenericInfo("B"));
 
   const auto exp = A + B;
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(A) + (B)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "(A) + (B)\n");
 }
 
-TEST(printing_tests, empty) {
+BOOST_AUTO_TEST_CASE(empty) {
   Expression<Fock1DInfo> exp;
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "\n");
+  BOOST_CHECK_EQUAL(ss.str(), "\n");
 
   exp.expression.resize(3);
   std::stringstream ss2;
   exp.print(ss2);
-  ASSERT_EQ(ss2.str(), "\n");
+  BOOST_CHECK_EQUAL(ss2.str(), "\n");
 
   exp.expression[0].push_back(Operator<Fock1DInfo>(5));
   std::stringstream ss3;
   exp.print(ss3);
-  ASSERT_EQ(ss3.str(), "(5.000000)\n");
+  BOOST_CHECK_EQUAL(ss3.str(), "(5.000000)\n");
 }
 
-TEST(printing_tests, basic_multiplication) {
+BOOST_AUTO_TEST_CASE(basic_multiplication) {
   Operator<GenericInfo> A(ordering_value(0), GenericInfo("A"));
   Operator<GenericInfo> B(ordering_value(0), GenericInfo("B"));
 
   const auto exp = A * B;
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(A * B)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "(A * B)\n");
 }
 
-TEST(printing_tests, add_and_multiply) {
+BOOST_AUTO_TEST_CASE(add_and_multiply) {
   Operator<GenericInfo> A(ordering_value(0), GenericInfo("A"));
   Operator<GenericInfo> B(ordering_value(0), GenericInfo("B"));
   Operator<GenericInfo> C(ordering_value(0), GenericInfo("C"));
@@ -59,10 +61,10 @@ TEST(printing_tests, add_and_multiply) {
 
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(A * B) + (C * D) + (A * C) + (B * D)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "(A * B) + (C * D) + (A * C) + (B * D)\n");
 }
 
-TEST(printing_tests, multiply_expressions) {
+BOOST_AUTO_TEST_CASE(multiply_expressions) {
   Operator<GenericInfo> A(ordering_value(0), GenericInfo("A"));
   Operator<GenericInfo> B(ordering_value(0), GenericInfo("B"));
   Operator<GenericInfo> C(ordering_value(0), GenericInfo("C"));
@@ -74,24 +76,18 @@ TEST(printing_tests, multiply_expressions) {
 
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(A * D * F) + (B * D * F) + (C * D * F) + (A * E) + (B * E) + (C * E)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "(A * D * F) + (B * D * F) + (C * D * F) + (A * E) + (B * E) + (C * E)\n");
 }
 
-TEST(printing_tests, imaginary_numbers) {
+BOOST_AUTO_TEST_CASE(imaginary_numbers) {
   Expression<GenericInfo> exp = {{{Operator<GenericInfo>(ImaginaryNumber(1.0))}}};
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(1.000000 * i)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "(1.000000 * i)\n");
 
   exp = im_number<GenericInfo>(3.0) * number<GenericInfo>(2.0) *
               Operator<GenericInfo>(ordering_value(0), GenericInfo("A"));
   std::stringstream ss2;
   exp.print(ss2);
-  ASSERT_EQ(ss2.str(), "(3.000000 * i * 2.000000 * A)\n");
-}
-
-
-int main(int argc, char **argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  BOOST_CHECK_EQUAL(ss2.str(), "(3.000000 * i * 2.000000 * A)\n");
 }

@@ -1,4 +1,3 @@
-#include "gtest/gtest.h"
 #include "Expression.hpp"
 #include "Substitutions.hpp"
 #include "Ordering.hpp"
@@ -7,6 +6,8 @@
 #include "Comutators.hpp"
 #include <exception>
 #include <cmath>
+#define BOOST_TEST_MODULE HARMONICOSCILATOR
+#include <boost/test/included/unit_test.hpp>
 
 using namespace operators;
 
@@ -106,7 +107,7 @@ static bool check_answer(const Expression<OperatorInfo> & exp, const ComplexNumb
          round_to_3_dp(exp.expression[0][0].value().imaginary_part) == round_to_3_dp(ans.imaginary_part);
 }
 
-TEST(Examples, HarmonicOscilator) {
+BOOST_AUTO_TEST_CASE(HarmonicOscilator) {
   auto hamiltonian = (creation_op() * anihilation_op()) + number<Fock0DInfo>(0.5);
   hamiltonian.print();
   // vacuum state expectation value
@@ -115,38 +116,38 @@ TEST(Examples, HarmonicOscilator) {
   vacuum_expectation = normal_order<Fock0DInfo>(vacuum_expectation);
   vacuum_expectation = vacuum_expectation.evaluate(boson_commutator<Fock0DInfo>, substitutions<Fock0DInfo>);
   vacuum_expectation.print();
-  ASSERT_TRUE(check_answer(vacuum_expectation, 0.5));
+  BOOST_CHECK(check_answer(vacuum_expectation, 0.5));
 
   Expression<Fock0DInfo> single_occupied_state = normalised_n_occupied_state(1);
   auto single_expectation = hermition_conjugate<Fock0DInfo>(single_occupied_state) * hamiltonian * single_occupied_state;
   single_expectation = normal_order<Fock0DInfo>(single_expectation);
   single_expectation = single_expectation.evaluate(boson_commutator<Fock0DInfo>, substitutions<Fock0DInfo>);
   single_expectation.print();
-  ASSERT_TRUE(check_answer(single_expectation, 1.5));
+  BOOST_CHECK(check_answer(single_expectation, 1.5));
 
   Expression<Fock0DInfo> double_occupied_state = normalised_n_occupied_state(2);
   auto double_expectation = hermition_conjugate<Fock0DInfo>(double_occupied_state) * hamiltonian * double_occupied_state;
   double_expectation = normal_order<Fock0DInfo>(double_expectation);
   double_expectation = double_expectation.evaluate(boson_commutator<Fock0DInfo>, substitutions<Fock0DInfo>);
   double_expectation.print();
-  ASSERT_TRUE(check_answer(double_expectation, 2.5));
+  BOOST_CHECK(check_answer(double_expectation, 2.5));
 
   Expression<Fock0DInfo> triple_occupied_state = normalised_n_occupied_state(3);
   auto triple_expectation = hermition_conjugate<Fock0DInfo>(triple_occupied_state) * hamiltonian * triple_occupied_state;
   triple_expectation = normal_order<Fock0DInfo>(triple_expectation);
   triple_expectation = triple_expectation.evaluate(boson_commutator<Fock0DInfo>, substitutions<Fock0DInfo>);
   triple_expectation.print();
-  ASSERT_TRUE(check_answer(triple_expectation, 3.5));
+  BOOST_CHECK(check_answer(triple_expectation, 3.5));
 
   Expression<Fock0DInfo> quad_occupied_state = normalised_n_occupied_state(4);
   auto quad_expectation = hermition_conjugate<Fock0DInfo>(quad_occupied_state) * hamiltonian * quad_occupied_state;
   quad_expectation = normal_order<Fock0DInfo>(quad_expectation);
   quad_expectation = quad_expectation.evaluate(boson_commutator<Fock0DInfo>, substitutions<Fock0DInfo>);
   quad_expectation.print();
-  ASSERT_TRUE(check_answer(quad_expectation, 4.5));
+  BOOST_CHECK(check_answer(quad_expectation, 4.5));
 }
 
-TEST(Examples, HarmonicOscilator_2D) {
+BOOST_AUTO_TEST_CASE(HarmonicOscilator_2D) {
   // hamiltonian = w0 * (a0! * a0 + 0.5) + w1 * (a1! * a1 + 0.5)
   // states are |x, y> represents particles in state x wrt to first
   // 1d oscilator and y wrt to second
@@ -161,7 +162,7 @@ TEST(Examples, HarmonicOscilator_2D) {
   vacuum_expectation = normal_order<Fock1DInfo>(vacuum_expectation);
   vacuum_expectation = vacuum_expectation.evaluate(boson_commutator<Fock1DInfo>, substitutions<Fock1DInfo>);
   vacuum_expectation.print();
-  ASSERT_TRUE(check_answer(vacuum_expectation, 6.0));
+  BOOST_CHECK(check_answer(vacuum_expectation, 6.0));
 
   // single occupied state in first HO
   Expression<Fock1DInfo> single_occupied_state = normalised_n_occupied_state(1, 0);
@@ -169,7 +170,7 @@ TEST(Examples, HarmonicOscilator_2D) {
   expectation = normal_order<Fock1DInfo>(expectation);
   expectation = expectation.evaluate(boson_commutator<Fock1DInfo>, substitutions<Fock1DInfo>);
   expectation.print();
-  ASSERT_TRUE(check_answer(expectation, 13.0));
+  BOOST_CHECK(check_answer(expectation, 13.0));
 
   // single occupied state in second HO
   single_occupied_state = normalised_n_occupied_state(1, 1);
@@ -177,7 +178,7 @@ TEST(Examples, HarmonicOscilator_2D) {
   expectation = normal_order<Fock1DInfo>(expectation);
   expectation = expectation.evaluate(boson_commutator<Fock1DInfo>, substitutions<Fock1DInfo>);
   expectation.print();
-  ASSERT_TRUE(check_answer(expectation, 11.0));
+  BOOST_CHECK(check_answer(expectation, 11.0));
 
   // both H0s occupied
   single_occupied_state = normalised_n_occupied_ops(5, 0) *
@@ -187,12 +188,6 @@ TEST(Examples, HarmonicOscilator_2D) {
   expectation = normal_order<Fock1DInfo>(expectation);
   expectation = expectation.evaluate(boson_commutator<Fock1DInfo>, substitutions<Fock1DInfo>);
   expectation.print();
-  ASSERT_TRUE(check_answer(expectation, 71.0));
+  BOOST_CHECK(check_answer(expectation, 71.0));
 
-}
-
-int main(int argc, char **argv) {
-  spdlog::set_level(spdlog::level::debug);
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

@@ -1,4 +1,3 @@
-#include "gtest/gtest.h"
 #include "Expression.hpp"
 #include "Substitutions.hpp"
 #include "Ordering.hpp"
@@ -7,6 +6,8 @@
 #include "Comutators.hpp"
 #include <exception>
 #include <cmath>
+#define BOOST_TEST_MODULE SimpleFermions
+#include <boost/test/included/unit_test.hpp>
 
 using namespace operators;
 
@@ -29,7 +30,7 @@ static bool check_answer(const Expression<OperatorInfo> & exp, const ComplexNumb
          round_to_3_dp(exp.expression[0][0].value().imaginary_part) == round_to_3_dp(ans.imaginary_part);
 }
 
-TEST(Fermions, simple) {
+BOOST_AUTO_TEST_CASE(simple) {
   Expression<Fock1DInfo> exp1 = creation_op(0) * anihilation_op(0) * creation_op(0);
   Expression<Fock1DInfo> exp2 = creation_op(0) * anihilation_op(0) * anihilation_op(0);
   Expression<Fock1DInfo> exp3 = creation_op(0) * creation_op(0) * anihilation_op(0);
@@ -46,9 +47,4 @@ TEST(Fermions, simple) {
   exp2.print();
   exp3.print();
   exp4.print();
-}
-
-int main(int argc, char **argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

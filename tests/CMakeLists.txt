@@ -1,12 +1,18 @@
-#add_executable(PrintTests PrintTests.cpp)
-#target_include_directories(PrintTests PUBLIC ${PROJECT_SOURCE_DIR}/lib/operators)
-#target_link_libraries(PrintTests gtest gtest_main)
+macro(print_all_variables)
+    message(STATUS "print_all_variables------------------------------------------{")
+    get_cmake_property(_variableNames VARIABLES)
+    foreach (_variableName ${_variableNames})
+        message(STATUS "${_variableName}=${${_variableName}}")
+    endforeach()
+    message(STATUS "print_all_variables------------------------------------------}")
+endmacro()
 
-#add_test(PrintTests PrintTests)
+find_package(Boost)
 
 add_subdirectory(Examples)
 
-include_directories(${operators_SOURCE_DIR}/include/operators)
+include_directories(${operators_SOURCE_DIR}/include/operators
+                    ${Boost_INCLUDE_DIRS})
 link_directories(${operators_SOURCE_DIR}/lib/operators)
 
 add_executable(PrintTests PrintTests.cpp)
@@ -16,7 +22,6 @@ add_test(NAME "PrintTests"
 
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-target_link_libraries(PrintTests gtest gtest_main)
 
 add_executable(SortTests SortTests.cpp)
 add_test(NAME "SortTests"
@@ -28,22 +33,21 @@ add_executable(CommutatorTests Commutators.cpp)
 add_test(NAME "CommutatorTests"
       COMMAND CommutatorTests
       WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-target_link_libraries(CommutatorTests gtest gtest_main)
+target_link_libraries(CommutatorTests)
 
 add_executable(NumberTests NumberTests.cpp)
 add_test(NAME "NumberTests"
       COMMAND NumberTests
       WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-target_link_libraries(NumberTests gtest gtest_main)
 
 add_executable(SubstitutionTests SubstitutionTests.cpp)
 add_test(NAME "SubstitutionTests"
          COMMAND SubstitutionTests
          WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-target_link_libraries(SubstitutionTests operators gtest gtest_main)
+target_link_libraries(SubstitutionTests operators)
 
 add_executable(TransformTests TransformTests.cpp)
 add_test(NAME "TransformTests"
          COMMAND TransformTests
          WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-target_link_libraries(TransformTests operators gtest gtest_main)
+target_link_libraries(TransformTests operators)

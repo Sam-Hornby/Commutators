@@ -1,20 +1,21 @@
-#include "gtest/gtest.h"
 #include "Expression.hpp"
 #include "Operator.hpp"
 #include "Comutators.hpp"
 #include <sstream>
+#define BOOST_TEST_MODULE Comutator
+#include <boost/test/included/unit_test.hpp>
 
 using namespace operators;
 
-TEST(commutator_tests, numbers) {
+BOOST_AUTO_TEST_CASE(numbers) {
   auto exp = Operator<GenericInfo>(ordering_value(0), GenericInfo("A")) * Operator<GenericInfo>(8);
   exp = exp.sort(commute_none);
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(8.000000 * A)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "(8.000000 * A)\n");
 }
 
-TEST(commutator_tests, commute_two) {
+BOOST_AUTO_TEST_CASE(commute_two) {
   Operator<GenericInfo> A(ordering_value(1), GenericInfo("A"));
   Operator<GenericInfo> B(ordering_value(-1), GenericInfo("B"));
 
@@ -23,10 +24,10 @@ TEST(commutator_tests, commute_two) {
 
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(B * A) + ([A, B])\n");
+  BOOST_CHECK_EQUAL(ss.str(), "(B * A) + ([A, B])\n");
 }
 
-TEST(commutator_tests, commute_three_1) {
+BOOST_AUTO_TEST_CASE(commute_three_1) {
   Operator<GenericInfo> A(ordering_value(1), GenericInfo("A"));
   Operator<GenericInfo> B(ordering_value(1), GenericInfo("B"));
   Operator<GenericInfo> C(ordering_value(-1), GenericInfo("C"));
@@ -36,10 +37,10 @@ TEST(commutator_tests, commute_three_1) {
 
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(C * A * B) + ([B, C] * A) + ([A, C] * B) + ([A, [B, C]])\n");
+  BOOST_CHECK_EQUAL(ss.str(), "(C * A * B) + ([B, C] * A) + ([A, C] * B) + ([A, [B, C]])\n");
 }
 
-TEST(commutator_tests, commute_three_2) {
+BOOST_AUTO_TEST_CASE(commute_three_2) {
   Operator<GenericInfo> A(ordering_value(1), GenericInfo("A"));
   Operator<GenericInfo> B(ordering_value(-1), GenericInfo("B"));
   Operator<GenericInfo> C(ordering_value(-1), GenericInfo("C"));
@@ -49,10 +50,10 @@ TEST(commutator_tests, commute_three_2) {
 
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(B * C * A) + (C * [A, B]) + (B * [A, C]) + ([[A, B], C])\n");
+  BOOST_CHECK_EQUAL(ss.str(), "(B * C * A) + (C * [A, B]) + (B * [A, C]) + ([[A, B], C])\n");
 }
 
-TEST(commutator_tests, commute_three_number) {
+BOOST_AUTO_TEST_CASE(commute_three_number) {
   Operator<GenericInfo> A(ordering_value(1), GenericInfo("A"));
   Operator<GenericInfo> B(ordering_value(-1), GenericInfo("B"));
   Operator<GenericInfo> C(ordering_value(-1), GenericInfo("C"));
@@ -62,11 +63,11 @@ TEST(commutator_tests, commute_three_number) {
 
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(2.000000 * B * C * A) + (2.000000 * C * [A, B]) "
+  BOOST_CHECK_EQUAL(ss.str(), "(2.000000 * B * C * A) + (2.000000 * C * [A, B]) "
                       "+ (2.000000 * B * [A, C]) + (2.000000 * [[A, B], C])\n");
 }
 
-TEST(commutator_tests, commute_four) {
+BOOST_AUTO_TEST_CASE(commute_four) {
   Operator<GenericInfo> A(ordering_value(-1), GenericInfo("A"));
   Operator<GenericInfo> B(ordering_value(-1), GenericInfo("B"));
   Operator<GenericInfo> C(ordering_value(-1), GenericInfo("C"));
@@ -77,12 +78,12 @@ TEST(commutator_tests, commute_four) {
 
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(D * A * B * C) + (A * B * [C, D]) + (A * C * [B, D]) + "
+  BOOST_CHECK_EQUAL(ss.str(), "(D * A * B * C) + (A * B * [C, D]) + (A * C * [B, D]) + "
                       "(B * C * [A, D]) + (A * [[B, D], C]) + (C * [[A, D], B]) + "
                       "(B * [[A, D], C]) + ([[[A, D], B], C])\n");
 }
 
-TEST(commutator_tests, commute_and_addition) {
+BOOST_AUTO_TEST_CASE(commute_and_addition) {
   Operator<GenericInfo> A(ordering_value(1), GenericInfo("A"));
   Operator<GenericInfo> B(ordering_value(-1), GenericInfo("B"));
   Operator<GenericInfo> C(ordering_value(2), GenericInfo("C"));
@@ -93,10 +94,10 @@ TEST(commutator_tests, commute_and_addition) {
 
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(B * A) + ([A, B]) + (D * C) + ([C, D])\n");
+  BOOST_CHECK_EQUAL(ss.str(), "(B * A) + ([A, B]) + (D * C) + ([C, D])\n");
 }
 
-TEST(anti_commutator_tests, commute_two) {
+BOOST_AUTO_TEST_CASE(commute_2) {
   Operator<GenericInfo> A(ordering_value(1), GenericInfo("A"));
   Operator<GenericInfo> B(ordering_value(-1), GenericInfo("B"));
 
@@ -105,11 +106,5 @@ TEST(anti_commutator_tests, commute_two) {
 
   std::stringstream ss;
   exp.print(ss);
-  ASSERT_EQ(ss.str(), "(-1.000000 * B * A) + ({A, B})\n");
-}
-
-
-int main(int argc, char **argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  BOOST_CHECK_EQUAL(ss.str(), "(-1.000000 * B * A) + ({A, B})\n");
 }
