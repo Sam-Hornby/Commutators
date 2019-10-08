@@ -12,7 +12,8 @@ find_package(Boost)
 add_subdirectory(Examples)
 
 include_directories(${operators_SOURCE_DIR}/include/operators
-                    ${Boost_INCLUDE_DIRS})
+                    ${Boost_INCLUDE_DIRS}
+	            ${operators_SOURCE_DIR}/spdlog/include)
 link_directories(${operators_SOURCE_DIR}/lib/operators)
 
 add_executable(PrintTests PrintTests.cpp)
