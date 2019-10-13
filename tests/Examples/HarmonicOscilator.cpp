@@ -213,6 +213,4 @@ BOOST_AUTO_TEST_CASE(HarmonicOscilator_2D_named) {
   expectation = normal_order<Fock1DInfo>(expectation);
   expectation = expectation.evaluate(boson_commutator<Fock1DInfo>, substitutions<Fock1DInfo>);
   BOOST_CHECK_EQUAL(expectation.print(false), "(3.500000 * w) + (4.500000 * u)");
-
-
 }

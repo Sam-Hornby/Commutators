@@ -1,4 +1,5 @@
 #include "Expression.hpp"
+#include "operators/Sum.hpp"
 #include <sstream>
 #include <iomanip>
 #include "struct_ids.hpp"
@@ -100,4 +101,18 @@ BOOST_AUTO_TEST_CASE(named_numbers) {
         * Operator<GenericInfo>(ordering_value(0), GenericInfo("A"));
   BOOST_CHECK_EQUAL(exp.print(false), "(t * 2.000000 * A)");
       
+}
+
+BOOST_AUTO_TEST_CASE(SumPrint) {
+  Expression<GenericInfo> exp;
+  exp = Operator<GenericInfo>(NamedNumber('t'))
+        * number<GenericInfo>(2)
+        * Operator<GenericInfo>(ordering_value(0), GenericInfo("A"));
+  exp = exp + number<GenericInfo>(10);
+  Product<GenericInfo> prod(exp);
+  Sum<GenericInfo> sum(std::move(exp));
+  BOOST_TEST_MESSAGE(sum.print());
+  BOOST_TEST_MESSAGE(prod.print());
+  BOOST_CHECK_EQUAL(sum.print(), "\u03A3[(t * 2.000000 * A) + (10.000000)]");
+  BOOST_CHECK_EQUAL(prod.print(), "\u03A0[(t * 2.000000 * A) + (10.000000)]");
 }
