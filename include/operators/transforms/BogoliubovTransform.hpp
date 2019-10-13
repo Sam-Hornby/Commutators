@@ -16,7 +16,7 @@ enum class OperatorType {
 // c_1! = (coeff_a * d_1!) +/- (coeff_b * d_0)
 
 template <class InfoA>
-bool isSecondOp(const Operator<InfoA> & op) [
+bool isSecondOp(const Operator<InfoA> & op) {
   // Will give a default but suspect for most custom classes, an overload
   // for that template instance will be needed.  Same for the create function
   std::abort();
@@ -58,13 +58,13 @@ bogoliubov_transform(const Expression<InfoA> & input,
                      ComplexNumber coeff_b,
                      const OperatorType type) {
   return transform_expression<InfoA, InfoA>([&] (const Operator<InfoA> & op) {
-    if (op.is_number() or isVectorType(op.info().type) {
-      return {{{op}}};
+    if (op.is_number() or isVectorType(op.info().type)) {
+      return Expression<InfoA>({{op}});
     }
     if (not isFockOpType(op.info().type)) {
       throw std::logic_error("Unexpected type");
     }
-    if (type == OperatorType::FERMIONS and isSecondOp<InfoA>(op)) {
+    if (type == OperatorType::FERMION and isSecondOp<InfoA>(op)) {
       coeff_b = coeff_b * -1;
     }
     return (coeff_a * createBogOp<InfoA>(op, false)) + (coeff_b * createBogOp<InfoA>(op, true));

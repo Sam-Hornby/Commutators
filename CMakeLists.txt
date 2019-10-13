@@ -1,4 +1,6 @@
+
 cmake_minimum_required(VERSION 3.6.0)
+set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 project(operators)
 enable_testing()
 
