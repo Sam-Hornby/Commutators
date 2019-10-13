@@ -193,3 +193,26 @@ BOOST_AUTO_TEST_CASE(HarmonicOscilator_2D) {
   BOOST_CHECK(check_answer(expectation, 71.0));
 
 }
+
+
+BOOST_AUTO_TEST_CASE(HarmonicOscilator_2D_named) {
+  // hamiltonian = w0 * (a0! * a0 + 0.5) + w1 * (a1! * a1 + 0.5)
+  // states are |x, y> represents particles in state x wrt to first
+  // 1d oscilator and y wrt to second
+  // Use the x coordinate in the operator info to tell which dimension the operators belong. As only having vacuum state
+  // all vaccum states will have zero as they belong to both
+  auto hamiltonian = (named_number<Fock1DInfo>('w') * ((creation_op(0) * anihilation_op(0)) + number<Fock1DInfo>(0.5)))
+                   + (named_number<Fock1DInfo>('u') * ((creation_op(1) * anihilation_op(1)) + number<Fock1DInfo>(0.5)));
+  BOOST_TEST_MESSAGE(hamiltonian.print(false));
+
+  // both H0s occupied
+  auto state = normalised_n_occupied_ops(3, 0) *
+               normalised_n_occupied_ops(4, 1) *
+               vacuum_state<Fock1DInfo>();
+  auto expectation = hermition_conjugate<Fock1DInfo>(state) * hamiltonian * state;
+  expectation = normal_order<Fock1DInfo>(expectation);
+  expectation = expectation.evaluate(boson_commutator<Fock1DInfo>, substitutions<Fock1DInfo>);
+  BOOST_CHECK_EQUAL(expectation.print(false), "(3.500000 * w) + (4.500000 * u)");
+
+
+}
