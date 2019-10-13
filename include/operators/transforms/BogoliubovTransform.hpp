@@ -12,8 +12,8 @@ enum class OperatorType {
   FERMION,
 };
 
-// c_0! = (coeff_a * d_0!) + (coeff_b * d_1)
-// c_1! = (coeff_a * d_1!) +/- (coeff_b * d_0)
+// c_0! = (coeff_a * b_0!) + (coeff_b * b_1)
+// c_1! = (coeff_a * b_1!) +/- (coeff_b * b_0)
 
 template <class InfoA>
 bool isSecondOp(const Operator<InfoA> & op) {
@@ -38,8 +38,8 @@ template <>
 Operator<Fock1DInfo> createBogOp(Operator<Fock1DInfo> op, const bool swap) {
   assert(op.info().x_coordinate < 2);
   assert(isFockOpType(op.info().type));
-  if (op.info().symbol != 'd') {
-    op.info().symbol = 'd';
+  if (op.info().symbol != 'b') {
+    op.info().symbol = 'b';
   } else {
     op.info().symbol = 'c';
   }
@@ -69,6 +69,13 @@ bogoliubov_transform(const Expression<InfoA> & input,
     }
     return (coeff_a * createBogOp<InfoA>(op, false)) + (coeff_b * createBogOp<InfoA>(op, true));
   });
+}
+
+template <class InfoA>
+Expression<InfoA>
+bogoliubov_transform(const Expression<InfoA> & input,
+                     const OperatorType) {
+  return input;
 }
 
 
