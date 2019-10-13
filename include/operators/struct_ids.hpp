@@ -1,5 +1,4 @@
-#ifndef _struct_ids_hpp_
-#define _struct_ids_hpp_
+#pragma once
 
 namespace operators {
 
@@ -110,5 +109,3 @@ struct ordering_value {
 // TODO addition_id and multiply_id
 
 } // end namespace operators
-
-#endif

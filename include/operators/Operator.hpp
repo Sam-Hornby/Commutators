@@ -1,5 +1,4 @@
-#ifndef _operator_hpp_
-#define _operator_hpp_
+#pragma once
 
 #include <boost/optional.hpp>
 #include <boost/variant.hpp>
@@ -149,5 +148,3 @@ Operator<OperatorInfo> number(const double n) {
 
 
 } // end namespace
-
-#endif // header guard

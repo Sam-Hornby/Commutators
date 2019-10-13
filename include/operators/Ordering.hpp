@@ -1,5 +1,4 @@
-#ifndef _ordering_hpp_
-#define _ordering_hpp_
+#pragma once
 
 #include "Operator.hpp"
 #include "Expression.hpp"
@@ -38,4 +37,3 @@ Expression<OperatorInfo> normal_order(const Expression<OperatorInfo> & exp) {
 } // end namespace
 
 
-#endif

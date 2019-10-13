@@ -1,5 +1,4 @@
-#ifndef _substitutions_hpp_
-#define _substitutions_hpp_
+#pragma once
 
 #include "Operator.hpp"
 #include "Utils.hpp"
@@ -95,6 +94,3 @@ bool fermion_dual_occupation(typename vector_type<Operator<OperatorInfo>>::itera
 }
 
 } // end name space
-
-
-#endif
