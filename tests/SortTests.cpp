@@ -121,11 +121,13 @@ BOOST_AUTO_TEST_CASE(one) {
 }
 
 BOOST_AUTO_TEST_CASE(numberss) {
-  auto exp = Operator<GenericInfo>(ordering_value(0), GenericInfo("A")) * Operator<GenericInfo>(3);
+  auto exp = Operator<GenericInfo>(ordering_value(0), GenericInfo("A"))
+           * named_number<GenericInfo>('z')
+           * Operator<GenericInfo>(3);
   exp = exp.sort(commute_all<GenericInfo>);
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(3.000000 * A)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "(z * 3.000000 * A)\n");
 }
 
 // interleaver_evaluate with empty substitutions tests

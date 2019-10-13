@@ -3,7 +3,7 @@
 #include <iomanip>
 #include "struct_ids.hpp"
 #include "Comutators.hpp"
-#define BOOST_TEST_MODULE Sort
+#define BOOST_TEST_MODULE Print
 #include <boost/test/included/unit_test.hpp>
 
 
@@ -90,4 +90,14 @@ BOOST_AUTO_TEST_CASE(imaginary_numbers) {
   std::stringstream ss2;
   exp.print(ss2);
   BOOST_CHECK_EQUAL(ss2.str(), "(3.000000 * i * 2.000000 * A)\n");
+}
+
+BOOST_AUTO_TEST_CASE(named_numbers) {
+  Expression<GenericInfo> exp = {{{Operator<GenericInfo>(NamedNumber('t'))}}};
+  BOOST_CHECK_EQUAL(exp.print(true), "(t)\n");
+  exp = Operator<GenericInfo>(NamedNumber('t'))
+        * number<GenericInfo>(2)
+        * Operator<GenericInfo>(ordering_value(0), GenericInfo("A"));
+  BOOST_CHECK_EQUAL(exp.print(false), "(t * 2.000000 * A)");
+      
 }

@@ -1,5 +1,4 @@
-#ifndef _expression_hpp_
-#define _expression_hpp_
+#pragma once
 
 #include <vector>
 #include <map>
@@ -212,7 +211,7 @@ static void add_terms_from_comutator(vector_type<vector_type<Operator<OperatorIn
   for (const auto &mul_term : com.expression) {
     if (std::any_of(mul_term.begin(), mul_term.end(),
                     [&](const Operator<OperatorInfo> &op) {
-                      return op.is_number() and op.value() == ComplexNumber(0);
+                      return op.is_evaluated_number() and op.value() == ComplexNumber(0);
                     })) {
       continue;
     }
@@ -222,7 +221,7 @@ static void add_terms_from_comutator(vector_type<vector_type<Operator<OperatorIn
         });
     const bool all_one = std::all_of(mul_term.begin(), mul_term.end(),
                                         [&](const Operator<OperatorInfo> &op) {
-          return op.is_number() and op.value() == ComplexNumber(1.0);
+          return op.is_evaluated_number() and op.value() == ComplexNumber(1.0);
         });
     // as commuter has value means new addition term must be added
     sorted_terms.push_back(vector_type<Operator<OperatorInfo>>());
@@ -322,18 +321,18 @@ simplify_multiply(const vector_type<Operator<OperatorInfo>> & mul_term) {
   simplified.push_back(Operator<OperatorInfo>(1));
   for (const auto & op : mul_term) {
     spdlog::trace("iterating ops");
-    if (op.is_number()) {
+    if (op.is_evaluated_number()) {
       simplified[0].data = simplified[0].value() * op.value();
     } else {
       simplified.push_back(op);
     }
   }
   spdlog::trace("Simply first term");
-  if (simplified[0].is_number() and simplified[0].value() == ComplexNumber(0)) {
+  if (simplified[0].is_evaluated_number() and simplified[0].value() == ComplexNumber(0)) {
     simplified.clear(); // if zero return empty vector
     return simplified;
   }
-  if (simplified[0].is_number() and simplified[0].value() == ComplexNumber(1) and simplified.size() != 1) {
+  if (simplified[0].is_evaluated_number() and simplified[0].value() == ComplexNumber(1) and simplified.size() != 1) {
     simplified.erase(simplified.begin());
   }
   spdlog::trace("simplify single multiply end");
@@ -348,9 +347,9 @@ static bool expression_operators_match(const vector_type<Operator<OperatorInfo>>
     return false;
   }
   unsigned size_A = A.size();
-  unsigned start_index_A = static_cast<unsigned>(A[0].is_number());
+  unsigned start_index_A = static_cast<unsigned>(A[0].is_evaluated_number());
   unsigned size_B = B.size();
-  unsigned start_index_B = static_cast<unsigned>(B[0].is_number());
+  unsigned start_index_B = static_cast<unsigned>(B[0].is_evaluated_number());
   if ((size_A - start_index_A) != (size_B - start_index_B)) {
     return false;
   }
@@ -368,17 +367,17 @@ combine_expressions(const vector_type<Operator<OperatorInfo>> & A, const vector_
   vector_type<Operator<OperatorInfo>> C;
   C.reserve(A.size() + 1);
   Operator<OperatorInfo> number;
-  if ((!A[0].is_number()) and (!B[0].is_number())) {
+  if ((!A[0].is_evaluated_number()) and (!B[0].is_evaluated_number())) {
     number = Operator<OperatorInfo>(2);
-  } else if ((A[0].is_number()) && (!B[0].is_number())) {
+  } else if ((A[0].is_evaluated_number()) && (!B[0].is_evaluated_number())) {
     number = Operator<OperatorInfo>(A[0].value() + 1);
-  } else if ((!A[0].is_number()) && B[0].is_number()) {
+  } else if ((!A[0].is_evaluated_number()) && B[0].is_evaluated_number()) {
     number = Operator<OperatorInfo>(B[0].value() + 1);
   } else {
     number = Operator<OperatorInfo>(A[0].value() + B[0].value());
   }
   C.push_back(number);
-  unsigned start_index = static_cast<unsigned>(A[0].is_number());
+  unsigned start_index = static_cast<unsigned>(A[0].is_evaluated_number());
   C.insert(C.end(), A.begin() + start_index, A.end());
   return C;
 }
@@ -394,7 +393,7 @@ struct ComparisonStruct {
     if (full.empty()) {
       return 0U;
     }
-    return full.size() - static_cast<unsigned>(full[0].is_number());
+    return full.size() - static_cast<unsigned>(full[0].is_evaluated_number());
   }
 
   bool operator<(ComparisonStruct other) const {
@@ -410,6 +409,21 @@ struct ComparisonStruct {
     for (unsigned i = 0; i < num_operators(); ++i) {
       const auto & op_A = full.at(first_A + i);
       const auto & op_B = other.full.at(first_B + i);
+      if (op_A.data.which() != op_B.data.which()) {
+        spdlog::debug("exiting which {} {}", op_A.name(), op_B.name());
+        return op_A.data.which() < op_B.data.which();
+      }
+      if (op_A.is_number()) {
+        // assuming no evaluated numbers here
+        const auto tie_A = std::make_pair(op_A.order, op_A.named_number());
+        const auto tie_B = std::make_pair(op_B.order, op_B.named_number());
+        if (tie_A != tie_B) {
+          spdlog::debug("exiting ties {} {}", op_A.name(), op_B.name());
+          return tie_A < tie_B;
+        }
+        spdlog::debug("continuing {} {}",  op_A.name(), op_B.name());
+        continue;
+      }
       const auto tie_A = std::tie(op_A.order, op_A.info());
       const auto tie_B = std::tie(op_B.order, op_B.info());
       if (tie_A != tie_B) {
@@ -616,5 +630,3 @@ Expression<OperatorInfo>::evaluate(
 
 
 } // end namespace operators
-
-#endif // header guard

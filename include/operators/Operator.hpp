@@ -6,6 +6,7 @@
 #include <string>
 #include "struct_ids.hpp"
 #include "ImaginaryNumber.hpp"
+#include "NamedNumber.hpp"
 
 
 
@@ -15,12 +16,20 @@ template <class OperatorInfo>
 struct IsNumberVisitor : public boost::static_visitor<bool>{
   bool operator() (const ComplexNumber) const {return true;}
   bool operator() (const OperatorInfo) const {return false;}
+  bool operator() (const NamedNumber) const {return true;}
+};
+
+template <class OperatorInfo>
+struct hasValueVisitor : public boost::static_visitor<bool>{
+  bool operator() (const ComplexNumber) const {return true;}
+  bool operator() (const OperatorInfo) const {return false;}
+  bool operator() (const NamedNumber) const {return false;}
 };
 
 template <class OperatorInfo>
 struct NameVisitor : public boost::static_visitor<std::string>{
-  std::string operator() (const ComplexNumber &a) const {return a.name();}
-  std::string operator() (const OperatorInfo &info) const {return info.name();}
+  template <typename T>
+  std::string operator() (const T &a) const {return a.name();}
 };
 
 template <class OperatorInfo>
@@ -49,16 +58,25 @@ struct NumberVisitor : public boost::static_visitor<ComplexNumber>{
   ComplexNumber operator() (const ComplexNumber value) const {return value;}
 };
 
+struct NamedNumberVisitor : public boost::static_visitor<NamedNumber>{
+  template <typename T>
+  NamedNumber operator() (const T) const {
+    throw std::logic_error("Trying to access value on operator");
+  }
+  NamedNumber operator() (const NamedNumber value) const {return value;}
+};
+
 template <class OperatorInfo>
 struct Operator {
   ordering_value order;  // when sorting this determines greater than or equal to
   //OperatorInfo info;     // should be unique for each operator TODO make const
   // if this is set operator is a number, comutators are automatically assumed zero, op_id is irelevant
-  boost::variant<ComplexNumber, OperatorInfo> data;
+  boost::variant<ComplexNumber, OperatorInfo, NamedNumber> data;
 
   Operator() = default;
   Operator(ordering_value order, OperatorInfo info) : order(order), data(info) {}
   Operator(ComplexNumber i) : order(ordering_value(std::numeric_limits<int>::min())), data(i) {}
+  Operator(NamedNumber i) : order(ordering_value(std::numeric_limits<int>::min())), data(i) {}
 
 
   std::string name() const {
@@ -67,6 +85,10 @@ struct Operator {
 
   bool is_number() const {
     return boost::apply_visitor(IsNumberVisitor<OperatorInfo>{}, data);
+  }
+
+  bool is_evaluated_number() const {
+    return boost::apply_visitor(hasValueVisitor<OperatorInfo>{}, data);
   }
 
   ComplexNumber value() const {
@@ -79,6 +101,10 @@ struct Operator {
 
   const OperatorInfo & info() const {
     return boost::apply_visitor(ConstInfoVisitor<OperatorInfo>{}, data);
+  }
+
+  NamedNumber named_number() const {
+    return boost::apply_visitor(NamedNumberVisitor{}, data);
   }
 
   bool operator<(Operator other) const {
@@ -107,6 +133,11 @@ Operator<OperatorInfo> im_number(const double n) {
   return Operator<OperatorInfo>(ImaginaryNumber(n));
 }
 
+template <class OperatorInfo>
+Operator<OperatorInfo> named_number(const char n) {
+  return Operator<OperatorInfo>(NamedNumber(n));
+}
+
 //******************************************************************
 // All definitions below
 //******************************************************************
@@ -115,6 +146,7 @@ template <class OperatorInfo>
 Operator<OperatorInfo> number(const double n) {
   return Operator<OperatorInfo>(n);
 }
+
 
 } // end namespace
 

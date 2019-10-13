@@ -1,5 +1,4 @@
-#ifndef _commutators_hpp_
-#define _commutators_hpp_
+#pragma once
 
 #include "Expression.hpp"
 #include "Utils.hpp"
@@ -125,5 +124,3 @@ Expression<OperatorInfo> boson_commutator(const Operator<OperatorInfo> & A, cons
 
 
 } // End namespace operators
-
-#endif // header guard

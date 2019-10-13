@@ -1,5 +1,4 @@
-#ifndef _IM_NUMBER_
-#define _IM_NUMBER_
+#pragma once
 
 namespace operators {
 
@@ -63,4 +62,3 @@ ComplexNumber operator+(double A, ComplexNumber B) {
 }
 
 }
-#endif

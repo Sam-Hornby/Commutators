@@ -179,5 +179,33 @@ BOOST_AUTO_TEST_CASE(imaginary_numbers) {
   BOOST_CHECK_EQUAL(D.real_part, 10.0);
   BOOST_CHECK_EQUAL(D.imaginary_part, 12.0);
   BOOST_CHECK_EQUAL(D.name(), "(10.000000 + 12.000000i)");
+}
 
+BOOST_AUTO_TEST_CASE(named_numbers) {
+  Expression<GenericInfo> exp = {{{Operator<GenericInfo>(NamedNumber('t'))}}};
+  exp = exp.simplify_numbers();
+  BOOST_CHECK_EQUAL(exp.print(false), "(t)");
+  exp = named_number<GenericInfo>('t') * named_number<GenericInfo>('a');
+  exp = exp.simplify_numbers();
+  BOOST_CHECK_EQUAL(exp.print(false), "(t * a)");
+  spdlog::set_level(spdlog::level::debug);
+  exp = named_number<GenericInfo>('t') + named_number<GenericInfo>('a');
+  exp = exp.simplify_numbers();
+  BOOST_CHECK_EQUAL(exp.print(false), "(t) + (a)");
+  exp = named_number<GenericInfo>('t') + named_number<GenericInfo>('t');
+  exp = exp.simplify_numbers();
+  BOOST_CHECK_EQUAL(exp.print(false), "(2.000000 * t)");
+  exp = number<GenericInfo>(7)
+      + named_number<GenericInfo>('a')
+      + Operator<GenericInfo>(ordering_value(0), GenericInfo("A"))
+      + (named_number<GenericInfo>('a') * number<GenericInfo>(5));
+  exp = exp.simplify_numbers();
+  BOOST_CHECK_EQUAL(exp.print(false), "(7.000000) + (6.000000 * a) + (A)");
+  exp = number<GenericInfo>(7)
+      * named_number<GenericInfo>('a')
+      * Operator<GenericInfo>(ordering_value(0), GenericInfo("A"))
+      * named_number<GenericInfo>('a');
+  exp = exp.simplify_numbers();
+  BOOST_CHECK_EQUAL(exp.print(false), "(7.000000 * a * A * a)");
+  
 }

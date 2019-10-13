@@ -108,3 +108,29 @@ BOOST_AUTO_TEST_CASE(commute_2) {
   exp.print(ss);
   BOOST_CHECK_EQUAL(ss.str(), "(-1.000000 * B * A) + ({A, B})\n");
 }
+
+BOOST_AUTO_TEST_CASE(commute_three_named_number) {
+  Operator<GenericInfo> A(ordering_value(1), GenericInfo("A"));
+  Operator<GenericInfo> B(ordering_value(-1), GenericInfo("B"));
+  Operator<GenericInfo> C(ordering_value(-1), GenericInfo("C"));
+
+  auto exp = A * B * named_number<GenericInfo>('z') * C;
+  exp = exp.sort(commute_none);
+
+  std::stringstream ss;
+  exp.print(ss);
+  BOOST_CHECK_EQUAL(ss.str(), "(z * B * C * A) + (z * C * [A, B]) "
+                      "+ (z * B * [A, C]) + (z * [[A, B], C])\n");
+}
+
+BOOST_AUTO_TEST_CASE(anticommute_named_numer) {
+  Operator<GenericInfo> A(ordering_value(1), GenericInfo("A"));
+  Operator<GenericInfo> B(ordering_value(-1), GenericInfo("B"));
+
+  auto exp = A * B * named_number<GenericInfo>('z');
+  exp = exp.sort(anticommute_none, SortUsing::ANTICOMMUTATORS);
+
+  std::stringstream ss;
+  exp.print(ss);
+  BOOST_CHECK_EQUAL(ss.str(), "(-1.000000 * z * B * A) + (z * {A, B})\n");
+}

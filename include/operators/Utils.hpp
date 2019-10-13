@@ -1,5 +1,4 @@
-#ifndef _op_utils_hpp_
-#define _op_utils_hpp_
+#pragma once
 
 #include "Operator.hpp"
 #include "struct_ids.hpp"
@@ -46,9 +45,16 @@ inline Expression<Fock1DInfo> normalised_n_occupied_ops(unsigned n, unsigned cre
 
 template <class OperatorInfo>
 Operator<OperatorInfo> hermition_conjugate(const Operator<OperatorInfo> & op) {
+  if (op.is_evaluated_number()) {
+    auto hc_number = op.value();
+    hc_number.imaginary_part = hc_number.imaginary_part * -1;
+    return Operator<OperatorInfo>(hc_number);
+  }
   if (op.is_number()) {
-    // yet to support complex numbers
-    return op;
+    // evaluated numbers already returned so must be named number
+    auto hc_number = op.named_number();
+    hc_number.complex_conjugated = hc_number.complex_conjugated ^ true;
+    return Operator<OperatorInfo>(hc_number);
   }
   auto type = op.info().type;
   if (type == Type::STATE_VECTOR) {
@@ -105,6 +111,3 @@ bool is_unspecified_op(const Operator<OperatorInfo> & A) {
 
 } // end namspace
 
-
-
-#endif
