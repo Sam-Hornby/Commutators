@@ -12,7 +12,11 @@ BOOST_AUTO_TEST_CASE(simple_2_case_bosons) {
            ((creation_op(1) * anihilation_op(1)) + (creation_op(-1) * anihilation_op(-1))))
            + (named_number<Fock1DInfo>('y') *
            ((creation_op(1) * creation_op(-1)) + (anihilation_op(-1) * anihilation_op(-1))));
-  BOOST_TEST_MESSAGE(H.print(false));
+  BOOST_TEST_MESSAGE(H.print(true));
+
+  auto BH = bogoliubov_transform(H, OperatorType::BOSON);
+
+  BOOST_TEST_MESSAGE(BH.print(false));
 
   // After bogoliubov transforms answer should be
   // E = root(e**2 - y**2)
@@ -26,7 +30,11 @@ BOOST_AUTO_TEST_CASE(simple_2_case_fermions) {
            ((creation_op(1) * anihilation_op(1)) + (creation_op(-1) * anihilation_op(-1))))
            + (named_number<Fock1DInfo>('y') *
            ((creation_op(1) * creation_op(-1)) + (anihilation_op(-1) * anihilation_op(-1))));
-  BOOST_TEST_MESSAGE(H.print(false));
+  BOOST_TEST_MESSAGE(H.print(true));
+
+  auto BH = bogoliubov_transform(H, OperatorType::FERMION);
+
+  BOOST_TEST_MESSAGE(BH.print(false));
 
   // After bogoliubov transforms answer should be
   // E = root(e**2 + y**2)
