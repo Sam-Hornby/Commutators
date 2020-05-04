@@ -1,7 +1,3 @@
-include_directories(${operators_SOURCE_DIR}/include/operators
-	            ${operators_SOURCE_DIR}/spdlog/include)
-link_directories(${operators_SOURCE_DIR}/lib/operators)
-
 add_executable(HarmonicOscilator HarmonicOscilator.cpp)
 add_test(NAME "HarmonicOscilator"
          COMMAND HarmonicOscilator

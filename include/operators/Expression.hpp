@@ -5,9 +5,7 @@
 #include <iostream>
 #include "Operator.hpp"
 #include <algorithm>
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
-#include "spdlog/sinks/stdout_color_sinks.h"
+#include "Logging.hpp"
 #include <sstream>
 #include <boost/container/small_vector.hpp>
 
@@ -590,10 +588,8 @@ Expression<OperatorInfo> Expression<OperatorInfo>::interleaved_evaluate(
 
 
 template <class OperatorInfo>
-static void log_expression(spdlog::logger & logger, const Expression<OperatorInfo> & exp, const std::string & prefix) {
-  std::stringstream loggingStream;
-  exp.print(loggingStream);
-  logger.info("After step {}: {}",prefix, loggingStream.str());
+static void log_expression(const Expression<OperatorInfo> & exp, const std::string & prefix) {
+  spdlog::info("After step {}: {}", prefix, exp.print(false));
 }
 
 template <class OperatorInfo>
@@ -606,25 +602,16 @@ Expression<OperatorInfo>::evaluate(
   // simplify numbers is much faster than the other functions and can make the the other functions run faster so call
   // it frequently
 
-  // Set up logging(defaults to off)
-  //-------------------------------------------------------------------------------
-  auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-  console_sink->set_level(spdlog::level::debug);
-  console_sink->set_pattern("%^\033[33m[evaluate] [%l%$] [%H:%M:%S] %v%$");
-  spdlog::logger logger("Operators", console_sink);
-  logger.set_level(spdlog::level::off);
-  //-------------------------------------------------------------------------------
-
-  logger.critical("Start evaluation: Simplift numbers");
-  log_expression(logger, *this, "Start");
+  spdlog::critical("Start evaluation: Simplift numbers");
+  log_expression(*this, "Start");
   auto exp = simplify_numbers();
-  log_expression(logger, exp, "Simplify numbers 1");
-  logger.critical("Interleaved evaluate");
+  log_expression(exp, "Simplify numbers 1");
+  spdlog::critical("Interleaved evaluate");
   exp = exp.interleaved_evaluate(commute, subst, s);
-  logger.critical("Simplify multiplications");
+  spdlog::critical("Simplify multiplications");
   exp = exp.simplify_numbers();
-  log_expression(logger, exp, "Simplify numbers 2");
-  logger.critical("End");
+  log_expression(exp, "Simplify numbers 2");
+  spdlog::critical("End");
   return exp;
 }
 

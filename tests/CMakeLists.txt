@@ -9,12 +9,13 @@ endmacro()
 
 find_package(Boost)
 
-add_subdirectory(Examples)
 
 include_directories(${operators_SOURCE_DIR}/include/operators
                     ${Boost_INCLUDE_DIRS}
 	            ${operators_SOURCE_DIR}/spdlog/include)
 link_directories(${operators_SOURCE_DIR}/lib/operators)
+
+add_subdirectory(Examples)
 
 add_executable(PrintTests PrintTests.cpp)
 add_test(NAME "PrintTests"
@@ -46,3 +47,10 @@ add_executable(TransformTests TransformTests.cpp)
 add_test(NAME "TransformTests"
          COMMAND TransformTests
          WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
+
+add_executable(LoggingTest LoggingTest.cpp)
+add_test(NAME "LoggingTest"
+         COMMAND LoggingTest
+         WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
+SET_TESTS_PROPERTIES(LoggingTest
+    PROPERTIES ENVIRONMENT "OPERATORS_LOG_LEVEL=TRACE")
