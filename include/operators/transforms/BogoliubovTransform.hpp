@@ -4,9 +4,11 @@
 #include "Expression.hpp"
 #include "ImaginaryNumber.hpp"
 #include "Transform.hpp"
+#include <algorithm>
+#include <numeric>
 
 namespace operators {
-
+/*
 enum class OperatorType {
   BOSON,
   FERMION,
@@ -78,7 +80,66 @@ bogoliubov_transform(const Expression<InfoA> & input,
   // std::sort on the operators, then try and factorise
   return result;
 }
+*/
 
+namespace {
+
+// A bogoliubov transform only works on second order terms, we can skip all other terms
+template <class InfoA>
+struct BogExpressionPair {
+  Expression<InfoA> second_order_terms;
+  Expression<InfoA> other_terms;
+};
+
+struct DefaultBogTransformFunctions {
+  template <class T>
+  static unsigned get_order(const Operator<T> &) { return 1U; }
+};
+
+}
+
+template <class InfoA, class TransformFunctions>
+static unsigned get_order(const Operator<InfoA> & A) {
+  if (A.is_number()) { return 0U; }
+  return TransformFunctions::get_order(A);
+} 
+
+template <class InfoA, class TransformFunctions>
+static unsigned get_order(const vector_type<Operator<InfoA>> & term) {
+  return std::accumulate(term.begin(), term.end(), 0U, [] (unsigned acc, const Operator<InfoA> & A) {
+    return acc + get_order<InfoA, TransformFunctions>(A); 
+  });
+}
+
+template <class InfoA, class TransformFunctions>
+static BogExpressionPair<InfoA> seperate_second_order_terms(const Expression<InfoA> & input) {
+  BogExpressionPair<InfoA> result;
+  for (const auto & mul_term : input.expression) {
+    const unsigned order = get_order<InfoA, TransformFunctions>(mul_term);
+    if (order == 2) {
+      result.second_order_terms.expression.emplace_back(mul_term);
+    } else {
+      result.other_terms.expression.emplace_back(mul_term); 
+    }
+  }
+  return result;
+}
+
+template <class InfoA, class TransformFunctions = DefaultBogTransformFunctions>
+Expression<InfoA>
+bogoliubov_transform(const Expression<InfoA> & input) {
+  spdlog::info("bogoliubov_transform start");
+  spdlog::debug("Bogoliubov Input: {}", input.print(false));
+  auto expressions = seperate_second_order_terms<InfoA, TransformFunctions>(input); 
+  spdlog::debug("Non second order terms: {}", expressions.other_terms.print(false));
+  spdlog::debug("Second order terms: {}", expressions.second_order_terms.print(false));
+  spdlog::info("Pair up second order terms");
+  
+
+
+
+  return expressions.second_order_terms + expressions.other_terms;
+}
 //template <class InfoA>
 //Expression<InfoA>
 //bogoliubov_transform(const Expression<InfoA> & input,

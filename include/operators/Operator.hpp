@@ -11,6 +11,8 @@
 
 namespace operators {
 
+namespace {
+
 template <class OperatorInfo>
 struct IsNumberVisitor : public boost::static_visitor<bool>{
   bool operator() (const ComplexNumber) const {return true;}
@@ -65,6 +67,7 @@ struct NamedNumberVisitor : public boost::static_visitor<NamedNumber>{
   NamedNumber operator() (const NamedNumber value) const {return value;}
 };
 
+} // namespace
 template <class OperatorInfo>
 struct Operator {
   ordering_value order;  // when sorting this determines greater than or equal to
