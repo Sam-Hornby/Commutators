@@ -37,7 +37,7 @@ public:
   Expression simplify_numbers() const;  // combine numbers and remove zeros
   Expression simplify_multiplications() const;  // simplify zeros and ones
   // substitute a sequence of multiplications for return value of subst function, empty optional denotes no substitution
-  Expression performMultiplicationSubstitutions(
+  Expression perform_multiplication_substitutions(
                   std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
                                      vector_type<Operator<OperatorInfo>> &)> subst) const;
   Expression evaluate(std::function<Expression(const Operator<OperatorInfo> &,
@@ -408,7 +408,6 @@ struct ComparisonStruct {
       const auto & op_A = full.at(first_A + i);
       const auto & op_B = other.full.at(first_B + i);
       if (op_A.data.which() != op_B.data.which()) {
-        spdlog::debug("exiting which {} {}", op_A.name(), op_B.name());
         return op_A.data.which() < op_B.data.which();
       }
       if (op_A.is_number()) {
@@ -416,10 +415,8 @@ struct ComparisonStruct {
         const auto tie_A = std::make_pair(op_A.order, op_A.named_number());
         const auto tie_B = std::make_pair(op_B.order, op_B.named_number());
         if (tie_A != tie_B) {
-          spdlog::debug("exiting ties {} {}", op_A.name(), op_B.name());
           return tie_A < tie_B;
         }
-        spdlog::debug("continuing {} {}",  op_A.name(), op_B.name());
         continue;
       }
       const auto tie_A = std::tie(op_A.order, op_A.info());
@@ -490,40 +487,38 @@ Expression<OperatorInfo> Expression<OperatorInfo>::simplify_numbers() const {
 //----------------------------------------------------------------------------------------------------------------------
 
 template <class OperatorInfo>
-static bool bubbleSubs(vector_type<Operator<OperatorInfo>> &exp,
+static bool bubble_subs(vector_type<Operator<OperatorInfo>> &exp,
                        std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
                                           vector_type<Operator<OperatorInfo>> &)> subst) {
-  spdlog::trace("bubbleSubs begin");
   bool madeSub = false;
   for (auto it = exp.begin(); it != exp.end(); ++it) {
     if (subst(it, exp)) {
       madeSub = true;
     }
   }
-  spdlog::trace("bubbleSubs begin");
   return madeSub;
 }
 
 template <class OperatorInfo>
 static vector_type<Operator<OperatorInfo>>
-performMulSubs(const vector_type<Operator<OperatorInfo>> & term,
+perform_mul_subs(const vector_type<Operator<OperatorInfo>> & term,
               std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
                                  vector_type<Operator<OperatorInfo>> &)> subst) {
-  spdlog::trace("performMulSubs begin");
+  spdlog::trace("perform_mul_subs begin");
   vector_type<Operator<OperatorInfo>> exp = term;
-  while(bubbleSubs(exp, subst));
-  spdlog::trace("performMulSubs end");
+  while(bubble_subs(exp, subst));
+  spdlog::trace("perform_mul_subs end");
   return exp;
 }
 
 template <class OperatorInfo>
-Expression<OperatorInfo> Expression<OperatorInfo>::performMultiplicationSubstitutions(
+Expression<OperatorInfo> Expression<OperatorInfo>::perform_multiplication_substitutions(
                   std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
                                      vector_type<Operator<OperatorInfo>> &)> subst) const {
   spdlog::debug("performMultiplicationSubstitutions begin");
   Expression<OperatorInfo> final_exp(vector_type<vector_type<Operator<OperatorInfo>>>(expression.size()));
   for (unsigned i = 0; i < expression.size(); ++i) {
-    final_exp.expression[i] = performMulSubs(expression[i], subst);
+    final_exp.expression[i] = perform_mul_subs(expression[i], subst);
   }
   spdlog::debug("performMultiplicationSubstitutions end");
   return final_exp;
@@ -567,7 +562,7 @@ interleaved_sort_sub_simple(Expression<OperatorInfo> exp,
       madeChanges |= bubble_pass(i, exp.expression, commute, s);
     }
     spdlog::info("Size of expression {}", exp.expression.size());
-    exp = exp.performMultiplicationSubstitutions(subst);
+    exp = exp.perform_multiplication_substitutions(subst);
     exp = exp.simplify_multiplications();
     spdlog::info("Size of expression {}", exp.expression.size());
   }
