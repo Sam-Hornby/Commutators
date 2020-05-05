@@ -109,7 +109,6 @@ static bool check_answer(const Expression<OperatorInfo> & exp, const ComplexNumb
 }
 
 BOOST_AUTO_TEST_CASE(HarmonicOscilator) {
-  spdlog::set_level(spdlog::level::critical);
   auto hamiltonian = (creation_op() * anihilation_op()) + number<Fock0DInfo>(0.5);
   BOOST_TEST_MESSAGE(hamiltonian.print(false));
   // vacuum state expectation value
