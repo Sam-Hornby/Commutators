@@ -94,9 +94,11 @@ struct BogExpressionPair {
 struct DefaultBogTransformFunctions {
   template <class T>
   static unsigned get_order(const Operator<T> &) { return 1U; }
+  template <class T>
+  static unsigned get_group(const Operator<T> &op) {
+    return 1U; // Don't keep this makes little sense
+  }
 };
-
-}
 
 template <class InfoA, class TransformFunctions>
 static unsigned get_order(const Operator<InfoA> & A) {
@@ -125,6 +127,67 @@ static BogExpressionPair<InfoA> seperate_second_order_terms(const Expression<Inf
   return result;
 }
 
+template <class InfoA>
+struct SeperatedTerms {
+  // Terms that belong to more than a single group and so can't be transformed
+  Expression<InfoA> multi_group_terms;
+  std::vector<Expression<InfoA>> grouped_terms;
+};
+
+
+template <class InfoA, class TransformFunctions>
+static boost::optional<unsigned> get_grouping(const vector_type<Operator<InfoA>> &term) {
+  boost::optional<unsigned> result;
+  for (const auto &op : term) {
+    if (op.is_number()) {
+      continue;
+    }
+    const unsigned group = TransformFunctions::get_group(op);
+    if (!result) {
+      result = group;
+    } else {
+      if (result.get() != group) {
+        return boost::none;
+      }
+    }
+  }
+  return result;
+}
+
+template <class InfoA, class TransformFunctions>
+static SeperatedTerms<InfoA>
+group_terms(const Expression<InfoA> &second_order_terms) {
+  SeperatedTerms<InfoA> result;
+  std::unordered_map<unsigned, Expression<InfoA>> grouped_terms;
+  for (const auto & mul_term : second_order_terms.expression) {
+    auto grouping = get_grouping<InfoA, TransformFunctions>(mul_term);
+    if (!grouping) {
+      // add to the multi group terms and continue
+      result.multi_group_terms.expression.emplace_back(mul_term);
+      continue;
+    }
+    auto &terms = grouped_terms[grouping.get()];
+    terms.expression.emplace_back(mul_term);
+  } 
+  for (auto &entry : grouped_terms) {
+    result.grouped_terms.emplace_back(std::move(entry.second));
+  }
+  return result;
+}
+
+template <class InfoA>
+static Expression<InfoA>
+create_final_expression(BogExpressionPair<InfoA> &pair, SeperatedTerms<InfoA> &groups) {
+  auto result = std::move(pair.other_terms);
+  result = result + groups.multi_group_terms;
+  for (auto &expr : groups.grouped_terms) {
+    result = result + expr; // TODO don't use this + loop as O(n**2), just insert back
+  } 
+  return result;
+}
+
+} // namespace
+
 template <class InfoA, class TransformFunctions = DefaultBogTransformFunctions>
 Expression<InfoA>
 bogoliubov_transform(const Expression<InfoA> & input) {
@@ -134,11 +197,17 @@ bogoliubov_transform(const Expression<InfoA> & input) {
   spdlog::debug("Non second order terms: {}", expressions.other_terms.print(false));
   spdlog::debug("Second order terms: {}", expressions.second_order_terms.print(false));
   spdlog::info("Pair up second order terms");
-  
+  auto groups = group_terms<InfoA, TransformFunctions>(expressions.second_order_terms);   
+  if (!groups.multi_group_terms.expression.empty()) {
+    spdlog::warn("Some terms cannot be grouped {}", groups.multi_group_terms.print(false));
+  }
+  for (const auto &expr : groups.grouped_terms) {
+    spdlog::debug("Grouped term: {}", expr.print(false));
+  }
+  spdlog::info("Try to make substitutions");
 
 
-
-  return expressions.second_order_terms + expressions.other_terms;
+  return create_final_expression(expressions, groups);
 }
 //template <class InfoA>
 //Expression<InfoA>
