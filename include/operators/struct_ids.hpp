@@ -2,7 +2,7 @@
 
 namespace operators {
 
-enum class Type : std::uint16_t{
+enum class Type : std::uint8_t{
   STATE_VECTOR,   // eg |0>
   HC_STATE_VECTOR,  // eg <0|
   CREATION_OPERATOR,  // fock space creation operator
