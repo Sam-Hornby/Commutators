@@ -94,9 +94,10 @@ struct BogExpressionPair {
 struct DefaultBogTransformFunctions {
   template <class T>
   static unsigned get_order(const Operator<T> &) { return 1U; }
-  template <class T>
-  static unsigned get_group(const Operator<T> &op) {
-    return 1U; // Don't keep this makes little sense
+  
+  // give a few example groupings for certain infos
+  static unsigned get_group(const Operator<Fock1DInfo> &op) {
+    return std::abs(op.info().x_coordinate); 
   }
 };
 
