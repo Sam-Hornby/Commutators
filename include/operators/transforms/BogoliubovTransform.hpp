@@ -4,83 +4,12 @@
 #include "Expression.hpp"
 #include "ImaginaryNumber.hpp"
 #include "Transform.hpp"
+#include "Comutators.hpp"
+#include "Ordering.hpp"
 #include <algorithm>
 #include <numeric>
 
 namespace operators {
-/*
-enum class OperatorType {
-  BOSON,
-  FERMION,
-};
-
-// c_0! = (coeff_a * b_0!) + (coeff_b * b_1)
-// c_1! = (coeff_a * b_1!) +/- (coeff_b * b_0)
-
-template <class InfoA>
-bool isSecondOp(const Operator<InfoA> & op) {
-  // Will give a default but suspect for most custom classes, an overload
-  // for that template instance will be needed.  Same for the create function
-  std::abort();
-}
-
-template <>
-bool isSecondOp(const Operator<Fock1DInfo> & op) {
-  return op.info().x_coordinate < 0;
-}
-
-template <class InfoA>
-Operator<InfoA> createBogOp(Operator<InfoA> op, const bool swap) {
-  std::abort();
-  // TODO work out nice way for this
-}
-
-template <>
-Operator<Fock1DInfo> createBogOp(Operator<Fock1DInfo> op, const bool swap) {
-  assert(isFockOpType(op.info().type));
-  assert(op.info().x_coordinate != 0);
-  if (op.info().symbol != 'b') {
-    op.info().symbol = 'b';
-  } else {
-    op.info().symbol = 'c';
-  }
-  if (swap) {
-    op.info().x_coordinate = (op.info().x_coordinate *= -1);
-    op.info().type = op.info().type == Type::CREATION_OPERATOR ?
-                                         Type::ANIHILATION_OPERATOR : Type::CREATION_OPERATOR;
-  }
-  return op;
-}
-
-template <class InfoA>
-Expression<InfoA>
-bogoliubov_transform(const Expression<InfoA> & input,
-                     const OperatorType type) {
-  // maybe better off finding coefficents first then substituing
-  auto coeff_a = named_number<InfoA>('u');
-  auto coeff_b = named_number<InfoA>('v');
-  auto result = transform_expression<InfoA, InfoA>(input, [&] (const Operator<InfoA> & op) {
-    if (op.is_number() or isVectorType(op.info().type)) {
-      return Expression<InfoA>({{op}});
-    }
-    if (not isFockOpType(op.info().type)) {
-      throw std::logic_error("Unexpected type");
-    }
-    const auto sign_term = [&] () {
-      if (type == OperatorType::FERMION and isSecondOp<InfoA>(op)) {
-        return number<InfoA>(-1);
-      }
-      return number<InfoA>(1);
-    }();
-    return (coeff_a * createBogOp<InfoA>(op, false)) +
-             (sign_term * coeff_b * createBogOp<InfoA>(op, true));
-  });
-
-  result = result.simplify_numbers();
-  // std::sort on the operators, then try and factorise
-  return result;
-}
-*/
 
 namespace {
 
@@ -131,8 +60,8 @@ static BogExpressionPair<InfoA> seperate_second_order_terms(const Expression<Inf
 template <class InfoA>
 struct SeperatedTerms {
   // Terms that belong to more than a single group and so can't be transformed
-  Expression<InfoA> multi_group_terms;
-  std::vector<Expression<InfoA>> grouped_terms;
+  Expression<InfoA> non_transformable_terms;
+  std::vector<Expression<InfoA>> transformable_terms;
 };
 
 
@@ -164,14 +93,14 @@ group_terms(const Expression<InfoA> &second_order_terms) {
     auto grouping = get_grouping<InfoA, TransformFunctions>(mul_term);
     if (!grouping) {
       // add to the multi group terms and continue
-      result.multi_group_terms.expression.emplace_back(mul_term);
+      result.non_transformable_terms.expression.emplace_back(mul_term);
       continue;
     }
     auto &terms = grouped_terms[grouping.get()];
     terms.expression.emplace_back(mul_term);
   } 
   for (auto &entry : grouped_terms) {
-    result.grouped_terms.emplace_back(std::move(entry.second));
+    result.transformable_terms.emplace_back(std::move(entry.second));
   }
   return result;
 }
@@ -180,11 +109,63 @@ template <class InfoA>
 static Expression<InfoA>
 create_final_expression(BogExpressionPair<InfoA> &pair, SeperatedTerms<InfoA> &groups) {
   auto result = std::move(pair.other_terms);
-  result = result + groups.multi_group_terms;
-  for (auto &expr : groups.grouped_terms) {
+  result = result + groups.non_transformable_terms;
+  for (auto &expr : groups.transformable_terms) {
     result = result + expr; // TODO don't use this + loop as O(n**2), just insert back
   } 
   return result;
+}
+
+
+
+template <class InfoA>
+Expression<InfoA> error_commutator(const Operator<InfoA> & A, const Operator<InfoA> &B) {
+  return commute_numbers<InfoA>(A, B,
+           [] (const Operator<InfoA> &, const Operator<InfoA> &) -> Expression<InfoA> {
+    throw std::logic_error("Shouldn't be moving operators");
+  });
+}
+
+// At this stage we are getting to the stage where we know we are going to make
+// transformation. Transform will look like 
+// E (c_0! c_0 + c_1! c_1) + Y (c_0! c_1! + c_1 c_0) --->
+// e (b_0! b_0 + b_1! b_0) + K
+// Constant e and K are determined by E, Y and whether the transforms are on fermions
+// or bosons
+template <class InfoA, class TransformFunctions>
+static SeperatedTerms<InfoA> can_transform(SeperatedTerms<InfoA> input) {
+  for (auto &term : input.transformable_terms) {
+    term = numbers_first(term);
+    term = term.sort(error_commutator<InfoA>);
+    // simplify numbers as going to rely on numbers being at start of each term
+    term = term.simplify_numbers();
+  }
+
+  return input;
+}
+
+template <class InfoA, class TransformFunctions>
+static Expression<InfoA> make_transformation(Expression<InfoA> input) {
+  return input; 
+}
+
+template <class InfoA, class TransformFunctions>
+static std::vector<Expression<InfoA>>
+make_transformation(std::vector<Expression<InfoA>> grouped_terms) {
+  for (auto &expr : grouped_terms) {
+    expr = make_transformation<InfoA, TransformFunctions>(std::move(expr));
+  }
+  return grouped_terms;
+}
+
+template <class InfoA>
+static void log_groups(const SeperatedTerms<InfoA> &groups) {
+  if (!groups.non_transformable_terms.expression.empty()) {
+    spdlog::warn("Some terms cannot be transformed {}", groups.non_transformable_terms.print(false));
+  }
+  for (const auto &expr : groups.transformable_terms) {
+    spdlog::debug("Transformable term: {}", expr.print(false));
+  }
 }
 
 } // namespace
@@ -199,23 +180,15 @@ bogoliubov_transform(const Expression<InfoA> & input) {
   spdlog::debug("Second order terms: {}", expressions.second_order_terms.print(false));
   spdlog::info("Pair up second order terms");
   auto groups = group_terms<InfoA, TransformFunctions>(expressions.second_order_terms);   
-  if (!groups.multi_group_terms.expression.empty()) {
-    spdlog::warn("Some terms cannot be grouped {}", groups.multi_group_terms.print(false));
-  }
-  for (const auto &expr : groups.grouped_terms) {
-    spdlog::debug("Grouped term: {}", expr.print(false));
-  }
+  log_groups(groups);
+  spdlog::info("Check transformable");
+  groups = can_transform<InfoA, TransformFunctions>(std::move(groups));
+  log_groups(groups);
   spdlog::info("Try to make substitutions");
-
+  groups.transformable_terms =
+      make_transformation<InfoA, TransformFunctions>(std::move(groups.transformable_terms));
 
   return create_final_expression(expressions, groups);
 }
-//template <class InfoA>
-//Expression<InfoA>
-//bogoliubov_transform(const Expression<InfoA> & input,
-//                    const OperatorType) {
-//  return input;
-//}
-
 
 }

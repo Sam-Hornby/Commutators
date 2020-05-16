@@ -288,7 +288,7 @@ Expression<OperatorInfo>
 Expression<OperatorInfo>::sort(std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &,
                                const Operator<OperatorInfo> &)> commute,
                                const SortUsing sortUsing) const {
-
+  spdlog::debug("Sorting exprssion begin");
   // addition is assumed to always be comutative
   Expression<OperatorInfo> sorted_expression;
   for (std::size_t add_index = 0; add_index < expression.size(); ++add_index) {
@@ -297,6 +297,7 @@ Expression<OperatorInfo>::sort(std::function<Expression<OperatorInfo>(const Oper
                                         sorted_terms.expression.begin(),
                                         sorted_terms.expression.end());
   }
+  spdlog::debug("Sorting expression end");
   return sorted_expression;
 }
 
@@ -431,7 +432,7 @@ struct ComparisonStruct {
 
 template <class OperatorInfo>
 static void simplify_additions(Expression<OperatorInfo> & exp) {
-  spdlog::debug("simplify additions begin");
+  spdlog::trace("simplify additions begin");
   std::map<ComparisonStruct<OperatorInfo>, unsigned> unique_mul_terms;
   for (std::size_t i = 0; i < exp.expression.size(); ++i) {
     ComparisonStruct<OperatorInfo> comp(exp.expression[i]);
@@ -441,12 +442,12 @@ static void simplify_additions(Expression<OperatorInfo> & exp) {
       exp.expression[i].clear();
     }
   }
-  spdlog::debug("simplify additions end");
+  spdlog::trace("simplify additions end");
 }
 
 template <class OperatorInfo>
 static void removeEmptyVectors(Expression<OperatorInfo> &exp) {
-  spdlog::debug("remove empty vectors begin");
+  spdlog::trace("remove empty vectors begin");
   Expression<OperatorInfo> new_exp;
   for (std::size_t add_index = 0; add_index < exp.expression.size(); ++add_index) {
     if (!exp.expression[add_index].empty()) {
@@ -454,18 +455,18 @@ static void removeEmptyVectors(Expression<OperatorInfo> &exp) {
     }
   }
   exp = std::move(new_exp);
-  spdlog::debug("remove empty vectors end");
+  spdlog::trace("remove empty vectors end");
 }
 template <class OperatorInfo>
 Expression<OperatorInfo> Expression<OperatorInfo>::simplify_multiplications() const {
-  spdlog::debug("simplify multiplications begin");
+  spdlog::trace("simplify multiplications begin");
   Expression<OperatorInfo> simplified;
   simplified.expression.resize(expression.size());
 
   for (std::size_t add_index = 0; add_index < expression.size(); ++add_index) {
     simplified.expression[add_index] = simplify_multiply(expression[add_index]);
   }
-  spdlog::debug("simplify multiplications end");
+  spdlog::trace("simplify multiplications end");
   removeEmptyVectors(simplified);
   return simplified;
 }

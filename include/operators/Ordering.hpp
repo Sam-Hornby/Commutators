@@ -34,6 +34,20 @@ Expression<OperatorInfo> normal_order(const Expression<OperatorInfo> & exp) {
   return ordered;
 }
 
+template <class OperatorInfo>
+Expression<OperatorInfo> numbers_first(const Expression<OperatorInfo> & exp) {
+  auto ordered = exp;
+  for (auto & mul_term : ordered.expression) {
+    for (auto & op : mul_term) {
+      if (op.is_number()) {
+        continue;
+      }
+      op.order = ordering_value(0);
+    }
+  }
+  return ordered; 
+}
+
 } // end namespace
 
 
