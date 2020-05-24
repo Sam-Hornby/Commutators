@@ -4,8 +4,8 @@
 #include <boost/variant.hpp>
 #include <string>
 #include "struct_ids.hpp"
-#include "ImaginaryNumber.hpp"
-#include "NamedNumber.hpp"
+#include <Numbers/ImaginaryNumber.hpp>
+#include <Numbers/NamedNumber.hpp>
 
 
 

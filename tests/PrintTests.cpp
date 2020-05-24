@@ -1,9 +1,9 @@
-#include "Expression.hpp"
-#include "operators/Sum.hpp"
+#include <Expression/Expression.hpp>
+#include <NestedExpressions/Sum.hpp>
 #include <sstream>
 #include <iomanip>
-#include "struct_ids.hpp"
-#include "Comutators.hpp"
+#include <Expression/struct_ids.hpp>
+#include <Comutators/Comutators.hpp>
 #define BOOST_TEST_MODULE Print
 #include <boost/test/included/unit_test.hpp>
 

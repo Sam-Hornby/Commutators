@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Expression.hpp"
+#include <Expression/Expression.hpp>
 #include "iostream"
 
 namespace operators {

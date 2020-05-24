@@ -1,9 +1,9 @@
-#include "Expression.hpp"
-#include "Operator.hpp"
-#include "Substitutions.hpp"
-#include "Utils.hpp"
+#include <Expression/Expression.hpp>
+#include <Expression/Operator.hpp>
+#include <Substitutions/Substitutions.hpp>
+#include <Utils/Utils.hpp>
 #include <sstream>
-#include <Comutators.hpp>
+#include <Comutators/Comutators.hpp>
 #include <spdlog/spdlog.h>
 #define BOOST_TEST_MODULE Substitutions
 #include <boost/test/included/unit_test.hpp>

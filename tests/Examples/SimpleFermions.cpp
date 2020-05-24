@@ -1,9 +1,9 @@
-#include "Expression.hpp"
-#include "Substitutions.hpp"
-#include "Ordering.hpp"
-#include "Utils.hpp"
-#include "Operator.hpp"
-#include "Comutators.hpp"
+#include <Expression/Expression.hpp>
+#include <Substitutions/Substitutions.hpp>
+#include <Expression/Ordering.hpp>
+#include <Utils/Utils.hpp>
+#include <Expression/Operator.hpp>
+#include <Comutators/Comutators.hpp>
 #include <exception>
 #include <cmath>
 #define BOOST_TEST_MODULE SimpleFermions

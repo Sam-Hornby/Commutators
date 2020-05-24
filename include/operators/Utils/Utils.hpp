@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Operator.hpp"
-#include "struct_ids.hpp"
-#include "Expression.hpp"
+#include <Expression/Operator.hpp>
+#include <Expression/struct_ids.hpp>
+#include <Expression/Expression.hpp>
+#include <Expression/Infos/Fock1D.hpp>
 #include <cmath>
 #include <math.h>
 

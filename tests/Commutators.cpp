@@ -1,6 +1,6 @@
-#include "Expression.hpp"
-#include "Operator.hpp"
-#include "Comutators.hpp"
+#include <Expression/Expression.hpp>
+#include <Expression/Operator.hpp>
+#include <Comutators/Comutators.hpp>
 #include <sstream>
 #define BOOST_TEST_MODULE Comutator
 #include <boost/test/included/unit_test.hpp>

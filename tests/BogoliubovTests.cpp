@@ -1,5 +1,5 @@
 #include "transforms/BogoliubovTransform.hpp"
-#include "Utils.hpp"
+#include <Utils/Utils.hpp>
 #define BOOST_TEST_MODULE BogoliubovTests
 #include <boost/test/included/unit_test.hpp>
 

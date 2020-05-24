@@ -1,11 +1,10 @@
 // To perform the bogoliubov transform
 #pragma once
 
-#include "Expression.hpp"
-#include "ImaginaryNumber.hpp"
-#include "Transform.hpp"
-#include "Comutators.hpp"
-#include "Ordering.hpp"
+#include <Expression/Expression.hpp>
+#include <Numbers/ImaginaryNumber.hpp>
+#include <Comutators/Comutators.hpp>
+#include <Expression/Ordering.hpp>
 #include <algorithm>
 #include <numeric>
 

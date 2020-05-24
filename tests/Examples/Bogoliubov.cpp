@@ -1,7 +1,7 @@
 #include "transforms/BogoliubovTransform.hpp"
-#include "struct_ids.hpp"
-#include "Comutators.hpp"
-#include "Utils.hpp"
+#include <Expression/struct_ids.hpp>
+#include <Comutators/Comutators.hpp>
+#include <Utils/Utils.hpp>
 #define BOOST_TEST_MODULE Bogoliubov
 #include <boost/test/included/unit_test.hpp>
 

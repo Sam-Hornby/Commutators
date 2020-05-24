@@ -1,6 +1,6 @@
 #include "transforms/Transform.hpp"
-#include "struct_ids.hpp"
-#include "Comutators.hpp"
+#include <Expression/struct_ids.hpp>
+#include <Comutators/Comutators.hpp>
 #define BOOST_TEST_MODULE Transforms
 #include <boost/test/included/unit_test.hpp>
 

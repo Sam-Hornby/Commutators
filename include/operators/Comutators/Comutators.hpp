@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Expression.hpp"
-#include "Utils.hpp"
+#include <Expression/Expression.hpp>
+#include <Utils/Utils.hpp>
 
 // file of helpful comutator functions
 

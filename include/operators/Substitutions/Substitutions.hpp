@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Operator.hpp"
-#include "Utils.hpp"
+#include <Expression/Operator.hpp>
+#include <Utils/Utils.hpp>
 #include <vector>
 #include <boost/container/small_vector.hpp>
 #include <spdlog/spdlog.h>
-#include "Expression.hpp"
+#include <Expression/Expression.hpp>
 
 namespace operators {
 
