@@ -133,6 +133,9 @@ enum class TermType {
   CONSTANT,
 };
 
+std::vector<std::string> term_type_names = {
+  "NONE", "DIAGONOL_TERM", "CROSS_TERM", "CONSTANT",
+};
 
 
 // TODO pile
@@ -202,7 +205,7 @@ static bool can_transform(const Expression<InfoA> & input) {
     if (term.empty()) {continue;}
     auto constant = get_constant(term);
     const TermType type = get_term_type(term); 
-    spdlog::trace("Term type = {}", type);
+    spdlog::trace("Term type = {}", term_type_names[static_cast<unsigned>(type)]);
     spdlog::trace("Contstant term = {}", constant.print(false));
     if (type == TermType::NONE) {
       return false;

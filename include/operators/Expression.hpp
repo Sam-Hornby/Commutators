@@ -88,6 +88,12 @@ bool operator!=(const Expression<OperatorInfo> & A, const Expression<OperatorInf
 //----------------------------------------------------------------------------------------------------------------------
 
 template <class OperatorInfo>
+std::ostream& operator<<(std::ostream& os, const Expression<OperatorInfo> &A) {
+  os << A.print(false);
+  return os;
+}
+
+template <class OperatorInfo>
 Expression<OperatorInfo> operator+(const Operator<OperatorInfo> & A, const Operator<OperatorInfo> & B) {
   Expression<OperatorInfo> exp;
   exp.expression.resize(2);
