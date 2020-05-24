@@ -126,6 +126,110 @@ Expression<InfoA> error_commutator(const Operator<InfoA> & A, const Operator<Inf
   });
 }
 
+enum class TermType {
+  NONE,
+  DIAGONOL_TERM,
+  CROSS_TERM,
+  CONSTANT,
+};
+
+
+
+// TODO pile
+//  - make sure not just that only right bumber of creation / anihilation but also they 
+//    have the right id's eg 0 or 1.
+//  - make sure if 2 terms the same ie 5C0!C0 + C0!C0 they get combined
+//  - add way to also allow state vectors at start and finsh
+//  - move convert op to expression to utils
+
+template <class InfoA>
+static TermType get_term_type(const vector_type<InfoA> &term) {
+  unsigned creationCount = 0;
+  unsigned anihilationCount = 0;
+  bool containsAnihilation = false;
+  for (const auto &op : term) {
+    if (op.is_number()) {continue;}
+    if (op.info().type == Type::CREATION_OPERATOR) {
+      creationCount += 1;
+    } else if (op.info().type == Type::ANIHILATION_OPERATOR) {
+      anihilationCount += 1;
+    } else {
+      return TermType::NONE;
+    }
+  }
+  if (creationCount == 1 and anihilationCount == 1) {
+    return TermType::DIAGONOL_TERM;
+  }
+  if ((creationCount == 2 and anihilationCount == 0) or
+      (creationCount == 0 and anihilationCount == 2)) {
+    return TermType::CROSS_TERM;
+  }
+  if (creationCount == 0 and anihilationCount == 0) {
+    return TermType::CONSTANT;
+  } 
+  return TermType::NONE;
+}
+
+template <class InfoA>
+static Expression<InfoA> convert_op_to_expression(Operator<InfoA> op) {
+  Expression<InfoA> result;
+  result.expression.emplace_back(vector_type<Operator<InfoA>>(1, std::move(op)));
+  return result;
+}
+
+template <class InfoA>
+static Expression<InfoA> get_constant(const vector_type<Operator<InfoA>> &term) {
+  if (!term.front().is_number()) {
+    return {{{number<InfoA>(1.0)}}};
+  } 
+  Expression<InfoA> result = convert_op_to_expression(term.front());
+  for (unsigned i = 1U; i < term.size(); ++i) {
+    if (!term.front().is_number()) {
+      break; // we sorted the terms before this step so all numbers should be a front
+    }
+    result.expression[0].emplace_back(term[i]);
+  }
+  return result;
+}
+
+template <class InfoA>
+static bool can_transform(const Expression<InfoA> & input) {
+  boost::optional<Expression<InfoA>> E_constant;
+  boost::optional<Expression<InfoA>> Y_constant;
+  unsigned E_count = 0;
+  unsigned Y_count = 0;
+  for (const auto &term : input.expression) {
+    if (term.empty()) {continue;}
+    auto constant = get_constant(term);
+    const TermType type = get_term_type(term); 
+    spdlog::trace("Term type = {}", type);
+    spdlog::trace("Contstant term = {}", constant.print(false));
+    if (type == TermType::NONE) {
+      return false;
+    }
+    if (type == TermType::CONSTANT) {
+      continue;
+    }
+    auto & old_constant = type == TermType::DIAGONOL_TERM ? E_constant : Y_constant;
+    if (old_constant) {
+      if (old_constant.get() != constant) {
+        return false;
+      }
+    } else {
+      old_constant = constant;
+    }
+    if (type == TermType::DIAGONOL_TERM) {
+      ++E_count;
+    } else {
+      ++Y_count;
+    }
+  }
+  if (E_count != 2 or Y_count != 2) {
+    return false;
+  }
+  return true; 
+}
+
 // At this stage we are getting to the stage where we know we are going to make
 // transformation. Transform will look like 
 // E (c_0! c_0 + c_1! c_1) + Y (c_0! c_1! + c_1 c_0) --->
@@ -139,8 +243,16 @@ static SeperatedTerms<InfoA> can_transform(SeperatedTerms<InfoA> input) {
     term = term.sort(error_commutator<InfoA>);
     // simplify numbers as going to rely on numbers being at start of each term
     term = term.simplify_numbers();
+  } 
+  std::vector<Expression<InfoA>> new_transformable_terms;
+  for (auto &term : input.transformable_terms) {
+    if (can_transform<InfoA>(term)) {
+      new_transformable_terms.emplace_back(std::move(term));
+    } else {
+      input.non_transformable_terms = input.non_transformable_terms + term;
+    }
   }
-
+  input.transformable_terms = std::move(new_transformable_terms);
   return input;
 }
 

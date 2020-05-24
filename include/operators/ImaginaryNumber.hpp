@@ -24,13 +24,16 @@ struct ComplexNumber {
     }
     return "(" + std::to_string(real_part) + " + " + std::to_string(imaginary_part) + "i)";
   }
-  bool operator==(const ComplexNumber &other) {
-    return std::tie(real_part, imaginary_part) == std::tie(other.real_part, other.imaginary_part);
-  }
-  bool operator!=(const ComplexNumber &other) {
-    return not (*this == other);
-  }
 };
+
+
+bool operator==(const ComplexNumber &A, const ComplexNumber &other) {
+  return std::tie(A.real_part, A.imaginary_part) == std::tie(other.real_part, other.imaginary_part);
+}
+bool operator!=(const ComplexNumber &A, const ComplexNumber &other) {
+  return not (A == other);
+}
+
 
 template <typename T>
 ImaginaryNumber operator*(ImaginaryNumber im, T r) {

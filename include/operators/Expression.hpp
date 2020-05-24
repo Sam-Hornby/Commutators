@@ -52,7 +52,6 @@ public:
       const SortUsing s = SortUsing::COMMUTATORS) const;
   Expression(vector_type<vector_type<Operator<OperatorInfo>>> expression) : expression(expression) {};
   Expression() = default;
-
 };
 
 template <class OperatorInfo>
@@ -75,6 +74,11 @@ Expression<OperatorInfo> operator+(const Expression<OperatorInfo> & A, const Exp
 template <class OperatorInfo>
 Expression<OperatorInfo> operator*(const Expression<OperatorInfo> & A, const Expression<OperatorInfo> & B);
 
+
+template <class OperatorInfo>
+bool operator==(const Expression<OperatorInfo> & A, const Expression<OperatorInfo> & B);
+template <class OperatorInfo>
+bool operator!=(const Expression<OperatorInfo> & A, const Expression<OperatorInfo> & B);
 
 //******************************************************************
 // All definitions below
@@ -154,6 +158,16 @@ Expression<OperatorInfo> operator*(const Expression<OperatorInfo> & A, const Exp
   return exp;
 }
 
+template <class OperatorInfo>
+bool operator==(const Expression<OperatorInfo> & A, const Expression<OperatorInfo> & B) {
+  return A.expression == B.expression;
+}
+
+
+template <class OperatorInfo>
+bool operator!=(const Expression<OperatorInfo> & A, const Expression<OperatorInfo> & B) {
+  return not (A.expression == B.expression);
+}
 //----------------------------------------------------------------------------------------------------------------------
 
 

@@ -118,7 +118,7 @@ struct Operator {
   }
 
   bool operator==(Operator other) const {
-    return (order == other.order) and (data == data.info);
+    return (order == other.order) and (data == other.data);
   }
 
   bool operator!=(Operator other) const {
