@@ -5,6 +5,8 @@
 #include <Numbers/ImaginaryNumber.hpp>
 #include <Comutators/Comutators.hpp>
 #include <Expression/Ordering.hpp>
+#include <Expression/Sort.hpp>
+#include <Expression/Simplify.hpp>
 #include <algorithm>
 #include <numeric>
 
@@ -242,9 +244,9 @@ template <class InfoA, class TransformFunctions>
 static SeperatedTerms<InfoA> can_transform(SeperatedTerms<InfoA> input) {
   for (auto &term : input.transformable_terms) {
     term = numbers_first(term);
-    term = term.sort(error_commutator<InfoA>);
+    term = sort<InfoA>(term, error_commutator<InfoA>);
     // simplify numbers as going to rely on numbers being at start of each term
-    term = term.simplify_numbers();
+    term = simplify_numbers(term);
   } 
   std::vector<Expression<InfoA>> new_transformable_terms;
   for (auto &term : input.transformable_terms) {

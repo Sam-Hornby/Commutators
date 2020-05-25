@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(NoTransform1) {
   const auto invalid_cross_terms =
         (anihilation_op(0) * anihilation_op(0)) + (creation_op(1) * creation_op(1));
   auto expr = (constant1 * valid_diagonol_terms) + (constant1 * invalid_cross_terms);
-  expr = expr.simplify_numbers();
+  expr = simplify_numbers(expr);
   auto ans = bogoliubov_transform(expr);
   makeup_fixed_order(expr);
   makeup_fixed_order(ans);
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(NoTransform2) {
   const auto invalid_diagonol_terms =
         (anihilation_op(0) * creation_op(1)) + (anihilation_op(1) * creation_op(0));
   auto expr = (constant1 * invalid_diagonol_terms) + (constant1 * valid_cross_terms);
-  expr = expr.simplify_numbers();
+  expr = simplify_numbers(expr);
   auto ans = bogoliubov_transform(expr);
   makeup_fixed_order(expr);
   makeup_fixed_order(ans);

@@ -3,7 +3,8 @@
 #include <sstream>
 #include <iomanip>
 #include <Expression/struct_ids.hpp>
-#include <Comutators/Comutators.hpp>
+#include <Expression/Infos/Fock1D.hpp>
+#include <Expression/Infos/GenericInfo.hpp>
 #define BOOST_TEST_MODULE Print
 #include <boost/test/included/unit_test.hpp>
 

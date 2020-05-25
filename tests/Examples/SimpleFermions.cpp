@@ -1,9 +1,11 @@
 #include <Expression/Expression.hpp>
+#include <Expression/Infos/Fock1D.hpp>
 #include <Substitutions/Substitutions.hpp>
+#include <Expression/Evaluate.hpp>
 #include <Expression/Ordering.hpp>
 #include <Utils/Utils.hpp>
 #include <Expression/Operator.hpp>
-#include <Comutators/Comutators.hpp>
+#include <Comutators/BosonComutators.hpp>
 #include <exception>
 #include <cmath>
 #define BOOST_TEST_MODULE SimpleFermions
@@ -39,10 +41,10 @@ BOOST_AUTO_TEST_CASE(simple) {
   exp2 = normal_order<Fock1DInfo>(exp2);
   exp3 = normal_order<Fock1DInfo>(exp3);
   exp4 = normal_order<Fock1DInfo>(exp4);
-  exp1 = exp1.evaluate(boson_commutator<Fock1DInfo>, fermion_dual_occupation<Fock1DInfo>, SortUsing::ANTICOMMUTATORS);
-  exp2 = exp2.evaluate(boson_commutator<Fock1DInfo>, fermion_dual_occupation<Fock1DInfo>, SortUsing::ANTICOMMUTATORS);
-  exp3 = exp3.evaluate(boson_commutator<Fock1DInfo>, fermion_dual_occupation<Fock1DInfo>, SortUsing::ANTICOMMUTATORS);
-  exp4 = exp4.evaluate(boson_commutator<Fock1DInfo>, fermion_dual_occupation<Fock1DInfo>, SortUsing::ANTICOMMUTATORS);
+  exp1 = evaluate<Fock1DInfo>(exp1, boson_commutator<Fock1DInfo>, fermion_dual_occupation<Fock1DInfo>, SortUsing::ANTICOMMUTATORS);
+  exp2 = evaluate<Fock1DInfo>(exp2, boson_commutator<Fock1DInfo>, fermion_dual_occupation<Fock1DInfo>, SortUsing::ANTICOMMUTATORS);
+  exp3 = evaluate<Fock1DInfo>(exp3, boson_commutator<Fock1DInfo>, fermion_dual_occupation<Fock1DInfo>, SortUsing::ANTICOMMUTATORS);
+  exp4 = evaluate<Fock1DInfo>(exp4, boson_commutator<Fock1DInfo>, fermion_dual_occupation<Fock1DInfo>, SortUsing::ANTICOMMUTATORS);
   exp1.print();
   exp2.print();
   exp3.print();

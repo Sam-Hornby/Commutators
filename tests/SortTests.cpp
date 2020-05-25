@@ -1,6 +1,7 @@
 #include <Expression/Expression.hpp>
 #include <Expression/Operator.hpp>
-#include <Comutators/Comutators.hpp>
+#include <Comutators/GenericComutators.hpp>
+#include <Expression/Evaluate.hpp>
 #include <random>
 #include <vector>
 #include <sstream>
@@ -37,11 +38,11 @@ static void random_sort_test(const unsigned seed, const std::size_t n, const int
   std::sort(reference.begin(), reference.end());
   const Expression<GenericInfo> new_exp = [&] () {
     if (inter) {
-      return exp.interleaved_evaluate(commute_all<GenericInfo>,
+      return interleaved_evaluate<GenericInfo>(exp, commute_all<GenericInfo>,
                                           [](typename vector_type<Operator<GenericInfo>>::iterator,
                                                     vector_type<Operator<GenericInfo>> &) {return false;});
     } else {
-      return exp.sort(commute_all<GenericInfo>);
+      return sort<GenericInfo>(exp, commute_all<GenericInfo>);
     }
   } ();
 
@@ -85,11 +86,11 @@ static void random_multiply_and_addition(const unsigned seed, const bool inter) 
   }
   const auto new_exp = [&] () {
     if (inter) {
-      return exp.interleaved_evaluate(commute_all<GenericInfo>,
+      return interleaved_evaluate<GenericInfo>(exp, commute_all<GenericInfo>,
                                           [](typename vector_type<Operator<GenericInfo>>::iterator,
                                                     vector_type<Operator<GenericInfo>> &) {return false;});
     } else {
-      return exp.sort(commute_all<GenericInfo>);
+      return sort<GenericInfo>(exp, commute_all<GenericInfo>);
     }
   } ();
   for (unsigned i = 0; i < reference.size(); ++i) {
@@ -103,7 +104,7 @@ static void random_multiply_and_addition(const unsigned seed, const bool inter) 
 BOOST_AUTO_TEST_CASE(empty) {
   spdlog::set_level(spdlog::level::critical);
   Expression<Fock1DInfo> exp;
-  auto new_exp = exp.sort(commute_all<Fock1DInfo>);
+  auto new_exp = sort<Fock1DInfo>(exp, commute_all<Fock1DInfo>);
   std::stringstream ss;
   new_exp.print(ss);
   BOOST_CHECK_EQUAL(ss.str(), "\n");
@@ -114,7 +115,7 @@ BOOST_AUTO_TEST_CASE(one) {
   Operator<GenericInfo> A(ordering_value(0), GenericInfo("A"));
   exp.expression.resize(3);
   exp.expression[0].push_back(A);
-  auto new_exp = exp.sort(commute_all<GenericInfo>);
+  auto new_exp = sort<GenericInfo>(exp, commute_all<GenericInfo>);
   std::stringstream ss;
   new_exp.print(ss);
   BOOST_CHECK_EQUAL(ss.str(), "(A)\n");
@@ -124,7 +125,7 @@ BOOST_AUTO_TEST_CASE(numberss) {
   auto exp = Operator<GenericInfo>(ordering_value(0), GenericInfo("A"))
            * named_number<GenericInfo>('z')
            * Operator<GenericInfo>(3);
-  exp = exp.sort(commute_all<GenericInfo>);
+  exp = sort<GenericInfo>(exp, commute_all<GenericInfo>);
   std::stringstream ss;
   exp.print(ss);
   BOOST_CHECK_EQUAL(ss.str(), "(z * 3.000000 * A)\n");
@@ -133,7 +134,7 @@ BOOST_AUTO_TEST_CASE(numberss) {
 // interleaver_evaluate with empty substitutions tests
 BOOST_AUTO_TEST_CASE(inter_empty) {
   Expression<Fock1DInfo> exp;
-  auto new_exp = exp.interleaved_evaluate(commute_all<Fock1DInfo>,
+  auto new_exp = interleaved_evaluate<Fock1DInfo>(exp, commute_all<Fock1DInfo>,
                                           [](typename vector_type<Operator<Fock1DInfo>>::iterator,
                                                     vector_type<Operator<Fock1DInfo>> &) {return false;});
   std::stringstream ss;
@@ -146,7 +147,7 @@ BOOST_AUTO_TEST_CASE(inter_one) {
   Operator<GenericInfo> A(ordering_value(0), GenericInfo("A"));
   exp.expression.resize(3);
   exp.expression[0].push_back(A);
-  auto new_exp = exp.interleaved_evaluate(commute_all<GenericInfo>,
+  auto new_exp = interleaved_evaluate<GenericInfo>(exp, commute_all<GenericInfo>,
                                           [](typename vector_type<Operator<GenericInfo>>::iterator,
                                                     vector_type<Operator<GenericInfo>> &) {return false;});
   std::stringstream ss;
@@ -156,7 +157,7 @@ BOOST_AUTO_TEST_CASE(inter_one) {
 
 BOOST_AUTO_TEST_CASE(inter_number) {
   auto exp = Operator<GenericInfo>(ordering_value(0), GenericInfo("A")) * Operator<GenericInfo>(3);
-  exp = exp.interleaved_evaluate(commute_all<GenericInfo>,
+  exp = interleaved_evaluate<GenericInfo>(exp, commute_all<GenericInfo>,
                                           [](typename vector_type<Operator<GenericInfo>>::iterator,
                                                     vector_type<Operator<GenericInfo>> &) {return false;});
   std::stringstream ss;
