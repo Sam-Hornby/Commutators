@@ -260,9 +260,59 @@ static SeperatedTerms<InfoA> can_transform(SeperatedTerms<InfoA> input) {
   return input;
 }
 
+template <class InfoA>
+struct BogConstants {
+  static const Expression<InfoA> zero_expression;
+  Expression<InfoA> E_constant = zero_expression;
+  Expression<InfoA> Y_constant = zero_expression;
+  Expression<InfoA> constants = zero_expression;
+};
+
+template <class InfoA>
+const Expression<InfoA> BogConstants<InfoA>::zero_expression = {{{Operator<InfoA>(0)}}};
+
+template <class InfoA>
+static BogConstants<InfoA> get_bog_constants(const Expression<InfoA> &input) {
+  BogConstants<InfoA> result;
+  for (const auto &term : input.expression) {
+    auto constant = get_constant(term);
+    auto term_type = get_term_type(term);
+    assert(term_type != TermType::NONE);
+    if (term_type == TermType::DIAGONOL_TERM and result.E_constant == result.zero_expression) {
+      result.E_constant = std::move(constant);
+    } else if (term_type == TermType::CROSS_TERM and result.Y_constant == result.zero_expression) {
+      result.Y_constant = std::move(constant);
+    } else if (term_type == TermType::CONSTANT) {
+      result.constants = result.constants + constant;
+    }
+  }
+  return result;
+}
+
+template <class InfoA>
+BogConstants<InfoA> get_transformed_constants(BogConstants<InfoA> &input) {
+  std::abort();
+}
+
+template <class InfoA, class TransformFunctions>
+static vector_type<Operator<InfoA>> create_new_term(vector_type<Operator<InfoA>> term, BogConstants<InfoA> constants) {
+  std::abort();
+}
+
+template <class InfoA, class TransformFunctions>
+static Expression<InfoA>
+create_new_expression(Expression<InfoA> expression, BogConstants<InfoA> constants) {
+  for (auto &term : expression.expression) {
+    term = create_new_term<InfoA, TransformFunctions>(std::move(term), std::move(constants));
+  }
+  return expression;
+}
+
 template <class InfoA, class TransformFunctions>
 static Expression<InfoA> make_transformation(Expression<InfoA> input) {
-  return input; 
+  auto constants = get_bog_constants<InfoA>(input); 
+  auto transformed_constants = get_transformed_constants<InfoA>(constants);
+  return create_new_expression<InfoA, TransformFunctions>(std::move(input), std::move(transformed_constants));
 }
 
 template <class InfoA, class TransformFunctions>
@@ -291,20 +341,22 @@ Expression<InfoA>
 bogoliubov_transform(const Expression<InfoA> & input) {
   spdlog::info("bogoliubov_transform start");
   spdlog::debug("Bogoliubov Input: {}", input.print(false));
-  auto expressions = seperate_second_order_terms<InfoA, TransformFunctions>(input); 
+  auto expressions = seperate_second_order_terms<InfoA, TransformFunctions>(input); // done 
   spdlog::debug("Non second order terms: {}", expressions.other_terms.print(false));
   spdlog::debug("Second order terms: {}", expressions.second_order_terms.print(false));
   spdlog::info("Pair up second order terms");
-  auto groups = group_terms<InfoA, TransformFunctions>(expressions.second_order_terms);   
+  auto groups = group_terms<InfoA, TransformFunctions>(expressions.second_order_terms);  // done 
   log_groups(groups);
   spdlog::info("Check transformable");
-  groups = can_transform<InfoA, TransformFunctions>(std::move(groups));
+  groups = can_transform<InfoA, TransformFunctions>(std::move(groups)); // get term type todo pile
   log_groups(groups);
   spdlog::info("Try to make substitutions");
+  // todo: get new constants from old constants; implement create new term function taking transformed constants
   groups.transformable_terms =
       make_transformation<InfoA, TransformFunctions>(std::move(groups.transformable_terms));
 
   return create_final_expression(expressions, groups);
 }
+//TODO add tests, especially non real cases where it should back out
 
 }
