@@ -59,3 +59,9 @@ add_executable(BogoliubovTests BogoliubovTests.cpp)
 add_test(NAME "BogoliubovTest"
          COMMAND BogoliubovTests
          WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
+add_executable(CompositeNumberTests CompositeNumberTests.cpp)
+add_test(NAME "CompositeNumberTests"
+         COMMAND CompositeNumberTests
+         WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
+
+

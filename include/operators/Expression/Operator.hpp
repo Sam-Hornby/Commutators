@@ -6,6 +6,7 @@
 #include "struct_ids.hpp"
 #include <Numbers/ImaginaryNumber.hpp>
 #include <Numbers/NamedNumber.hpp>
+#include <Numbers/CompositeNumbers.hpp>
 
 
 
@@ -15,16 +16,18 @@ namespace {
 
 template <class OperatorInfo>
 struct IsNumberVisitor : public boost::static_visitor<bool>{
-  bool operator() (const ComplexNumber) const {return true;}
-  bool operator() (const OperatorInfo) const {return false;}
-  bool operator() (const NamedNumber) const {return true;}
+  bool operator() (const ComplexNumber &) const {return true;}
+  bool operator() (const OperatorInfo &) const {return false;}
+  bool operator() (const NamedNumber &) const {return true;}
+  bool operator() (const CompositeNumber &) const  {return true;}
 };
 
 template <class OperatorInfo>
 struct hasValueVisitor : public boost::static_visitor<bool>{
-  bool operator() (const ComplexNumber) const {return true;}
-  bool operator() (const OperatorInfo) const {return false;}
-  bool operator() (const NamedNumber) const {return false;}
+  bool operator() (const ComplexNumber &) const {return true;}
+  bool operator() (const OperatorInfo &) const {return false;}
+  bool operator() (const NamedNumber &) const {return false;}
+  bool operator() (const CompositeNumber &) const {return false;}
 };
 
 template <class OperatorInfo>
@@ -36,7 +39,7 @@ struct NameVisitor : public boost::static_visitor<std::string>{
 template <class OperatorInfo>
 struct InfoVisitor : public boost::static_visitor<OperatorInfo &>{
   template <typename T>
-  OperatorInfo & operator() (const T) const {
+  OperatorInfo & operator() (const T &) const {
     throw std::logic_error("Trying to access info on number");
   }
   OperatorInfo & operator() (OperatorInfo &info) const {return info;}
@@ -45,7 +48,7 @@ struct InfoVisitor : public boost::static_visitor<OperatorInfo &>{
 template <class OperatorInfo>
 struct ConstInfoVisitor : public boost::static_visitor<const OperatorInfo &>{
   template <typename T>
-  const OperatorInfo & operator() (const T) const {
+  const OperatorInfo & operator() (const T&) const {
     throw std::logic_error("Trying to access info on number");
   }
   const OperatorInfo & operator() (const OperatorInfo &info) const {return info;}
@@ -53,18 +56,18 @@ struct ConstInfoVisitor : public boost::static_visitor<const OperatorInfo &>{
 
 struct NumberVisitor : public boost::static_visitor<ComplexNumber>{
   template <typename T>
-  ComplexNumber operator() (const T) const {
+  ComplexNumber operator() (const T&) const {
     throw std::logic_error("Trying to access value on operator");
   }
-  ComplexNumber operator() (const ComplexNumber value) const {return value;}
+  ComplexNumber operator() (const ComplexNumber &value) const {return value;}
 };
 
 struct NamedNumberVisitor : public boost::static_visitor<NamedNumber>{
   template <typename T>
-  NamedNumber operator() (const T) const {
+  NamedNumber operator() (const T&) const {
     throw std::logic_error("Trying to access value on operator");
   }
-  NamedNumber operator() (const NamedNumber value) const {return value;}
+  NamedNumber operator() (const NamedNumber& value) const {return value;}
 };
 
 } // namespace
@@ -73,12 +76,17 @@ struct Operator {
   ordering_value order;  // when sorting this determines greater than or equal to
   //OperatorInfo info;     // should be unique for each operator TODO make const
   // if this is set operator is a number, comutators are automatically assumed zero, op_id is irelevant
-  boost::variant<ComplexNumber, OperatorInfo, NamedNumber> data;
+  boost::variant<ComplexNumber, OperatorInfo, NamedNumber, CompositeNumber> data;
 
   Operator() = default;
-  Operator(ordering_value order, OperatorInfo info) : order(order), data(info) {}
-  Operator(ComplexNumber i) : order(ordering_value(std::numeric_limits<int>::min())), data(i) {}
-  Operator(NamedNumber i) : order(ordering_value(std::numeric_limits<int>::min())), data(i) {}
+  Operator(ordering_value order, OperatorInfo info) :
+               order(order), data(std::move(info)) {}
+  Operator(ComplexNumber i) :
+               order(ordering_value(std::numeric_limits<int>::min())), data(std::move(i)) {}
+  Operator(NamedNumber i) :
+               order(ordering_value(std::numeric_limits<int>::min())), data(std::move(i)) {}
+  Operator(CompositeNumber i) :
+               order(ordering_value(std::numeric_limits<int>::min())), data(std::move(i)) {}
 
 
   std::string name() const {

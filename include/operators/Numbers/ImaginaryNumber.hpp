@@ -34,6 +34,10 @@ bool operator!=(const ComplexNumber &A, const ComplexNumber &other) {
   return not (A == other);
 }
 
+bool operator<(const ComplexNumber &A, const ComplexNumber &other) {
+  return std::tie(A.real_part, A.imaginary_part) < std::tie(other.real_part, other.imaginary_part);
+}
+
 
 template <typename T>
 ImaginaryNumber operator*(ImaginaryNumber im, T r) {
