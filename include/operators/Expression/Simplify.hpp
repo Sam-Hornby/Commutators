@@ -113,8 +113,8 @@ struct ComparisonStruct {
       }
       if (op_A.is_number()) {
         // assuming no evaluated numbers here
-        const auto tie_A = std::make_pair(op_A.order, op_A.named_number());
-        const auto tie_B = std::make_pair(op_B.order, op_B.named_number());
+        const auto tie_A = std::make_pair(op_A.order, op_A.data);
+        const auto tie_B = std::make_pair(op_B.order, op_B.data);
         if (tie_A != tie_B) {
           return tie_A < tie_B;
         }

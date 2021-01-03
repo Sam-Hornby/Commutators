@@ -3,6 +3,7 @@
 #include <Expression/Infos/GenericInfo.hpp>
 #include <Expression/Infos/Fock1D.hpp>
 #include <Expression/Simplify.hpp>
+#include <Numbers/CompositeNumberExpressions.hpp>
 #include <sstream>
 #define BOOST_TEST_MODULE Number
 #include <boost/test/included/unit_test.hpp>
@@ -207,6 +208,40 @@ BOOST_AUTO_TEST_CASE(named_numbers) {
       * named_number<GenericInfo>('a')
       * Operator<GenericInfo>(ordering_value(0), GenericInfo("A"))
       * named_number<GenericInfo>('a');
+  exp = simplify_numbers(exp);
+  BOOST_CHECK_EQUAL(exp.print(false), "(7.000000 * a * A * a)");
+  
+}
+
+BOOST_AUTO_TEST_CASE(composite_numbers) {
+  const auto t_ = NamedNumberExpr::create(NamedNumber('t'));
+  const auto a_ = NamedNumberExpr::create(NamedNumber('a'));
+  const auto op_t = Operator<GenericInfo>(t_);
+  const auto op_a = Operator<GenericInfo>(a_);
+  Expression<GenericInfo> exp =
+      {{{Operator<GenericInfo>(t_)}}};
+  exp = simplify_numbers(exp);
+  BOOST_CHECK_EQUAL(exp.print(false), "(t)");
+  exp = op_t * op_a;
+  exp = simplify_numbers(exp);
+  BOOST_CHECK_EQUAL(exp.print(false), "(t * a)");
+  spdlog::set_level(spdlog::level::debug);
+  exp = op_t + op_a;
+  exp = simplify_numbers(exp);
+  BOOST_CHECK_EQUAL(exp.print(false), "(t) + (a)");
+  exp = op_t + op_t;
+  exp = simplify_numbers(exp);
+  BOOST_CHECK_EQUAL(exp.print(false), "(2.000000 * t)");
+  exp = number<GenericInfo>(7)
+      + op_a
+      + Operator<GenericInfo>(ordering_value(0), GenericInfo("A"))
+      + (op_a * number<GenericInfo>(5));
+  exp = simplify_numbers(exp);
+  BOOST_CHECK_EQUAL(exp.print(false), "(7.000000) + (6.000000 * a) + (A)");
+  exp = number<GenericInfo>(7)
+      * op_a
+      * Operator<GenericInfo>(ordering_value(0), GenericInfo("A"))
+      * op_a;
   exp = simplify_numbers(exp);
   BOOST_CHECK_EQUAL(exp.print(false), "(7.000000 * a * A * a)");
   

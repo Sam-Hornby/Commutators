@@ -27,7 +27,9 @@ struct CompositeNumber {
   CompositeNumber(CompositeNumber &&) = default;
   CompositeNumber(const CompositeNumber &other) : expr(other.expr->clone()) {} 
   CompositeNumber& operator=(CompositeNumber other) {
-    std::swap(*this, other);
+    if (this != &other) {
+      std::swap(this->expr, other.expr);
+    }
     return *this;
   }
 

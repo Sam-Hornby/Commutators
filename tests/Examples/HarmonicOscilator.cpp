@@ -8,6 +8,7 @@
 #include <Expression/Infos/Fock0D.hpp>
 #include <exception>
 #include <cmath>
+#include <Numbers/CompositeNumberExpressions.hpp>
 #define BOOST_TEST_MODULE HARMONICOSCILATOR
 #include <boost/test/included/unit_test.hpp>
 
@@ -163,4 +164,31 @@ BOOST_AUTO_TEST_CASE(HarmonicOscilator_2D_named) {
   expectation = normal_order<Fock1DInfo>(expectation);
   expectation = evaluate<Fock1DInfo>(expectation, boson_commutator<Fock1DInfo>, substitutions<Fock1DInfo>);
   BOOST_CHECK_EQUAL(expectation.print(false), "(3.500000 * w) + (4.500000 * u)");
+}
+
+
+BOOST_AUTO_TEST_CASE(HarmonicOscilator_2D_composite) {
+  // hamiltonian = w0 * (a0! * a0 + 0.5) + w1 * (a1! * a1 + 0.5)
+  // states are |x, y> represents particles in state x wrt to first
+  // 1d oscilator and y wrt to second
+  // Use the x coordinate in the operator info to tell which dimension the operators belong. As only having vacuum state
+  // all vaccum states will have zero as they belong to both
+  auto h_ = NamedNumberExpr::create(NamedNumber('h'));
+  auto w_ = NamedNumberExpr::create(NamedNumber('w'));
+  auto u_ = NamedNumberExpr::create(NamedNumber('u'));
+  
+  auto hamiltonian = ((Operator<Fock1DInfo>(h_) * Operator<Fock1DInfo>(w_))
+                             * ((creation_op(0) * anihilation_op(0)) + number<Fock1DInfo>(0.5)))
+                   + ((Operator<Fock1DInfo>(h_) * Operator<Fock1DInfo>(u_))
+                             * ((creation_op(1) * anihilation_op(1)) + number<Fock1DInfo>(0.5)));
+  BOOST_TEST_MESSAGE(hamiltonian.print(false));
+
+  // both H0s occupied
+  auto state = normalised_n_occupied_ops(3, 0) *
+               normalised_n_occupied_ops(4, 1) *
+               vacuum_state<Fock1DInfo>();
+  auto expectation = hermition_conjugate<Fock1DInfo>(state) * hamiltonian * state;
+  expectation = normal_order<Fock1DInfo>(expectation);
+  expectation = evaluate<Fock1DInfo>(expectation, boson_commutator<Fock1DInfo>, substitutions<Fock1DInfo>);
+  BOOST_CHECK_EQUAL(expectation.print(false), "(3.500000 * h * w) + (4.500000 * h * u)");
 }
