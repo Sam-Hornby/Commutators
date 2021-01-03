@@ -5,6 +5,8 @@
 #include <tuple>
 #define BOOST_TEST_MODULE CompositeNumbers
 #include <boost/test/included/unit_test.hpp>
+#include <spdlog/fmt/fmt.h>
+
 
 
 using namespace operators;
@@ -19,14 +21,12 @@ BOOST_AUTO_TEST_CASE(Basic) {
   auto d = Operator<GenericInfo>(DivExpr::create(a_, c_));
 
   auto exp1 = a + b;
-  auto exp2 = a * b;
-  auto exp3 = c + a;
-  auto exp4 = d + a;
 
-  exp1.print();
-  exp2.print();
-  exp3.print();
-  exp4.print();
+  BOOST_CHECK_EQUAL(exp1.print(false), fmt::format("({}) + ({})", a_.name(), b.name()));
+  BOOST_CHECK_EQUAL(a_.name(), "a");
+  BOOST_CHECK_EQUAL(b_.name(), ComplexNumber(1.0, 2.0).name());
+  BOOST_CHECK_EQUAL(c_.name(), fmt::format("sqrt({})", b_.name()));
+  BOOST_CHECK_EQUAL(d.name(), fmt::format("div({}, {})", a_.name(), c_.name()));
 
 }
 
