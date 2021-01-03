@@ -177,10 +177,12 @@ BOOST_AUTO_TEST_CASE(HarmonicOscilator_2D_composite) {
   auto w_ = NamedNumberExpr::create(NamedNumber('w'));
   auto u_ = NamedNumberExpr::create(NamedNumber('u'));
   
-  auto hamiltonian = ((Operator<Fock1DInfo>(h_) * Operator<Fock1DInfo>(w_))
-                             * ((creation_op(0) * anihilation_op(0)) + number<Fock1DInfo>(0.5)))
-                   + ((Operator<Fock1DInfo>(h_) * Operator<Fock1DInfo>(u_))
-                             * ((creation_op(1) * anihilation_op(1)) + number<Fock1DInfo>(0.5)));
+  auto hamiltonian = (Operator<Fock1DInfo>(h_)
+                             * ((creation_op(0) * anihilation_op(0)) + number<Fock1DInfo>(0.5))
+                             * Operator<Fock1DInfo>(w_))
+                   + (Operator<Fock1DInfo>(h_)
+                             * ((creation_op(1) * anihilation_op(1)) + number<Fock1DInfo>(0.5))
+                             * Operator<Fock1DInfo>(u_));
   BOOST_TEST_MESSAGE(hamiltonian.print(false));
 
   // both H0s occupied
