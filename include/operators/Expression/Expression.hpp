@@ -32,6 +32,7 @@ public:
   vector_type<vector_type<Operator<OperatorInfo>>> expression;  // terms in inner vectors are considered multiplied, outer added
   void print(std::ostream & out = std::cout, const bool add_newline = true) const;   // print the expression
   std::string print(const bool add_newline) const;   // print the expression
+  std::string name() const;
   Expression(vector_type<vector_type<Operator<OperatorInfo>>> expression) : expression(expression) {};
   Expression() = default;
 };
@@ -61,6 +62,9 @@ template <class OperatorInfo>
 bool operator==(const Expression<OperatorInfo> & A, const Expression<OperatorInfo> & B);
 template <class OperatorInfo>
 bool operator!=(const Expression<OperatorInfo> & A, const Expression<OperatorInfo> & B);
+template <class OperatorInfo>
+bool operator<(const Expression<OperatorInfo> & A, const Expression<OperatorInfo> & B);
+
 
 //******************************************************************
 // All definitions below
@@ -156,6 +160,12 @@ template <class OperatorInfo>
 bool operator!=(const Expression<OperatorInfo> & A, const Expression<OperatorInfo> & B) {
   return not (A.expression == B.expression);
 }
+
+
+template <class OperatorInfo>
+bool operator<(const Expression<OperatorInfo> & A, const Expression<OperatorInfo> & B) {
+  return A.expression < B.expression;
+}
 //----------------------------------------------------------------------------------------------------------------------
 
 
@@ -169,6 +179,12 @@ std::string Expression<OperatorInfo>::print(const bool add_newline) const {
   this->print(ss, add_newline);
   std::string ans = ss.str();
   return ans;
+}
+
+
+template <class OperatorInfo>
+std::string Expression<OperatorInfo>::name() const {
+  return this->print(false);
 }
 
 template <class OperatorInfo>

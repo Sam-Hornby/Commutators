@@ -3,7 +3,8 @@
 #include "CompositeNumbers.hpp"
 #include "NamedNumber.hpp"
 #include "ImaginaryNumber.hpp"
-#include <typeindex>
+#include <Expression/Expression.hpp>
+#include <Expression/Infos/EmptyInfo.hpp>
 
 namespace operators {
 
@@ -131,13 +132,42 @@ struct BinaryCompositeNumber : public CompositeNumberBase {
   
 };
 
-template <class T>
-CompositeNumber createComposite(T expr) {
-  return CompositeNumber(std::make_unique<SingleExpr<T>>(expr));
+template <class OperatorInfo>
+struct ConversionVisitor : public boost::static_visitor<Operator<EmptyInfo>> {
+  template <class T>
+  Operator<EmptyInfo> operator() (T &number) const {
+    return Operator<EmptyInfo>(std::move(number));
+  }
+  Operator<EmptyInfo> operator() (OperatorInfo & info) const {
+    std::abort();
+  }
+};
+
+template <class OperatorInfo>
+Operator<EmptyInfo> convertTerm(Operator<OperatorInfo> term) {
+  return boost::apply_visitor(ConversionVisitor<OperatorInfo>{}, term.data);
+}
+
+template <class OperatorInfo>
+Expression<EmptyInfo> convertNumbersToEmptyInfo(Expression<OperatorInfo> exp) {
+  // All of expression must be numbers. If Any operators are info type then will
+  // throw error
+  Expression<EmptyInfo> result;
+  result.expression.reserve(exp.expression.size());
+  for (auto &mul_terms : exp.expression) {
+    result.expression.push_back(vector_type<Operator<EmptyInfo>>());
+    auto &current = result.expression.back();
+    current.reserve(mul_terms.size());
+    for (auto &term : mul_terms) {
+      current.push_back(convertTerm<OperatorInfo>(std::move(term)));
+    }
+  }
+  return result;
 }
 
 typedef SingleExpr<NamedNumber> NamedNumberExpr;
 typedef SingleExpr<ComplexNumber> ComplexNumberExpr;
+typedef SingleExpr<Expression<EmptyInfo>> ExpressionExpr;
 
 typedef UnaryCompositeNumber<0> SquareRootExpr;
 typedef UnaryCompositeNumber<1> ExponentialExpr;
@@ -149,6 +179,7 @@ typedef BinaryCompositeNumber<3> DivExpr;
 
 template <> const std::size_t NamedNumberExpr::classId = __COUNTER__;
 template <> const std::size_t ComplexNumberExpr::classId = __COUNTER__;
+template <> const std::size_t ExpressionExpr::classId = __COUNTER__;
 
 template <> const std::size_t SquareRootExpr::classId = __COUNTER__;
 template <> const std::size_t ExponentialExpr::classId = __COUNTER__;

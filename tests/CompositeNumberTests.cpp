@@ -21,12 +21,14 @@ BOOST_AUTO_TEST_CASE(Basic) {
   auto d = Operator<GenericInfo>(DivExpr::create(a_, c_));
 
   auto exp1 = a + b;
+  auto e = ExpressionExpr::create(convertNumbersToEmptyInfo<GenericInfo>(exp1));
 
   BOOST_CHECK_EQUAL(exp1.print(false), fmt::format("({}) + ({})", a_.name(), b.name()));
   BOOST_CHECK_EQUAL(a_.name(), "a");
   BOOST_CHECK_EQUAL(b_.name(), ComplexNumber(1.0, 2.0).name());
   BOOST_CHECK_EQUAL(c_.name(), fmt::format("sqrt({})", b_.name()));
   BOOST_CHECK_EQUAL(d.name(), fmt::format("div({}, {})", a_.name(), c_.name()));
+  BOOST_CHECK_EQUAL(e.name(), exp1.name());
 
 }
 
