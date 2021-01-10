@@ -44,8 +44,9 @@ struct SingleExpr : public CompositeNumberBase {
 
 
 const std::vector<std::string> UnarySymbols = {
-  "sqrt",
+  "squareroot",
   "exp",
+  "square",
 };
 
 template <unsigned identifier>
@@ -171,6 +172,7 @@ typedef SingleExpr<Expression<EmptyInfo>> ExpressionExpr;
 
 typedef UnaryCompositeNumber<0> SquareRootExpr;
 typedef UnaryCompositeNumber<1> ExponentialExpr;
+typedef UnaryCompositeNumber<2> SquareExpr;
 
 typedef BinaryCompositeNumber<0> AddExpr;
 typedef BinaryCompositeNumber<1> SubExpr;
@@ -183,6 +185,7 @@ template <> const std::size_t ExpressionExpr::classId = __COUNTER__;
 
 template <> const std::size_t SquareRootExpr::classId = __COUNTER__;
 template <> const std::size_t ExponentialExpr::classId = __COUNTER__;
+template <> const std::size_t SquareExpr::classId = __COUNTER__;
 
 
 template <> const std::size_t AddExpr::classId = __COUNTER__;

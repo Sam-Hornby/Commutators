@@ -56,8 +56,12 @@ SET_TESTS_PROPERTIES(LoggingTest
     PROPERTIES ENVIRONMENT "OPERATORS_LOG_LEVEL=TRACE")
 
 add_executable(BogoliubovTests BogoliubovTests.cpp)
-add_test(NAME "BogoliubovTest"
+add_test(NAME "BogoliubovTests"
          COMMAND BogoliubovTests
+         WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
+add_executable(BogoliubovUnitTest BogoliubovUnitTest.cpp)
+add_test(NAME "BogoliubovUnitTest"
+         COMMAND BogoliubovUnitTest
          WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
 add_executable(CompositeNumberTests CompositeNumberTests.cpp)
 add_test(NAME "CompositeNumberTests"
