@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_CASE(numbers) {
   exp = sort<GenericInfo>(exp, commute_none);
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(8.000000 * A)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "8.000000 * A\n");
 }
 
 BOOST_AUTO_TEST_CASE(commute_two) {

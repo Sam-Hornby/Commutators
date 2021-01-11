@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(single) {
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(5.000000)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "5.000000\n");
 }
 
 BOOST_AUTO_TEST_CASE(two_numbers) {
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(two_numbers) {
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(35.000000)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "35.000000\n");
 }
 
 
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(operators_and_numbers) {
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(36.000000 * A * B)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "36.000000 * A * B\n");
 }
 
 BOOST_AUTO_TEST_CASE(operator_and_1) {
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(operator_and_1) {
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(A * B)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "A * B\n");
 }
 
 BOOST_AUTO_TEST_CASE(single_one) {
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(single_one) {
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(1.000000)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "1.000000\n");
 }
 
 BOOST_AUTO_TEST_CASE(zero) {
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(addition) {
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(13.000000)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "13.000000\n");
 }
 
 BOOST_AUTO_TEST_CASE(opperator_addition) {
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(opperator_addition) {
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(2.000000 * A)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "2.000000 * A\n");
 }
 
 BOOST_AUTO_TEST_CASE(opperator_addition_multiply) {
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(opperator_addition_multiply) {
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(3.000000 * A)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "3.000000 * A\n");
 }
 
 BOOST_AUTO_TEST_CASE(opperator_addition_multiply_2) {
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(opperator_addition_multiply_2) {
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(8.000000 * A * B)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "8.000000 * A * B\n");
 }
 
 BOOST_AUTO_TEST_CASE(opperator_addition_multiply_3) {
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(imaginary_numbers) {
   Expression<GenericInfo> exp = {{{A}}};
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(8.000000 * i)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "8.000000 * i\n");
 
   auto B = ImaginaryNumber(2.0) * ImaginaryNumber(5.0);
   BOOST_CHECK_EQUAL(B, -10.0);
@@ -187,17 +187,17 @@ BOOST_AUTO_TEST_CASE(imaginary_numbers) {
 BOOST_AUTO_TEST_CASE(named_numbers) {
   Expression<GenericInfo> exp = {{{Operator<GenericInfo>(NamedNumber('t'))}}};
   exp = simplify_numbers(exp);
-  BOOST_CHECK_EQUAL(exp.print(false), "(t)");
+  BOOST_CHECK_EQUAL(exp.print(false), "t");
   exp = named_number<GenericInfo>('t') * named_number<GenericInfo>('a');
   exp = simplify_numbers(exp);
-  BOOST_CHECK_EQUAL(exp.print(false), "(t * a)");
+  BOOST_CHECK_EQUAL(exp.print(false), "t * a");
   spdlog::set_level(spdlog::level::debug);
   exp = named_number<GenericInfo>('t') + named_number<GenericInfo>('a');
   exp = simplify_numbers(exp);
   BOOST_CHECK_EQUAL(exp.print(false), "(t) + (a)");
   exp = named_number<GenericInfo>('t') + named_number<GenericInfo>('t');
   exp = simplify_numbers(exp);
-  BOOST_CHECK_EQUAL(exp.print(false), "(2.000000 * t)");
+  BOOST_CHECK_EQUAL(exp.print(false), "2.000000 * t");
   exp = number<GenericInfo>(7)
       + named_number<GenericInfo>('a')
       + Operator<GenericInfo>(ordering_value(0), GenericInfo("A"))
@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE(named_numbers) {
       * Operator<GenericInfo>(ordering_value(0), GenericInfo("A"))
       * named_number<GenericInfo>('a');
   exp = simplify_numbers(exp);
-  BOOST_CHECK_EQUAL(exp.print(false), "(7.000000 * a * A * a)");
+  BOOST_CHECK_EQUAL(exp.print(false), "7.000000 * a * A * a");
   
 }
 
@@ -221,17 +221,17 @@ BOOST_AUTO_TEST_CASE(composite_numbers) {
   Expression<GenericInfo> exp =
       {{{Operator<GenericInfo>(t_)}}};
   exp = simplify_numbers(exp);
-  BOOST_CHECK_EQUAL(exp.print(false), "(t)");
+  BOOST_CHECK_EQUAL(exp.print(false), "t");
   exp = op_t * op_a;
   exp = simplify_numbers(exp);
-  BOOST_CHECK_EQUAL(exp.print(false), "(t * a)");
+  BOOST_CHECK_EQUAL(exp.print(false), "t * a");
   spdlog::set_level(spdlog::level::debug);
   exp = op_t + op_a;
   exp = simplify_numbers(exp);
   BOOST_CHECK_EQUAL(exp.print(false), "(t) + (a)");
   exp = op_t + op_t;
   exp = simplify_numbers(exp);
-  BOOST_CHECK_EQUAL(exp.print(false), "(2.000000 * t)");
+  BOOST_CHECK_EQUAL(exp.print(false), "2.000000 * t");
   exp = number<GenericInfo>(7)
       + op_a
       + Operator<GenericInfo>(ordering_value(0), GenericInfo("A"))
@@ -243,6 +243,6 @@ BOOST_AUTO_TEST_CASE(composite_numbers) {
       * Operator<GenericInfo>(ordering_value(0), GenericInfo("A"))
       * op_a;
   exp = simplify_numbers(exp);
-  BOOST_CHECK_EQUAL(exp.print(false), "(7.000000 * a * A * a)");
+  BOOST_CHECK_EQUAL(exp.print(false), "7.000000 * a * A * a");
   
 }

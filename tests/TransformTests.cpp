@@ -47,9 +47,9 @@ BOOST_AUTO_TEST_CASE(onetoone) {
   Operator<GenericInfo> e = Operator<GenericInfo>(0, GenericInfo("e"));
   Operator<GenericInfo> other = Operator<GenericInfo>(0, GenericInfo("other"));
   auto new_exp = transform_expression<GenericInfo, GenericInfo>(e * other, test_transform);
-  BOOST_CHECK_EQUAL(new_exp.print(true), "(E * other)\n");
+  BOOST_CHECK_EQUAL(new_exp.print(true), "E * other\n");
   new_exp = transform_expression<GenericInfo, GenericInfo>(other * e, test_transform);
-  BOOST_CHECK_EQUAL(new_exp.print(true), "(other * E)\n");
+  BOOST_CHECK_EQUAL(new_exp.print(true), "other * E\n");
   new_exp = transform_expression<GenericInfo, GenericInfo>(e + other, test_transform);
   BOOST_CHECK_EQUAL(new_exp.print(true), "(E) + (other)\n");
   new_exp = transform_expression<GenericInfo, GenericInfo>(other + e, test_transform);

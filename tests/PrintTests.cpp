@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(basic_multiplication) {
   const auto exp = A * B;
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(A * B)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "A * B\n");
 }
 
 BOOST_AUTO_TEST_CASE(add_and_multiply) {
@@ -85,22 +85,22 @@ BOOST_AUTO_TEST_CASE(imaginary_numbers) {
   Expression<GenericInfo> exp = {{{Operator<GenericInfo>(ImaginaryNumber(1.0))}}};
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(1.000000 * i)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "1.000000 * i\n");
 
   exp = im_number<GenericInfo>(3.0) * number<GenericInfo>(2.0) *
               Operator<GenericInfo>(ordering_value(0), GenericInfo("A"));
   std::stringstream ss2;
   exp.print(ss2);
-  BOOST_CHECK_EQUAL(ss2.str(), "(3.000000 * i * 2.000000 * A)\n");
+  BOOST_CHECK_EQUAL(ss2.str(), "3.000000 * i * 2.000000 * A\n");
 }
 
 BOOST_AUTO_TEST_CASE(named_numbers) {
   Expression<GenericInfo> exp = {{{Operator<GenericInfo>(NamedNumber('t'))}}};
-  BOOST_CHECK_EQUAL(exp.print(true), "(t)\n");
+  BOOST_CHECK_EQUAL(exp.print(true), "t\n");
   exp = Operator<GenericInfo>(NamedNumber('t'))
         * number<GenericInfo>(2)
         * Operator<GenericInfo>(ordering_value(0), GenericInfo("A"));
-  BOOST_CHECK_EQUAL(exp.print(false), "(t * 2.000000 * A)");
+  BOOST_CHECK_EQUAL(exp.print(false), "t * 2.000000 * A");
       
 }
 

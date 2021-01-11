@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(numberss) {
   exp = sort<GenericInfo>(exp, commute_all<GenericInfo>);
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(z * 3.000000 * A)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "z * 3.000000 * A\n");
 }
 
 // interleaver_evaluate with empty substitutions tests
@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE(inter_one) {
                                                     vector_type<Operator<GenericInfo>> &) {return false;});
   std::stringstream ss;
   new_exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(A)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "A\n");
 }
 
 BOOST_AUTO_TEST_CASE(inter_number) {
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(inter_number) {
                                                     vector_type<Operator<GenericInfo>> &) {return false;});
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(3.000000 * A)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "3.000000 * A\n");
 }
 
 BOOST_AUTO_TEST_CASE(random_sort) {

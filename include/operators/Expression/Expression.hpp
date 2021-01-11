@@ -197,7 +197,9 @@ void Expression<OperatorInfo>::print(std::ostream& out, const bool add_newline) 
     if (i != 0) {
       out << " + ";
     }
-    out << "(";
+    if (expression.size() != 1) {
+      out << "(";
+    }
     for (std::size_t j = 0; j < expression[i].size(); ++j) {
       if (j != (expression[i].size() - 1)) {
         out << expression[i][j].name() << " * ";
@@ -205,7 +207,9 @@ void Expression<OperatorInfo>::print(std::ostream& out, const bool add_newline) 
         out << expression[i][j].name();
       }
     }
-    out << ")";
+    if (expression.size() != 1) {
+      out << ")";
+    }
   }
   if (add_newline) {
     out << "\n";
