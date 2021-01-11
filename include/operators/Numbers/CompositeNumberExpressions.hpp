@@ -43,17 +43,17 @@ struct SingleExpr : public CompositeNumberBase {
 };
 
 
-const std::vector<std::string> UnarySymbols = {
-  "squareroot",
-  "exp",
-  "square",
+const std::vector<std::pair<std::string, bool>> UnarySymbols = {
+  {"\u221A", true},
+  {"exp", true},
+  {"\u00B2", false},
 };
 
 template <unsigned identifier>
 struct UnaryCompositeNumber : public CompositeNumberBase {
   static const std::size_t classId;
   static std::string getSymbol() {
-    return UnarySymbols[identifier];
+    return UnarySymbols[identifier].first;
   }
   CompositeNumber operand;
   
@@ -64,7 +64,10 @@ struct UnaryCompositeNumber : public CompositeNumberBase {
   }
 
   std::string name() const override {
-    return getSymbol() + std::string("(") + operand.name() + ")"; 
+    if ( UnarySymbols[identifier].second) {
+      return getSymbol() + std::string("(") + operand.name() + ")"; 
+    }
+    return std::string("(") + operand.name() + ")" + getSymbol();
   }
    
   bool operator==(const CompositeNumberBase &other) const override {
@@ -87,18 +90,18 @@ struct UnaryCompositeNumber : public CompositeNumberBase {
   } 
 };
 
-const std::vector<std::string> BinarySymbols = {
-  "add",
-  "sub",
-  "mul",
-  "div",
+const std::vector<std::pair<std::string, bool>> BinarySymbols = {
+  {"+", false},
+  {"-", false},
+  {"*", false},
+  {"/", false},
 };
 
 template <unsigned id>
 struct BinaryCompositeNumber : public CompositeNumberBase {
   static const std::size_t classId;
   static std::string getSymbol() {
-    return BinarySymbols[id];
+    return BinarySymbols[id].first;
   }
   CompositeNumber first, second;
   explicit BinaryCompositeNumber(CompositeNumber first, CompositeNumber second) :
@@ -109,7 +112,10 @@ struct BinaryCompositeNumber : public CompositeNumberBase {
                 std::move(first), std::move(second)));
   }
   std::string name() const override {
-    return getSymbol() + std::string("(") + first.name() + ", " + second.name() + ")"; 
+    if (BinarySymbols[id].second) {
+      return getSymbol() + std::string("(") + first.name() + ", " + second.name() + ")"; 
+    }
+    return std::string("(") + first.name() + getSymbol() + second.name() + ")";
   }
    
   bool operator==(const CompositeNumberBase &other) const override {

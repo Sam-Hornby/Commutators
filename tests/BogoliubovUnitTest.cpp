@@ -27,6 +27,8 @@ BOOST_AUTO_TEST_CASE(SuccessfulyTransform_1) {
 
   f_out.print();
   b_out.print();
+  const auto EE = SquareExpr::create(NamedNumberExpr::create(NamedNumber('E')));
+  spdlog::info("{} {}", E.name(), EE.name());
 }
 
 BOOST_AUTO_TEST_CASE(SuccessfulyTransform_2) {
