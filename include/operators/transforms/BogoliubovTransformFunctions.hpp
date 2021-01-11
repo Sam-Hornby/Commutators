@@ -31,7 +31,7 @@ struct DefaultBogTransformFunctions {
 
   template <class InfoA>
   static OperatorPairs<InfoA> transform_ops(OperatorPairs<InfoA> input) {
-    std::logic_error("Not implemented");
+    throw std::logic_error("Not implemented");
     return OperatorPairs<InfoA>();
   }
 };
@@ -65,6 +65,25 @@ struct GenericInfoBogTransform : public DefaultBogTransformFunctions<op_type> {
       return Type::CREATION_OPERATOR;
     }
     return Type::ANIHILATION_OPERATOR;
+  }
+  static GenericInfo subOutC(GenericInfo other) {
+    if (other.op_name[0] != 'c') {
+      std::abort();
+    }
+    other.op_name[0] = 'b';
+    return other;
+  } 
+  static OperatorPairs<GenericInfo> transform_ops(OperatorPairs<GenericInfo> input) {
+    // dont copy this as not very general, just using for tests
+    spdlog::trace("Transform opertor pairs begin");
+    spdlog::trace("{} {} {} {}", input.creation_ops[0].name(), input.creation_ops[1].name(),
+                                 input.anihilation_ops[0].name(), input.anihilation_ops[1].name());
+    input.creation_ops[0].info() = subOutC(input.creation_ops[0].info()); 
+    input.creation_ops[1].info() = subOutC(input.creation_ops[1].info());
+    input.anihilation_ops[0].info() = subOutC(input.anihilation_ops[0].info()); 
+    input.anihilation_ops[1].info() = subOutC(input.anihilation_ops[1].info()); 
+    spdlog::trace("Transform opertor pairs end");
+    return input;
   }
 };
 

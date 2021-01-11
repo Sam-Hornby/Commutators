@@ -355,7 +355,7 @@ static OperatorPairs<InfoA> get_transformed_operators(const Expression<InfoA> &e
         result.creation_ops[index] = op;
       } else if (TransformFunctions::get_type(op.info())
                           == Type::ANIHILATION_OPERATOR) {
-        result.creation_ops[index] = op;
+        result.anihilation_ops[index] = op;
       } else {
         std::abort();
       }
