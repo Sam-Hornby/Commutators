@@ -191,7 +191,7 @@ static Expression<InfoA> get_constant(const vector_type<Operator<InfoA>> &term) 
   } 
   Expression<InfoA> result = convert_op_to_expression(term.front());
   for (unsigned i = 1U; i < term.size(); ++i) {
-    if (!term.front().is_number()) {
+    if (!term[i].is_number()) {
       break; // we sorted the terms before this step so all numbers should be a front
     }
     result.expression[0].emplace_back(term[i]);
@@ -255,7 +255,9 @@ static SeperatedTerms<InfoA> can_transform(SeperatedTerms<InfoA> input) {
   } 
   std::vector<Expression<InfoA>> new_transformable_terms;
   for (auto &term : input.transformable_terms) {
-    if (can_transform<InfoA, TransformFunctions>(term)) {
+    const bool transformable = can_transform<InfoA, TransformFunctions>(term);
+    spdlog::trace("Term: {} transformable {}", term.name(), transformable); 
+    if (transformable) {
       new_transformable_terms.emplace_back(std::move(term));
     } else {
       input.non_transformable_terms = input.non_transformable_terms + term;

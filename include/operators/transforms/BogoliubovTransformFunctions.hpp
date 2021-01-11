@@ -46,16 +46,25 @@ typedef DefaultBogTransformFunctions<OperatorType::BOSON> BosonSignedGroupingTra
 template <OperatorType op_type>
 struct GenericInfoBogTransform : public DefaultBogTransformFunctions<op_type> {
   static std::size_t get_group(const GenericInfo &op) {
-    // do stuff
-    std::abort();
+    unsigned id = std::stoul(op.name().substr(1, 1));
+    assert(id != 0); // indexing starts at 1
+    id = id - 1;
+    return id / 2;
   }
   static unsigned get_index(const GenericInfo &op) {
-    // do stuff
-    std::abort();
+    unsigned id = std::stoul(op.name().substr(1, 1));
+    assert(id != 0); // indexing starts at 1
+    id = id - 1;
+    return id % 2;
   }
   static Type get_type(const GenericInfo &op) {
-    // do stuff
-    std::abort();
+    if (op.name()[0] != 'c') {
+      return Type::UNSPECIFIED;
+    }
+    if (op.name().back() == '!') {
+      return Type::CREATION_OPERATOR;
+    }
+    return Type::ANIHILATION_OPERATOR;
   }
 };
 
