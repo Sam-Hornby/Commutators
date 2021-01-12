@@ -8,7 +8,6 @@
 
 namespace operators {
 
-
 template <class T>
 struct SingleExpr : public CompositeNumberBase {
   static const std::size_t classId;
@@ -40,20 +39,29 @@ struct SingleExpr : public CompositeNumberBase {
     return classId;
   }
 
+  std::vector<const CompositeNumber *> get_children() const override {
+    return {};
+  }
+
 };
 
+struct UnaryInfo {
+  std::string name;
+  bool before;
+  bool needsBrackets;
+};
 
-const std::vector<std::pair<std::string, bool>> UnarySymbols = {
-  {"\u221A", true},
-  {"exp", true},
-  {"\u00B2", false},
+const std::vector<UnaryInfo> UnarySymbols = {
+  {"\u221A", true, false},
+  {"exp", true, true},
+  {"\u00B2", false, false},
 };
 
 template <unsigned identifier>
 struct UnaryCompositeNumber : public CompositeNumberBase {
   static const std::size_t classId;
   static std::string getSymbol() {
-    return UnarySymbols[identifier].first;
+    return UnarySymbols[identifier].name;
   }
   CompositeNumber operand;
   
@@ -64,10 +72,17 @@ struct UnaryCompositeNumber : public CompositeNumberBase {
   }
 
   std::string name() const override {
-    if ( UnarySymbols[identifier].second) {
-      return getSymbol() + std::string("(") + operand.name() + ")"; 
+    const bool needsBrackets = UnarySymbols[identifier].needsBrackets;
+    if (UnarySymbols[identifier].before) {
+      if (needsBrackets) {
+        return getSymbol() + std::string("(") + operand.name() + ")";
+      }
+      return getSymbol() + operand.name();
     }
-    return std::string("(") + operand.name() + ")" + getSymbol();
+    if (needsBrackets) {
+      return std::string("(") + operand.name() + ")" + getSymbol();
+    }
+    return operand.name() + getSymbol();
   }
    
   bool operator==(const CompositeNumberBase &other) const override {
@@ -87,7 +102,10 @@ struct UnaryCompositeNumber : public CompositeNumberBase {
   } 
   std::size_t getClassId() const override {
     return classId;
-  } 
+  }
+  std::vector<const CompositeNumber *> get_children() const override {
+    return {&operand};
+  }
 };
 
 const std::vector<std::pair<std::string, bool>> BinarySymbols = {
@@ -136,6 +154,10 @@ struct BinaryCompositeNumber : public CompositeNumberBase {
   std::size_t getClassId() const override {
     return classId;
   } 
+
+  std::vector<const CompositeNumber *> get_children() const override {
+    return {&first, &second};
+  }
   
 };
 

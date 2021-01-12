@@ -334,8 +334,12 @@ TransformedBogConstants<InfoA> get_transformed_constants(BogConstants<InfoA> &in
   }
   // add on any constant terms to K constant
   assert(K_constant);
-  result.K_constant = {{{Operator<InfoA>(
+  if (input.constants.expression == BogConstants<InfoA>::zero_expression.expression) {
+    result.K_constant = {{{Operator<InfoA>(K_constant.get())}}};
+  } else {
+    result.K_constant = {{{Operator<InfoA>(
         AddExpr::create(constants, K_constant.get()))}}};
+  }
   return result;
 }
 
