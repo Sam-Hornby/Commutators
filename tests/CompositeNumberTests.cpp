@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(Basic) {
   BOOST_CHECK_EQUAL(exp1.print(false), fmt::format("({}) + ({})", a_.name(), b.name()));
   BOOST_CHECK_EQUAL(a_.name(), "a");
   BOOST_CHECK_EQUAL(b_.name(), ComplexNumber(1.0, 2.0).name());
-  BOOST_CHECK_EQUAL(c_.name(), fmt::format("\u221A({})", b_.name()));
+  BOOST_CHECK_EQUAL(c_.name(), fmt::format("\u221A{}", b_.name()));
   BOOST_CHECK_EQUAL(d.name(), fmt::format("({}/{})", a_.name(), c_.name()));
   BOOST_CHECK_EQUAL(e.name(), exp1.name());
 
