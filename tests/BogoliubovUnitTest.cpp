@@ -11,6 +11,11 @@ const Operator<GenericInfo> c1(ordering_value(0), GenericInfo("c1"));
 const Operator<GenericInfo> c2(ordering_value(0), GenericInfo("c2"));
 const Operator<GenericInfo> c1_h(ordering_value(0), GenericInfo("c1!"));
 const Operator<GenericInfo> c2_h(ordering_value(0), GenericInfo("c2!"));
+const Operator<GenericInfo> c3(ordering_value(0), GenericInfo("c3"));
+const Operator<GenericInfo> c4(ordering_value(0), GenericInfo("c4"));
+const Operator<GenericInfo> c3_h(ordering_value(0), GenericInfo("c3!"));
+const Operator<GenericInfo> c4_h(ordering_value(0), GenericInfo("c4!"));
+
 const auto E = named_number<GenericInfo>('E');
 const auto Y = named_number<GenericInfo>('Y');
 
@@ -47,6 +52,19 @@ const auto transformed_b_string = fmt::format("({0} * b1! * b1) + "
                                               "({1})",
                                               boson_e.name(),
                                               boson_K.name());
+
+const auto transformed_f_string2 = fmt::format("({0} * b3! * b3) + "
+                                              "({0} * b4! * b4) + "
+                                              "({1})",
+                                              fermion_e.name(),
+                                              fermion_K.name());
+
+const auto transformed_b_string2 = fmt::format("({0} * b3! * b3) + "
+                                              "({0} * b4! * b4) + "
+                                              "({1})",
+                                              boson_e.name(),
+                                              boson_K.name());
+
 
 BOOST_AUTO_TEST_CASE(SuccessfulyTransform_1) {
   // E(c1!c1 + c2!c2) + Y(c1!c2! + c2c1) --> e(b1!b1 + b2!b2) + K
@@ -108,6 +126,30 @@ BOOST_AUTO_TEST_CASE(SuccessfulyTransform_4) {
 
   const auto b_out =
       bogoliubov_transform<GenericInfo, BosonTestTransform>(input);
+}
+
+BOOST_AUTO_TEST_CASE(SuccessfulyTransform_5) {
+  // E(c1!c1 + c2!c2) + Y(c1!c2! + c2c1) --> e(b1!b1 + b2!b2) + K
+  const auto input = (E * ((c1_h * c1) + (c2_h * c2)))
+                   + (Y * ((c1_h * c2_h) + (c2 * c1)))
+                   + (E * ((c3_h * c3) + (c4_h * c4)))
+                   + (Y * ((c3_h * c4_h) + (c4 * c3)));
+
+  const auto f_out =
+      bogoliubov_transform<GenericInfo, FermionTestTransform>(input);
+
+  const auto b_out =
+      bogoliubov_transform<GenericInfo, BosonTestTransform>(input);
+
+  f_out.print();
+  b_out.print();
+
+  BOOST_CHECK_EQUAL(f_out.name(),
+                    fmt::format("{} + {}",
+                                transformed_f_string2, transformed_f_string));
+  BOOST_CHECK_EQUAL(b_out.name(),
+                    fmt::format("{} + {}",
+                                transformed_b_string2, transformed_b_string));
 }
 
 BOOST_AUTO_TEST_CASE(SimpleInvalidTransforms) {
@@ -182,6 +224,13 @@ BOOST_AUTO_TEST_CASE(InvalidTransform_7) {
   BOOST_CHECK_EQUAL(out.name(), input.name());
 }
 
+BOOST_AUTO_TEST_CASE(InvalidTransform_8) {
+  // no terms:
+  Expression<GenericInfo> input;
+  const auto out = bogoliubov_transform<GenericInfo, FermionTestTransform>(input);
+  BOOST_CHECK_EQUAL(out.name(), input.name());
+}
+
 BOOST_AUTO_TEST_CASE(NonQuadraticTransform) {
   // E(c1!c1!c1c1 + c2!c2!c2c2) + Y(c1!c1!c2!c2! + c2c2c1c1)
   const auto input1 = (E * ((c1_h*c1_h*c1*c1) + (c2_h*c2_h*c2*c2)))
@@ -196,9 +245,22 @@ BOOST_AUTO_TEST_CASE(NonQuadraticTransform) {
   BOOST_CHECK_EQUAL(out2.name(), input2.name());
 
   // this one actually can be transformed but will add functionality later
-  // c1 * (E(c1!c1 + c2!c2) + Y(c1!c2 + c2c1))
-  const auto input3 = c1 * ((E * ((c1_h * c1) + (c2_h * c2)))
+  // c3 * (E(c1!c1 + c2!c2) + Y(c1!c2 + c2c1))
+  const auto input3 = c3 * ((E * ((c1_h * c1) + (c2_h * c2)))
                     + (Y * ((c1_h * c2_h) + (c2 * c1))));
   const auto out3 = bogoliubov_transform<GenericInfo, FermionTestTransform>(input3);
   BOOST_CHECK_EQUAL(out3.name(), input3.name());
+
+  // c3 + (E(c1!c1 + c2!c2) + Y(c1!c2 + c2c1))
+  const auto input4 = c3 + ((E * ((c1_h * c1) + (c2_h * c2)))
+                    + (Y * ((c1_h * c2_h) + (c2 * c1))));
+  const auto out4 = bogoliubov_transform<GenericInfo, BosonTestTransform>(input4);
+  BOOST_CHECK_EQUAL(out4.name(), fmt::format("(c3) + {}", transformed_b_string));
+  
+  // Y + (E(c1!c1 + c2!c2) + Y(c1!c2 + c2c1))
+  const auto input5 = Y + ((E * ((c1_h * c1) + (c2_h * c2)))
+                    + (Y * ((c1_h * c2_h) + (c2 * c1))));
+  const auto out5 = bogoliubov_transform<GenericInfo, BosonTestTransform>(input5);
+  BOOST_CHECK_EQUAL(out5.name(), fmt::format("(Y) + {}", transformed_b_string));
+
 }

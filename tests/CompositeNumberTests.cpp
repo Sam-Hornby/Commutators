@@ -29,7 +29,6 @@ BOOST_AUTO_TEST_CASE(Basic) {
   BOOST_CHECK_EQUAL(c_.name(), fmt::format("\u221A{}", b_.name()));
   BOOST_CHECK_EQUAL(d.name(), fmt::format("({}/{})", a_.name(), c_.name()));
   BOOST_CHECK_EQUAL(e.name(), exp1.name());
-
 }
 
 BOOST_AUTO_TEST_CASE(Operators) {
