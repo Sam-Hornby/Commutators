@@ -110,7 +110,12 @@ group_terms(const Expression<InfoA> &second_order_terms) {
 
 template <class InfoA>
 static Expression<InfoA>
-create_final_expression(BogExpressionPair<InfoA> &pair, SeperatedTerms<InfoA> &groups) {
+create_final_expression(BogExpressionPair<InfoA> &pair,
+                        SeperatedTerms<InfoA> &groups,
+                        const Expression<InfoA> &input) {
+  if (groups.transformable_terms.empty()) {
+    return input;
+  }
   auto result = std::move(pair.other_terms);
   result = result + groups.non_transformable_terms;
   for (auto &expr : groups.transformable_terms) {
@@ -200,6 +205,115 @@ static Expression<InfoA> get_constant(const vector_type<Operator<InfoA>> &term) 
 }
 
 
+template <class InfoA>
+struct BogConstants {
+  static const Expression<InfoA> zero_expression;
+  Expression<InfoA> E_constant = zero_expression;
+  Expression<InfoA> Y_constant = zero_expression;
+  Expression<InfoA> constants = zero_expression;
+};
+
+template <class InfoA>
+struct TransformedBogConstants {
+  Expression<InfoA> e_constant = BogConstants<InfoA>::zero_expression;
+  Expression<InfoA> K_constant = BogConstants<InfoA>::zero_expression;
+};
+
+template <class InfoA>
+const Expression<InfoA> BogConstants<InfoA>::zero_expression = {{{Operator<InfoA>(0)}}};
+
+template <class InfoA, class TransformFunctions>
+static BogConstants<InfoA> get_bog_constants(const Expression<InfoA> &input) {
+  BogConstants<InfoA> result;
+  for (const auto &term : input.expression) {
+    auto constant = get_constant(term);
+    auto term_type = get_term_type<InfoA, TransformFunctions>(term);
+    assert(term_type != TermType::NONE);
+    if (term_type == TermType::DIAGONOL_TERM and result.E_constant == result.zero_expression) {
+      result.E_constant = std::move(constant);
+    } else if (term_type == TermType::CROSS_TERM and result.Y_constant == result.zero_expression) {
+      result.Y_constant = std::move(constant);
+    } else if (term_type == TermType::CONSTANT) {
+      result.constants = result.constants + constant;
+    }
+  }
+  return result;
+}
+
+
+template <class InfoA, class TransformFunctions>
+static OperatorPairs<InfoA> get_bog_operators(const Expression<InfoA> &exp) {
+  
+  OperatorPairs<InfoA> result;
+  std::array<bool, 4> already_found = {false, false, false, false};
+  for (const auto &term : exp.expression) {
+    for (const auto &op : term) {
+      if (std::all_of(already_found.begin(), already_found.end(), [] (bool a) {return a;})) {
+        break;
+      }
+      if (op.is_number()) {continue;}
+      const unsigned index = TransformFunctions::get_index(op.info());
+      if (TransformFunctions::get_type(op.info()) == Type::CREATION_OPERATOR) {
+        result.creation_ops[index] = op;
+      } else if (TransformFunctions::get_type(op.info())
+                          == Type::ANIHILATION_OPERATOR) {
+        result.anihilation_ops[index] = op;
+      } else {
+        std::abort();
+      }
+    }
+  }
+  assert(std::all_of(already_found.begin(), already_found.end(), [] (bool a) {return a}));
+  return result;
+}
+
+template <class InfoA, class TransformFunctions>
+static OperatorPairs<InfoA> get_transformed_operators(const Expression<InfoA> &exp) {
+  return TransformFunctions::transform_ops(
+      get_bog_operators<InfoA, TransformFunctions>(exp));
+}
+
+
+template <class InfoA>
+static bool expressions_equivalent(Expression<InfoA> A, Expression<InfoA> B) {
+  // Don't care about ordering values so set all fixed number
+  A = numbers_first(simplify_numbers(A));
+  B = numbers_first(simplify_numbers(B));
+
+  const auto ops_less_than = [] (const vector_type<Operator<InfoA>> &a,
+                                 const vector_type<Operator<InfoA>> &b) {
+    if (a.size() != b.size()) {
+      return a.size() < b.size();
+    }
+    for (std::size_t i = 0; i < a.size(); ++i) {
+      if (a[i] != b[i]) {
+        return a[i].data < b[i].data;
+      }
+    }
+    return false;
+  };
+  // Addition is assumed to always be comutative so change order of additions
+  // to match terms
+  std::sort(A.expression.begin(), A.expression.end(), ops_less_than);
+  std::sort(B.expression.begin(), B.expression.end(), ops_less_than);
+
+  return A == B;
+}
+
+template <class InfoA>
+static bool expression_matches(const Expression<InfoA> &input,
+                               OperatorPairs<InfoA> op_pair,
+                               BogConstants<InfoA> constants) {
+  auto expected =
+      (constants.E_constant *
+        ((op_pair.creation_ops[0] * op_pair.anihilation_ops[0])
+       + (op_pair.creation_ops[1] * op_pair.anihilation_ops[1])))
+    + (constants.Y_constant *
+        ((op_pair.creation_ops[0] * op_pair.creation_ops[1])
+       + (op_pair.anihilation_ops[1] * op_pair.anihilation_ops[0])))
+  + constants.constants;
+  return expressions_equivalent(input, std::move(expected));
+}
 
 template <class InfoA, class TransformFunctions>
 static bool can_transform(const Expression<InfoA> & input) {
@@ -236,7 +350,11 @@ static bool can_transform(const Expression<InfoA> & input) {
   if (E_count != 2 or Y_count != 2) {
     return false;
   }
-  return true; 
+
+  return expression_matches<InfoA>(
+                input,
+                get_bog_operators<InfoA, TransformFunctions>(input),
+                get_bog_constants<InfoA, TransformFunctions>(input)); 
 }
 
 // At this stage we are getting to the stage where we know we are going to make
@@ -267,40 +385,7 @@ static SeperatedTerms<InfoA> can_transform(SeperatedTerms<InfoA> input) {
   return input;
 }
 
-template <class InfoA>
-struct BogConstants {
-  static const Expression<InfoA> zero_expression;
-  Expression<InfoA> E_constant = zero_expression;
-  Expression<InfoA> Y_constant = zero_expression;
-  Expression<InfoA> constants = zero_expression;
-};
 
-template <class InfoA>
-struct TransformedBogConstants {
-  Expression<InfoA> e_constant = BogConstants<InfoA>::zero_expression;
-  Expression<InfoA> K_constant = BogConstants<InfoA>::zero_expression;
-};
-
-template <class InfoA>
-const Expression<InfoA> BogConstants<InfoA>::zero_expression = {{{Operator<InfoA>(0)}}};
-
-template <class InfoA, class TransformFunctions>
-static BogConstants<InfoA> get_bog_constants(const Expression<InfoA> &input) {
-  BogConstants<InfoA> result;
-  for (const auto &term : input.expression) {
-    auto constant = get_constant(term);
-    auto term_type = get_term_type<InfoA, TransformFunctions>(term);
-    assert(term_type != TermType::NONE);
-    if (term_type == TermType::DIAGONOL_TERM and result.E_constant == result.zero_expression) {
-      result.E_constant = std::move(constant);
-    } else if (term_type == TermType::CROSS_TERM and result.Y_constant == result.zero_expression) {
-      result.Y_constant = std::move(constant);
-    } else if (term_type == TermType::CONSTANT) {
-      result.constants = result.constants + constant;
-    }
-  }
-  return result;
-}
 
 // Bosons e = squareroot(E^2 - Y^2)    K = e - E
 // Fermions e = squareroot(E^2 + Y^2)  K = E - e
@@ -343,31 +428,7 @@ TransformedBogConstants<InfoA> get_transformed_constants(BogConstants<InfoA> &in
   return result;
 }
 
-template <class InfoA, class TransformFunctions>
-static OperatorPairs<InfoA> get_transformed_operators(const Expression<InfoA> &exp) {
-  
-  OperatorPairs<InfoA> result;
-  std::array<bool, 4> already_found = {false, false, false, false};
-  for (const auto &term : exp.expression) {
-    for (const auto &op : term) {
-      if (std::all_of(already_found.begin(), already_found.end(), [] (bool a) {return a;})) {
-        break;
-      }
-      if (op.is_number()) {continue;}
-      const unsigned index = TransformFunctions::get_index(op.info());
-      if (TransformFunctions::get_type(op.info()) == Type::CREATION_OPERATOR) {
-        result.creation_ops[index] = op;
-      } else if (TransformFunctions::get_type(op.info())
-                          == Type::ANIHILATION_OPERATOR) {
-        result.anihilation_ops[index] = op;
-      } else {
-        std::abort();
-      }
-    }
-  }
-  assert(std::all_of(already_found.begin(), already_found.end(), [] (bool a) {return a}));
-  return TransformFunctions::transform_ops(std::move(result));
-}
+
 
 template <class InfoA, class TransformFunctions>
 static Expression<InfoA>
@@ -430,7 +491,7 @@ bogoliubov_transform(const Expression<InfoA> & input) {
   groups.transformable_terms =
       make_transformation<InfoA, TransformFunctions>(std::move(groups.transformable_terms));
 
-  return create_final_expression(expressions, groups);
+  return create_final_expression(expressions, groups, input);
 }
 //TODO add tests, especially non real cases where it should back out
 

@@ -14,6 +14,40 @@ const Operator<GenericInfo> c2_h(ordering_value(0), GenericInfo("c2!"));
 const auto E = named_number<GenericInfo>('E');
 const auto Y = named_number<GenericInfo>('Y');
 
+const auto E_ = NamedNumberExpr::create(NamedNumber('E'));
+const auto Y_ = NamedNumberExpr::create(NamedNumber('Y'));
+
+const auto boson_e =
+  SquareRootExpr::create(
+    SubExpr::create(SquareExpr::create(E_),
+                    SquareExpr::create(Y_))
+);
+
+const auto boson_K =
+  SubExpr::create(boson_e, E_);
+
+const auto fermion_e =
+  SquareRootExpr::create(
+    AddExpr::create(SquareExpr::create(E_),
+                    SquareExpr::create(Y_))
+);
+
+const auto fermion_K =
+  SubExpr::create(E_, fermion_e);
+
+
+const auto transformed_f_string = fmt::format("({0} * b1! * b1) + "
+                                              "({0} * b2! * b2) + "
+                                              "({1})",
+                                              fermion_e.name(),
+                                              fermion_K.name());
+
+const auto transformed_b_string = fmt::format("({0} * b1! * b1) + "
+                                              "({0} * b2! * b2) + "
+                                              "({1})",
+                                              boson_e.name(),
+                                              boson_K.name());
+
 BOOST_AUTO_TEST_CASE(SuccessfulyTransform_1) {
   // E(c1!c1 + c2!c2) + Y(c1!c2! + c2c1) --> e(b1!b1 + b2!b2) + K
   const auto input = (E * ((c1_h * c1) + (c2_h * c2)))
@@ -27,9 +61,42 @@ BOOST_AUTO_TEST_CASE(SuccessfulyTransform_1) {
 
   f_out.print();
   b_out.print();
+
+  BOOST_CHECK_EQUAL(f_out.name(), transformed_f_string);
+  BOOST_CHECK_EQUAL(b_out.name(), transformed_b_string);
 }
 
 BOOST_AUTO_TEST_CASE(SuccessfulyTransform_2) {
+  // E(c2!c2 + c1!c1) + Y(c1!c2! + c2c1) --> e(b1!b1 + b2!b2) + K
+  const auto input = (E * ((c2_h * c2) + (c1_h * c1)))
+                   + (Y * ((c1_h * c2_h) + (c2 * c1)));
+
+  const auto f_out =
+      bogoliubov_transform<GenericInfo, FermionTestTransform>(input);
+
+  const auto b_out =
+      bogoliubov_transform<GenericInfo, BosonTestTransform>(input);
+
+  BOOST_CHECK_EQUAL(f_out.name(), transformed_f_string);
+  BOOST_CHECK_EQUAL(b_out.name(), transformed_b_string);
+}
+
+BOOST_AUTO_TEST_CASE(SuccessfulyTransform_3) {
+  // E(c2!c2 + c1!c1) + Y(c1!c2! + c2c1) --> e(b1!b1 + b2!b2) + K
+  const auto input = (E * ((c2_h * c2) + (c1_h * c1)))
+                   + (Y * ((c2 * c1) + (c1_h * c2_h)));
+
+  const auto f_out =
+      bogoliubov_transform<GenericInfo, FermionTestTransform>(input);
+
+  const auto b_out =
+      bogoliubov_transform<GenericInfo, BosonTestTransform>(input);
+
+  BOOST_CHECK_EQUAL(f_out.name(), transformed_f_string);
+  BOOST_CHECK_EQUAL(b_out.name(), transformed_b_string);
+}
+
+BOOST_AUTO_TEST_CASE(SuccessfulyTransform_4) {
   // need to work out effect of switching 1 and 2 (might only be in
   // evaluating b1 and b2)
   // E(c1!c1 + c2!c2) + Y(c2!c1! + c1c2) --> e(b1!b1 + b2!b2) + K 
