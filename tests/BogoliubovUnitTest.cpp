@@ -55,13 +55,17 @@ const auto transformed_b_string = fmt::format("({0} * b1! * b1) + "
 
 const auto transformed_f_string2 = fmt::format("({0} * b3! * b3) + "
                                               "({0} * b4! * b4) + "
-                                              "({1})",
+                                              "(2.000000 * {1}) + "
+                                              "({0} * b1! * b1) + "
+                                              "({0} * b2! * b2)",
                                               fermion_e.name(),
                                               fermion_K.name());
 
 const auto transformed_b_string2 = fmt::format("({0} * b3! * b3) + "
                                               "({0} * b4! * b4) + "
-                                              "({1})",
+                                              "(2.000000 * {1}) + "
+                                              "({0} * b1! * b1) + "
+                                              "({0} * b2! * b2)",
                                               boson_e.name(),
                                               boson_K.name());
 
@@ -145,11 +149,11 @@ BOOST_AUTO_TEST_CASE(SuccessfulyTransform_5) {
   b_out.print();
 
   BOOST_CHECK_EQUAL(f_out.name(),
-                    fmt::format("{} + {}",
-                                transformed_f_string2, transformed_f_string));
+                    fmt::format("{}",
+                                transformed_f_string2));
   BOOST_CHECK_EQUAL(b_out.name(),
-                    fmt::format("{} + {}",
-                                transformed_b_string2, transformed_b_string));
+                    fmt::format("{}",
+                                transformed_b_string2));
 }
 
 BOOST_AUTO_TEST_CASE(SimpleInvalidTransforms) {

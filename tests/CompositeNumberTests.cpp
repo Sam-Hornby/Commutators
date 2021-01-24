@@ -23,12 +23,20 @@ BOOST_AUTO_TEST_CASE(Basic) {
   auto exp1 = a + b;
   auto e = ExpressionExpr::create(convertNumbersToEmptyInfo<GenericInfo>(exp1));
 
+  auto f = AddExpr::create(ComplexNumberExpr::create(ComplexNumber(2.0, 0)),
+                           ComplexNumberExpr::create(ComplexNumber(2.0, 0)));
+
+  auto g = SquareExpr::create(f);
+  auto h = MulExpr::create(a_, SquareRootExpr::create(f));
+
   BOOST_CHECK_EQUAL(exp1.print(false), fmt::format("({}) + ({})", a_.name(), b.name()));
   BOOST_CHECK_EQUAL(a_.name(), "a");
   BOOST_CHECK_EQUAL(b_.name(), ComplexNumber(1.0, 2.0).name());
   BOOST_CHECK_EQUAL(c_.name(), fmt::format("\u221A{}", b_.name()));
   BOOST_CHECK_EQUAL(d.name(), fmt::format("({}/{})", a_.name(), c_.name()));
   BOOST_CHECK_EQUAL(e.name(), exp1.name());
+  BOOST_CHECK_EQUAL(g.simplify().name(), "16.000000");
+  BOOST_CHECK_EQUAL(h.simplify().name(), "(a*2.000000)");
 }
 
 BOOST_AUTO_TEST_CASE(Operators) {

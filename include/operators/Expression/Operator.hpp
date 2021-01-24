@@ -70,6 +70,24 @@ struct NamedNumberVisitor : public boost::static_visitor<NamedNumber>{
   NamedNumber operator() (const NamedNumber& value) const {return value;}
 };
 
+template <class T>
+struct isAVisitor {
+  template <class U>
+  bool operator() (const U &) const {return false;}
+  bool operator() (const T &) const {return true;}
+};
+
+template <class T>
+struct getAsVisitor : boost::static_visitor<T &> {
+  T & operator() (T &t) const {
+    return t;
+  }
+  template <class U>
+  T & operator() (const U &) const {
+    throw std::logic_error("Incorrect type for get as");
+  }
+};
+
 } // namespace
 template <class OperatorInfo>
 struct Operator {
@@ -99,6 +117,14 @@ struct Operator {
 
   bool is_evaluated_number() const {
     return boost::apply_visitor(hasValueVisitor<OperatorInfo>{}, data);
+  }
+
+  bool is_composite_number() const {
+    return boost::apply_visitor(isAVisitor<CompositeNumber>(), data);
+  }
+
+  CompositeNumber & composite_number() {
+    return boost::apply_visitor(getAsVisitor<CompositeNumber>(), data);
   }
 
   ComplexNumber value() const {

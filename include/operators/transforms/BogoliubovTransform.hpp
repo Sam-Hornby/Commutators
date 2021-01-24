@@ -121,7 +121,7 @@ create_final_expression(BogExpressionPair<InfoA> &pair,
   for (auto &expr : groups.transformable_terms) {
     result = result + expr; // TODO don't use this + loop as O(n**2), just insert back
   } 
-  return result;
+  return simplify_numbers(result);
 }
 
 

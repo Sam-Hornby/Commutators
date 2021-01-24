@@ -175,8 +175,22 @@ Expression<OperatorInfo> simplify_multiplications(const Expression<OperatorInfo>
 }
 
 template <class OperatorInfo>
+Expression<OperatorInfo> simplify_composite_numbers(Expression<OperatorInfo> expr) {
+  for (auto &term : expr.expression) {
+    for (auto & op : term) {
+      if (op.is_composite_number()) {
+        auto &num = op.composite_number();
+        num = num.simplify();
+      } 
+    }
+  }
+  return expr;
+}
+
+template <class OperatorInfo>
 Expression<OperatorInfo> simplify_numbers(const Expression<OperatorInfo> &expr) {
-  Expression<OperatorInfo> simplified = simplify_multiplications(expr);
+  Expression<OperatorInfo> simplified = simplify_composite_numbers(expr);
+  simplified = simplify_multiplications(simplified);
   simplify_additions(simplified);
   removeEmptyVectors(simplified);
   return simplified;

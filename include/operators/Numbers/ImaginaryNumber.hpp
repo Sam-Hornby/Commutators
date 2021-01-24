@@ -41,16 +41,6 @@ bool operator<(const ComplexNumber &A, const ComplexNumber &other) {
   return std::make_tuple(A.value.real(), A.value.imag()) < std::make_tuple(other.value.real(), other.value.imag());
 }
 
-
-
-// I don;t like this
-//template <typename T>
-//ImaginaryNumber operator*(ImaginaryNumber im, T r) {
-//  static_assert(not std::is_same<T, ImaginaryNumber>::value, "Should use overload version");
-//  std::abort();
-//  return ImaginaryNumber(im.value * r);
-///}
-
 ImaginaryNumber operator*(ImaginaryNumber im, double r) {
   return ImaginaryNumber(im.value * r);
 }

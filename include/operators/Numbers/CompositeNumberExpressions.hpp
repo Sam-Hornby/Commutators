@@ -43,18 +43,38 @@ struct SingleExpr : public CompositeNumberBase {
     return {};
   }
 
+  CompositeNumber simplify() const override {
+    return CompositeNumber(clone());
+  }
 };
+
+template <class T>
+static const T * getAs(const CompositeNumber &a) {
+  if (a.expr->getClassId() != T::classId) {
+    return nullptr;
+  }
+  return reinterpret_cast<const T *>(a.expr.get());
+}
+
+static boost::optional<ComplexNumber>
+getAsComplexNumber(const CompositeNumber &a) {
+  if (const auto * c = getAs<SingleExpr<ComplexNumber>>(a)) {
+    return c->item;
+  }
+  return boost::none;
+}
 
 struct UnaryInfo {
   std::string name;
   bool before;
   bool needsBrackets;
+  std::function<std::complex<double>(std::complex<double>)> transform;
 };
 
 const std::vector<UnaryInfo> UnarySymbols = {
-  {"\u221A", true, false},
-  {"exp", true, true},
-  {"\u00B2", false, false},
+  {"\u221A", true, false, [](std::complex<double> a) {return std::sqrt(a);}},
+  {"exp", true, true, [](std::complex<double> a) {return std::exp(a);}},
+  {"\u00B2", false, false,[](std::complex<double> a) {return std::pow(a, 2);}},
 };
 
 template <unsigned identifier>
@@ -106,20 +126,48 @@ struct UnaryCompositeNumber : public CompositeNumberBase {
   std::vector<const CompositeNumber *> get_children() const override {
     return {&operand};
   }
+  CompositeNumber simplify() const override {
+    auto simp_op = operand.simplify();
+    auto c = getAsComplexNumber(simp_op);
+    if (c) {
+      const auto &uInfo = UnarySymbols[identifier];
+      return CompositeNumber(
+          std::make_unique<SingleExpr<ComplexNumber>>(
+            ComplexNumber(uInfo.transform(c.get().value))
+          ));
+    };
+    return CompositeNumber(
+      std::make_unique<UnaryCompositeNumber<identifier>>(std::move(simp_op)));
+  }
 };
 
-const std::vector<std::pair<std::string, bool>> BinarySymbols = {
-  {"+", false},
-  {"-", false},
-  {"*", false},
-  {"/", false},
+struct BinaryInfo {
+  std::string symbol;
+  bool before;
+  std::function<std::complex<double>(std::complex<double>,
+                                     std::complex<double>)> transform;
+};
+
+const std::vector<BinaryInfo> BinarySymbols = {
+  {"+", false, [](std::complex<double> a, std::complex<double> b) {
+                  return a + b;
+                }},
+  {"-", false, [](std::complex<double> a, std::complex<double> b) {
+                  return a - b;
+                }},
+  {"*", false, [](std::complex<double> a, std::complex<double> b) {
+                  return a * b;
+                }},
+  {"/", false, [](std::complex<double> a, std::complex<double> b) {
+                  return a / b;
+                }},
 };
 
 template <unsigned id>
 struct BinaryCompositeNumber : public CompositeNumberBase {
   static const std::size_t classId;
   static std::string getSymbol() {
-    return BinarySymbols[id].first;
+    return BinarySymbols[id].symbol;
   }
   CompositeNumber first, second;
   explicit BinaryCompositeNumber(CompositeNumber first, CompositeNumber second) :
@@ -130,7 +178,7 @@ struct BinaryCompositeNumber : public CompositeNumberBase {
                 std::move(first), std::move(second)));
   }
   std::string name() const override {
-    if (BinarySymbols[id].second) {
+    if (BinarySymbols[id].before) {
       return getSymbol() + std::string("(") + first.name() + ", " + second.name() + ")"; 
     }
     return std::string("(") + first.name() + getSymbol() + second.name() + ")";
@@ -158,7 +206,23 @@ struct BinaryCompositeNumber : public CompositeNumberBase {
   std::vector<const CompositeNumber *> get_children() const override {
     return {&first, &second};
   }
-  
+  CompositeNumber simplify() const override {
+    auto a = first.simplify();
+    auto b = second.simplify();
+    auto A = getAsComplexNumber(a);
+    auto B = getAsComplexNumber(b);
+    if (A and B) {
+      const auto &bInfo = BinarySymbols[id];
+      return CompositeNumber(
+          std::make_unique<SingleExpr<ComplexNumber>>(
+            ComplexNumber(bInfo.transform(A.get().value,
+                                          B.get().value))
+          ));
+    };
+    return CompositeNumber(
+      std::make_unique<BinaryCompositeNumber<id>>(
+        std::move(a), std::move(b)));
+  }
 };
 
 template <class OperatorInfo>
@@ -193,6 +257,8 @@ Expression<EmptyInfo> convertNumbersToEmptyInfo(Expression<OperatorInfo> exp) {
   }
   return result;
 }
+
+
 
 typedef SingleExpr<NamedNumber> NamedNumberExpr;
 typedef SingleExpr<ComplexNumber> ComplexNumberExpr;
