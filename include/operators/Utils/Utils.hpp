@@ -48,7 +48,7 @@ template <class OperatorInfo>
 Operator<OperatorInfo> hermition_conjugate(const Operator<OperatorInfo> & op) {
   if (op.is_evaluated_number()) {
     auto hc_number = op.value();
-    hc_number.imaginary_part = hc_number.imaginary_part * -1;
+    hc_number.value = std::conj(hc_number.value);
     return Operator<OperatorInfo>(hc_number);
   }
   if (op.is_number()) {

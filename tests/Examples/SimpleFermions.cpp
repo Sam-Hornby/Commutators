@@ -28,8 +28,8 @@ static bool check_answer(const Expression<OperatorInfo> & exp, const ComplexNumb
   if (!exp.expression[0][0].is_number()) {
     return false;
   }
-  return round_to_3_dp(exp.expression[0][0].value().real_part) == round_to_3_dp(ans.real_part) and
-         round_to_3_dp(exp.expression[0][0].value().imaginary_part) == round_to_3_dp(ans.imaginary_part);
+  return round_to_3_dp(exp.expression[0][0].value().value.real()) == round_to_3_dp(ans.value.real()) and
+         round_to_3_dp(exp.expression[0][0].value().value.imag()) == round_to_3_dp(ans.value.imag());
 }
 
 BOOST_AUTO_TEST_CASE(simple) {
