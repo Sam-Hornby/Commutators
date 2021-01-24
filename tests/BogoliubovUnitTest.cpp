@@ -156,6 +156,32 @@ BOOST_AUTO_TEST_CASE(SuccessfulyTransform_5) {
                                 transformed_b_string2));
 }
 
+BOOST_AUTO_TEST_CASE(SuccessfulyTransform_6) {
+  // 4(c1!c1 + c2!c2) + 3(c1!c2! + c2c1) --> e(b1!b1 + b2!b2) + K
+  const auto input = (Operator<GenericInfo>(4.0) * ((c1_h * c1) + (c2_h * c2)))
+                   + (Operator<GenericInfo>(3.0) * ((c1_h * c2_h) + (c2 * c1)));
+
+  const auto f_out =
+      bogoliubov_transform<GenericInfo, FermionTestTransform>(input);
+
+  const auto b_out =
+      bogoliubov_transform<GenericInfo, BosonTestTransform>(input);
+
+  double ef_const = std::sqrt((4.0*4.0) + (3.0*3.0));
+  double eb_const = std::sqrt((4.0*4.0) - (3.0 * 3.0));
+  double kf_const = 4.0 - ef_const;
+  double kb_const = eb_const - 4.0;
+
+  BOOST_CHECK_EQUAL(f_out.name(),
+                    fmt::format("({0} * b1! * b1) + ({0} * b2! * b2) + ({1})",
+                            std::to_string(ef_const),
+                            std::to_string(kf_const)));
+  BOOST_CHECK_EQUAL(b_out.name(),
+                    fmt::format("({0} * b1! * b1) + ({0} * b2! * b2) + ({1})",
+                                 std::to_string(eb_const),
+                                 std::to_string(kb_const)));
+}
+
 BOOST_AUTO_TEST_CASE(SimpleInvalidTransforms) {
   // Empty: {} --> {}
   const Expression<GenericInfo> input1;

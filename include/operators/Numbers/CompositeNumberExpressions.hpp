@@ -5,8 +5,17 @@
 #include "ImaginaryNumber.hpp"
 #include <Expression/Expression.hpp>
 #include <Expression/Infos/EmptyInfo.hpp>
+#include <Expression/Simplify.hpp>
 
 namespace operators {
+
+template <class T>
+static const T * getAs(const CompositeNumber &a) {
+  if (a.expr->getClassId() != T::classId) {
+    return nullptr;
+  }
+  return reinterpret_cast<const T *>(a.expr.get());
+}
 
 template <class T>
 struct SingleExpr : public CompositeNumberBase {
@@ -44,17 +53,21 @@ struct SingleExpr : public CompositeNumberBase {
   }
 
   CompositeNumber simplify() const override {
-    return CompositeNumber(clone());
+    auto result = clone();
+    auto result_ = dynamic_cast<SingleExpr<Expression<EmptyInfo>> *>(result.get());
+    if (result_) {
+      result_->item = simplify_numbers(result_->item);
+      if (result_->item.expression.size() == 1 and
+          result_->item.expression[0].size() == 1 and
+          result_->item.expression[0][0].is_evaluated_number()) {
+        return CompositeNumber(std::make_unique<SingleExpr<ComplexNumber>>(
+          result_->item.expression[0][0].value()));
+
+      }
+    }
+    return CompositeNumber(std::move(result));
   }
 };
-
-template <class T>
-static const T * getAs(const CompositeNumber &a) {
-  if (a.expr->getClassId() != T::classId) {
-    return nullptr;
-  }
-  return reinterpret_cast<const T *>(a.expr.get());
-}
 
 static boost::optional<ComplexNumber>
 getAsComplexNumber(const CompositeNumber &a) {
