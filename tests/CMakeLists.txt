@@ -15,57 +15,37 @@ include_directories(${operators_SOURCE_DIR}/include/operators
 	            ${operators_SOURCE_DIR}/spdlog/include)
 link_directories(${operators_SOURCE_DIR}/lib/operators)
 
+function(add_operators_test name)
+  add_executable(${name} ${name}.cpp)
+  add_test(NAME ${name}
+           COMMAND ${name}
+           WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
+
+endfunction()
+
 add_subdirectory(Examples)
 
-add_executable(PrintTests PrintTests.cpp)
-add_test(NAME "PrintTests"
-      COMMAND PrintTests
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
+add_operators_test(PrintTests)
+
+add_operators_test(SortTests)
+
+add_operators_test(Commutators)
+
+add_operators_test(NumberTests)
+
+add_operators_test(SubstitutionTests)
+
+add_operators_test(TransformTests)
 
 
-add_executable(SortTests SortTests.cpp)
-add_test(NAME "SortTests"
-      COMMAND SortTests
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-
-add_executable(CommutatorTests Commutators.cpp)
-add_test(NAME "CommutatorTests"
-      COMMAND CommutatorTests
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-
-add_executable(NumberTests NumberTests.cpp)
-add_test(NAME "NumberTests"
-      COMMAND NumberTests
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-
-add_executable(SubstitutionTests SubstitutionTests.cpp)
-add_test(NAME "SubstitutionTests"
-         COMMAND SubstitutionTests
-         WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-
-add_executable(TransformTests TransformTests.cpp)
-add_test(NAME "TransformTests"
-         COMMAND TransformTests
-         WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-
-add_executable(LoggingTest LoggingTest.cpp)
-add_test(NAME "LoggingTest"
-         COMMAND LoggingTest
-         WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
+add_operators_test(LoggingTest)
 SET_TESTS_PROPERTIES(LoggingTest
     PROPERTIES ENVIRONMENT "OPERATORS_LOG_LEVEL=TRACE")
 
-add_executable(BogoliubovTests BogoliubovTests.cpp)
-add_test(NAME "BogoliubovTests"
-         COMMAND BogoliubovTests
-         WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-add_executable(BogoliubovUnitTest BogoliubovUnitTest.cpp)
-add_test(NAME "BogoliubovUnitTest"
-         COMMAND BogoliubovUnitTest
-         WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-add_executable(CompositeNumberTests CompositeNumberTests.cpp)
-add_test(NAME "CompositeNumberTests"
-         COMMAND CompositeNumberTests
-         WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
+add_operators_test(BogoliubovTests)
+
+add_operators_test(BogoliubovUnitTest)
+
+add_operators_test(CompositeNumberTests)
 
 
