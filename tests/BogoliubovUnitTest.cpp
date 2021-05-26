@@ -130,6 +130,9 @@ BOOST_AUTO_TEST_CASE(SuccessfulyTransform_4) {
 
   const auto b_out =
       bogoliubov_transform<GenericInfo, BosonTestTransform>(input);
+
+  BOOST_CHECK_EQUAL(f_out.name(), transformed_f_string);
+  BOOST_CHECK_EQUAL(b_out.name(), transformed_b_string);
 }
 
 BOOST_AUTO_TEST_CASE(SuccessfulyTransform_5) {
