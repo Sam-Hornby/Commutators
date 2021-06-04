@@ -6,6 +6,7 @@
 #include <Expression/Infos/Fock1D.hpp>
 #include <cmath>
 #include <math.h>
+#include <Numbers/CompositeNumberExpressions.hpp>
 
 namespace operators {
 
@@ -43,33 +44,30 @@ inline Expression<Fock1DInfo> normalised_n_occupied_ops(unsigned n, unsigned cre
   }
   return number<Fock1DInfo>(normalisation_factor) * exp;
 }
+namespace {
+
+template <class Info>
+struct ConjugateVisitor {
+  void operator() (ComplexNumber &num) const {
+    num.value = std::conj(num.value);
+  }
+  void operator() (Info &info) const {
+    info.complex_conjugate();
+  }
+  void operator() (NamedNumber &num) const {
+    num.complex_conjugated = num.complex_conjugated xor true;
+  }
+  void operator() (CompositeNumber &num) const {
+    num = ConjugateExpr::create(std::move(num));
+  }
+};
+
+}
 
 template <class OperatorInfo>
-Operator<OperatorInfo> hermition_conjugate(const Operator<OperatorInfo> & op) {
-  if (op.is_evaluated_number()) {
-    auto hc_number = op.value();
-    hc_number.value = std::conj(hc_number.value);
-    return Operator<OperatorInfo>(hc_number);
-  }
-  if (op.is_number()) {
-    // evaluated numbers already returned so must be named number
-    auto hc_number = op.named_number();
-    hc_number.complex_conjugated = hc_number.complex_conjugated ^ true;
-    return Operator<OperatorInfo>(hc_number);
-  }
-  auto type = op.info().type;
-  if (type == Type::STATE_VECTOR) {
-    type = Type::HC_STATE_VECTOR;
-  } else if (type == Type::HC_STATE_VECTOR) {
-    type = Type::STATE_VECTOR;
-  } else if (type == Type::CREATION_OPERATOR) {
-    type = Type::ANIHILATION_OPERATOR;
-  } else if (type == Type::ANIHILATION_OPERATOR) {
-    type = Type::CREATION_OPERATOR;
-  }
-  OperatorInfo info = op.info();
-  info.type = type;
-  return Operator<OperatorInfo>(op.order, info);
+Operator<OperatorInfo> hermition_conjugate(Operator<OperatorInfo> op) {
+  boost::apply_visitor(ConjugateVisitor<OperatorInfo>{}, op.data);
+  return op;
 }
 
 template <class OperatorInfo>

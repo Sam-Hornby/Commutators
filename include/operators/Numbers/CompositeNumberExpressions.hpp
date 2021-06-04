@@ -88,6 +88,7 @@ const std::vector<UnaryInfo> UnarySymbols = {
   {"\u221A", true, false, [](std::complex<double> a) {return std::sqrt(a);}},
   {"exp", true, true, [](std::complex<double> a) {return std::exp(a);}},
   {"\u00B2", false, false,[](std::complex<double> a) {return std::pow(a, 2);}},
+  {"\u22B9", false, false, [](std::complex<double> a) {return std::conj(a);}},
 };
 
 template <unsigned identifier>
@@ -280,6 +281,7 @@ typedef SingleExpr<Expression<EmptyInfo>> ExpressionExpr;
 typedef UnaryCompositeNumber<0> SquareRootExpr;
 typedef UnaryCompositeNumber<1> ExponentialExpr;
 typedef UnaryCompositeNumber<2> SquareExpr;
+typedef UnaryCompositeNumber<3> ConjugateExpr;
 
 typedef BinaryCompositeNumber<0> AddExpr;
 typedef BinaryCompositeNumber<1> SubExpr;
@@ -293,6 +295,7 @@ template <> const std::size_t ExpressionExpr::classId = __COUNTER__;
 template <> const std::size_t SquareRootExpr::classId = __COUNTER__;
 template <> const std::size_t ExponentialExpr::classId = __COUNTER__;
 template <> const std::size_t SquareExpr::classId = __COUNTER__;
+template <> const std::size_t ConjugateExpr::classId = __COUNTER__;
 
 
 template <> const std::size_t AddExpr::classId = __COUNTER__;
