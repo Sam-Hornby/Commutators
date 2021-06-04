@@ -5,6 +5,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 using namespace operators;
+const auto trans = BosonDefaultTransforms<Fock1DInfo>();
 
 BOOST_AUTO_TEST_CASE(Simple) {
   Expression<Fock1DInfo> secondTerm0 = creation_op(0) * creation_op(1);
@@ -13,7 +14,7 @@ BOOST_AUTO_TEST_CASE(Simple) {
   Expression<Fock1DInfo> otherTerm1 = {{{anihilation_op(1)}}};
   Expression<Fock1DInfo> otherTerm2 = creation_op(1) * anihilation_op(1) * anihilation_op(1);
   auto input = secondTerm0 + secondTerm1 + otherTerm0 + otherTerm1 + otherTerm2;
-  auto ans = bogoliubov_transform<Fock1DInfo, BosonSignedGroupingTransform>(input);
+  auto ans = bogoliubov_transform<Fock1DInfo>(input, trans);
 }
 
 
@@ -48,13 +49,14 @@ static void makeup_fixed_order(Expression<T> &A) {
   });
 }
 
+
 BOOST_AUTO_TEST_CASE(NoTransform1) {
   // Term of tpye E(C0!C0 + C1!C1) + Y(C0!C0! + C1C1)
   const auto invalid_cross_terms =
         (anihilation_op(0) * anihilation_op(0)) + (creation_op(1) * creation_op(1));
   auto expr = (constant1 * valid_diagonol_terms) + (constant1 * invalid_cross_terms);
   expr = simplify_numbers(expr);
-  auto ans = bogoliubov_transform<Fock1DInfo, BosonSignedGroupingTransform>(expr);
+  auto ans = bogoliubov_transform<Fock1DInfo>(expr, trans);
   makeup_fixed_order(expr);
   makeup_fixed_order(ans);
   BOOST_CHECK_EQUAL(expr, ans);
@@ -65,7 +67,7 @@ BOOST_AUTO_TEST_CASE(NoTransform2) {
         (anihilation_op(0) * creation_op(1)) + (anihilation_op(1) * creation_op(0));
   auto expr = (constant1 * invalid_diagonol_terms) + (constant1 * valid_cross_terms);
   expr = simplify_numbers(expr);
-  auto ans = bogoliubov_transform<Fock1DInfo, BosonSignedGroupingTransform>(expr);
+  auto ans = bogoliubov_transform<Fock1DInfo>(expr, trans);
   makeup_fixed_order(expr);
   makeup_fixed_order(ans);
   BOOST_CHECK_EQUAL(expr, ans);
