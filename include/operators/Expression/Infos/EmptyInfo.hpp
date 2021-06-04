@@ -1,4 +1,5 @@
 #pragma once
+#include "Fock1D.hpp"
 
 
 namespace operators {
@@ -23,6 +24,8 @@ struct EmptyInfo {
   bool isVacuumState() const {std::abort();}
   bool isHCVacuumState() const {std::abort();}
   bool match(const EmptyInfo & other) const {std::abort();}
+  Type get_type() const {std::abort();}
+  void complex_conjugate() {std::abort();}
 };
 
 }

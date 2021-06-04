@@ -1,4 +1,5 @@
 #pragma once
+#include "Fock1D.hpp"
 
 
 namespace operators {
@@ -23,6 +24,14 @@ struct GenericInfo {
   bool isVacuumState() const {return false;}
   bool isHCVacuumState() const {return false;}
   bool match(const GenericInfo & other) const {return true;}
+  Type get_type() const {std::abort();} // need to create this ?
+  void complex_conjugate() {
+    if (op_name[op_name.size() - 1] == '!') {
+      op_name = op_name.substr(0, op_name.size() - 1);
+    } else {
+      op_name = op_name + "!";
+    }
+  }
 };
 
 }

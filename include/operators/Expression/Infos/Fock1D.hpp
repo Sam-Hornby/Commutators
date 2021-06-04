@@ -1,21 +1,8 @@
 #pragma once
+#include "Fock0D.hpp"
 
 namespace operators {
 
-enum class Type : std::uint8_t{
-  STATE_VECTOR,   // eg |0>
-  HC_STATE_VECTOR,  // eg <0|
-  CREATION_OPERATOR,  // fock space creation operator
-  ANIHILATION_OPERATOR,  // fock space anihilation operator (hc of creation)
-  UNSPECIFIED,  // all other operators
-};
-
-static bool isVectorType(const Type type) {
-  return type == Type::STATE_VECTOR or type == Type::HC_STATE_VECTOR;
-}
-static bool isFockOpType(const Type type) {
-  return type == Type::CREATION_OPERATOR or type == Type::ANIHILATION_OPERATOR;
-}
 
 struct Fock1DInfo {
   short int x_coordinate;
@@ -81,6 +68,12 @@ struct Fock1DInfo {
     }
     return false;
   }
+  Type get_type() const {return type;}
+
+  void complex_conjugate() {
+    this->type = Fock0DInfo::conjugate_type(this->type);
+  }
+
 };
 
 }
