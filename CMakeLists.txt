@@ -11,16 +11,14 @@ elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 endif()
 
 
-
 if(COMPILER_IS_GCC_COMPATIBLE)
   include(CheckCXXCompilerFlag)
-  check_cxx_compiler_flag("-std=c++11" SUPPORTS_CXX11)
+  check_cxx_compiler_flag("-std=c++17" SUPPORTS_CXX17)
   if(SUPPORTS_CXX17)
     message(STATUS "-std=c++17 is supported.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3 -Werror") 
-  elseif(SUPPORTS_CXX14)
-    message(STATUS "-std=c++14 is supported.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O3 -Werror")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3 -Werror")
+  else()
+    message(FATAL_ERROR "Compiler c++17 problems")
   endif()
 endif()
 
