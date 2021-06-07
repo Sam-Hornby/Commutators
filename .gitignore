@@ -2,4 +2,7 @@ build
 googletest
 Testing
 spdlog
+pybind11
 tasklist.yaml
+testing/python/FockModule
+.vscode

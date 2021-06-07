@@ -25,6 +25,7 @@ endif()
 
 include(GNUInstallDirs)
 
+add_subdirectory(pybind11)
 add_subdirectory(spdlog)
 add_subdirectory(lib)
 add_subdirectory(tests)
