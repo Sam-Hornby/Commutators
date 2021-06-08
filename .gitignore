@@ -2,4 +2,8 @@ build
 googletest
 Testing
 spdlog
+pybind11
 tasklist.yaml
+python/FockModule/FockOperators.cpython-36m-x86_64-linux-gnu.so
+*__pycache__
+.vscode

@@ -35,6 +35,13 @@ public:
   std::string name() const;
   Expression(vector_type<vector_type<Operator<OperatorInfo>>> expression) : expression(expression) {};
   Expression() = default;
+
+  // functions needed for python binding
+  Expression<OperatorInfo> __add__(const Expression<OperatorInfo> &other) const;
+  Expression<OperatorInfo> __mul__(const Expression<OperatorInfo> &other) const;
+  Expression<OperatorInfo> __sub__(const Expression<OperatorInfo> &other) const;
+  
+
 };
 
 template <class OperatorInfo>
@@ -165,6 +172,21 @@ bool operator!=(const Expression<OperatorInfo> & A, const Expression<OperatorInf
 template <class OperatorInfo>
 bool operator<(const Expression<OperatorInfo> & A, const Expression<OperatorInfo> & B) {
   return A.expression < B.expression;
+}
+
+template <class Info>
+Expression<Info> Expression<Info>::__add__(const Expression<Info> &other) const {
+  return *this + other;
+}
+
+template <class Info>
+Expression<Info> Expression<Info>::__mul__(const Expression<Info> &other) const {
+  return *this * other;
+}
+
+template <class Info>
+Expression<Info> Expression<Info>::__sub__(const Expression<Info> &other) const {
+  return *this + (number<Info>(-1.0) * other);
 }
 //----------------------------------------------------------------------------------------------------------------------
 
