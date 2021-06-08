@@ -66,23 +66,23 @@ struct SeperatedTerms {
 
 
 template <class InfoA>
-static boost::optional<unsigned> get_grouping(
+static std::optional<unsigned> get_grouping(
          const vector_type<Operator<InfoA>> &term,
          const BogTransformFunctionsBase<InfoA> &transformFunctions) {
-  boost::optional<unsigned> result;
+  std::optional<unsigned> result;
   for (const auto &op : term) {
     if (op.is_number()) {
       continue;
     }
     const auto group = transformFunctions.get_group(op.info());
     if (!group) {
-      return boost::none;
+      return std::nullopt;
     }
     if (!result) {
-      result = group.get();
+      result = *group;
     } else {
-      if (result.get() != group.get()) {
-        return boost::none;
+      if (*result != *group) {
+        return std::nullopt;
       }
     }
   }
@@ -102,7 +102,7 @@ group_terms(const Expression<InfoA> &second_order_terms,
       result.non_transformable_terms.expression.emplace_back(mul_term);
       continue;
     }
-    auto &terms = grouped_terms[grouping.get()];
+    auto &terms = grouped_terms[*grouping];
     terms.expression.emplace_back(mul_term);
   } 
   for (auto &entry : grouped_terms) {
@@ -327,8 +327,8 @@ template <class InfoA>
 static bool can_transform(
       const Expression<InfoA> & input,
       const BogTransformFunctionsBase<InfoA> &transformFunctions) {
-  boost::optional<Expression<InfoA>> E_constant;
-  boost::optional<Expression<InfoA>> Y_constant;
+  std::optional<Expression<InfoA>> E_constant;
+  std::optional<Expression<InfoA>> Y_constant;
   unsigned E_count = 0;
   unsigned Y_count = 0;
   for (const auto &term : input.expression) {
@@ -345,7 +345,7 @@ static bool can_transform(
     }
     auto & old_constant = type == TermType::DIAGONOL_TERM ? E_constant : Y_constant;
     if (old_constant) {
-      if (old_constant.get() != constant) {
+      if (*old_constant != constant) {
         return false;
       }
     } else {
@@ -410,7 +410,7 @@ TransformedBogConstants<InfoA> get_transformed_constants(BogConstants<InfoA> &in
                         convertNumbersToEmptyInfo<InfoA>(std::move(input.Y_constant)));
   auto constants = ExpressionExpr::create(
                         convertNumbersToEmptyInfo<InfoA>(std::move(input.constants)));
-  boost::optional<CompositeNumber> K_constant;
+  std::optional<CompositeNumber> K_constant;
   if (fermions) {
     auto e_constant =
              SquareRootExpr::create(
@@ -431,10 +431,10 @@ TransformedBogConstants<InfoA> get_transformed_constants(BogConstants<InfoA> &in
   // add on any constant terms to K constant
   assert(K_constant);
   if (input.constants.expression == BogConstants<InfoA>::zero_expression.expression) {
-    result.K_constant = {{{Operator<InfoA>(K_constant.get())}}};
+    result.K_constant = {{{Operator<InfoA>(*K_constant)}}};
   } else {
     result.K_constant = {{{Operator<InfoA>(
-        AddExpr::create(constants, K_constant.get()))}}};
+        AddExpr::create(constants, *K_constant))}}};
   }
   return result;
 }
@@ -492,7 +492,7 @@ using OpPairType = std::pair<Operator<Info>, Operator<Info>>;
 template <class Info>
 OpPairType<Info> find_op_pair(
       const vector_type<Operator<Info>> & term) {
-  boost::optional<Operator<Info>> first, second;
+  std::optional<Operator<Info>> first, second;
   for (const auto &op : term) {
     if (op.is_number()) {
       continue;
@@ -504,11 +504,11 @@ OpPairType<Info> find_op_pair(
       first = op;
     }
   }
-  return std::make_pair(first.get(), second.get());
+  return std::make_pair(*first, *second);
 }
 
 template <class Info>
-void maybeInsertInfosAndGroup(std::map<Info, boost::optional<GroupAndIndex>> &result,
+void maybeInsertInfosAndGroup(std::map<Info, std::optional<GroupAndIndex>> &result,
                               const OpPairType<Info> &op_pair) {
   
   const std::array all_terms{op_pair.first.info(),
@@ -528,7 +528,7 @@ void maybeInsertInfosAndGroup(std::map<Info, boost::optional<GroupAndIndex>> &re
     unsigned group = result.size();
     bool index = false;
     for (const auto &term : all_terms) {
-      result.emplace(term, boost::optional<GroupAndIndex>({group, index}));
+      result.emplace(term, std::optional<GroupAndIndex>({group, index}));
       index = index xor true;
     } 
     return;
@@ -541,7 +541,7 @@ void maybeInsertInfosAndGroup(std::map<Info, boost::optional<GroupAndIndex>> &re
     
     // set all to none
     for (const auto &term : all_terms) {
-      result[term] = boost::none; 
+      result[term] = std::nullopt; 
     }
   }
 }
@@ -556,7 +556,7 @@ std::map<Info, GroupAndIndex> create_group_map(
         simplify_numbers(sort<Info>(
               numbers_first(expressions.second_order_terms),
               error_commutator<Info>)); 
-  std::map<Info, boost::optional<GroupAndIndex>> provisionalResult;
+  std::map<Info, std::optional<GroupAndIndex>> provisionalResult;
   for (const auto &term : expressions.second_order_terms.expression) {
     const auto op_pair = find_op_pair(term);
     // find cross terms, ignore non cross terms
@@ -570,7 +570,7 @@ std::map<Info, GroupAndIndex> create_group_map(
     if (item.second) {
       // maybe instead of not inserting should just seperate out all these so they have
       // a unique group each. means won't fail if can't transform but won't try to transform
-      result.emplace(std::move(item.first), std::move(item.second.get()));
+      result.emplace(std::move(item.first), std::move(*(item.second)));
     }
   }
   return result;

@@ -69,12 +69,12 @@ struct SingleExpr : public CompositeNumberBase {
   }
 };
 
-static boost::optional<ComplexNumber>
+static std::optional<ComplexNumber>
 getAsComplexNumber(const CompositeNumber &a) {
   if (const auto * c = getAs<SingleExpr<ComplexNumber>>(a)) {
     return c->item;
   }
-  return boost::none;
+  return std::nullopt;
 }
 
 struct UnaryInfo {
@@ -147,7 +147,7 @@ struct UnaryCompositeNumber : public CompositeNumberBase {
       const auto &uInfo = UnarySymbols[identifier];
       return CompositeNumber(
           std::make_unique<SingleExpr<ComplexNumber>>(
-            ComplexNumber(uInfo.transform(c.get().value))
+            ComplexNumber(uInfo.transform(c->value))
           ));
     };
     return CompositeNumber(
@@ -229,8 +229,8 @@ struct BinaryCompositeNumber : public CompositeNumberBase {
       const auto &bInfo = BinarySymbols[id];
       return CompositeNumber(
           std::make_unique<SingleExpr<ComplexNumber>>(
-            ComplexNumber(bInfo.transform(A.get().value,
-                                          B.get().value))
+            ComplexNumber(bInfo.transform(A->value,
+                                          B->value))
           ));
     };
     return CompositeNumber(
@@ -240,7 +240,7 @@ struct BinaryCompositeNumber : public CompositeNumberBase {
 };
 
 template <class OperatorInfo>
-struct ConversionVisitor : public boost::static_visitor<Operator<EmptyInfo>> {
+struct ConversionVisitor {
   template <class T>
   Operator<EmptyInfo> operator() (T &number) const {
     return Operator<EmptyInfo>(std::move(number));
@@ -252,7 +252,7 @@ struct ConversionVisitor : public boost::static_visitor<Operator<EmptyInfo>> {
 
 template <class OperatorInfo>
 Operator<EmptyInfo> convertTerm(Operator<OperatorInfo> term) {
-  return boost::apply_visitor(ConversionVisitor<OperatorInfo>{}, term.data);
+  return std::visit(ConversionVisitor<OperatorInfo>{}, term.data);
 }
 
 template <class OperatorInfo>

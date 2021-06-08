@@ -23,10 +23,10 @@ template <class Info>
 struct FindGroupsTransformFunctions : public PassOnTransforms<Info> {
   std::map<Info, GroupAndIndex> groupMap;
  
-  boost::optional<std::size_t> get_group(const Info &op) const override {
+  std::optional<std::size_t> get_group(const Info &op) const override {
     const auto it = groupMap.find(op);
     if (it == groupMap.end()) {
-      return boost::none;
+      return std::nullopt;
     }
     return it->second.group;
   }
@@ -94,7 +94,7 @@ struct DefaultBogTransformFunctions : public BogTransformFunctionsBase<Info> {
   Type get_type(const Info &info) const override {
     return default_get_type(info);
   }
-  boost::optional<std::size_t> get_group(const Info &op) const override {
+  std::optional<std::size_t> get_group(const Info &op) const override {
     std::abort();
   }
   unsigned get_index(const Info &op) const override {
@@ -115,7 +115,7 @@ struct DefaultBogTransformFunctions : public BogTransformFunctionsBase<Info> {
 // For testing only 
 template <OperatorType op_type_test>
 struct GenericInfoBogTransform : public DefaultBogTransformFunctions<GenericInfo> {
-  boost::optional<std::size_t> get_group(const GenericInfo &op) const override {
+  std::optional<std::size_t> get_group(const GenericInfo &op) const override {
     unsigned id = std::stoul(op.name().substr(1, 1));
     assert(id != 0); // indexing starts at 1
     id = id - 1;

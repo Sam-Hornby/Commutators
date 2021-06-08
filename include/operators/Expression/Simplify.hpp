@@ -108,8 +108,8 @@ struct ComparisonStruct {
     for (unsigned i = 0; i < num_operators(); ++i) {
       const auto & op_A = full.at(first_A + i);
       const auto & op_B = other.full.at(first_B + i);
-      if (op_A.data.which() != op_B.data.which()) {
-        return op_A.data.which() < op_B.data.which();
+      if (op_A.data.index() != op_B.data.index()) {
+        return op_A.data.index() < op_B.data.index();
       }
       if (op_A.is_number()) {
         // assuming no evaluated numbers here

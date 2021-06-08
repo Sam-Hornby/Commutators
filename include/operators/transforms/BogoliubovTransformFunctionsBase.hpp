@@ -21,7 +21,7 @@ struct BogTransformFunctionsBase {
   virtual OperatorType get_op_type() const { return op_type; }
   virtual unsigned get_order(const Operator<Info> &) const = 0;
   virtual Type get_type(const Info&) const = 0;
-  virtual boost::optional<std::size_t> get_group(const Info&) const = 0;
+  virtual std::optional<std::size_t> get_group(const Info&) const = 0;
   virtual unsigned get_index(const Info&) const = 0;
   virtual OperatorPairs<Info> transform_ops(OperatorPairs<Info> input) const = 0;
   BogTransformFunctionsBase(OperatorType op_type) : op_type(op_type) {}
@@ -36,7 +36,7 @@ struct PassOnTransforms : public BogTransformFunctionsBase<Info> {
   unsigned get_order(const Operator<Info> &t) const override {
     return orig.get_order(t);}
   Type get_type(const Info &t) const override {return orig.get_type(t);}
-  boost::optional<std::size_t> get_group(const Info& t) const override {
+  std::optional<std::size_t> get_group(const Info& t) const override {
     return orig.get_group(t);
   }
   OperatorPairs<Info> transform_ops(OperatorPairs<Info> input) const override {

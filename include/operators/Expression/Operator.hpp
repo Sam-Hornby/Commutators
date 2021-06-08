@@ -1,7 +1,7 @@
 #pragma once
 
-#include <boost/optional.hpp>
-#include <boost/variant.hpp>
+#include <optional>
+#include <variant>
 #include <string>
 #include "struct_ids.hpp"
 #include <Numbers/ImaginaryNumber.hpp>
@@ -15,7 +15,7 @@ namespace operators {
 namespace {
 
 template <class OperatorInfo>
-struct IsNumberVisitor : public boost::static_visitor<bool>{
+struct IsNumberVisitor {
   bool operator() (const ComplexNumber &) const {return true;}
   bool operator() (const OperatorInfo &) const {return false;}
   bool operator() (const NamedNumber &) const {return true;}
@@ -23,7 +23,7 @@ struct IsNumberVisitor : public boost::static_visitor<bool>{
 };
 
 template <class OperatorInfo>
-struct hasValueVisitor : public boost::static_visitor<bool>{
+struct hasValueVisitor {
   bool operator() (const ComplexNumber &) const {return true;}
   bool operator() (const OperatorInfo &) const {return false;}
   bool operator() (const NamedNumber &) const {return false;}
@@ -31,13 +31,13 @@ struct hasValueVisitor : public boost::static_visitor<bool>{
 };
 
 template <class OperatorInfo>
-struct NameVisitor : public boost::static_visitor<std::string>{
+struct NameVisitor {
   template <typename T>
   std::string operator() (const T &a) const {return a.name();}
 };
 
 template <class OperatorInfo>
-struct InfoVisitor : public boost::static_visitor<OperatorInfo &>{
+struct InfoVisitor {
   template <typename T>
   OperatorInfo & operator() (const T &) const {
     throw std::logic_error("Trying to access info on number");
@@ -46,7 +46,7 @@ struct InfoVisitor : public boost::static_visitor<OperatorInfo &>{
 };
 
 template <class OperatorInfo>
-struct ConstInfoVisitor : public boost::static_visitor<const OperatorInfo &>{
+struct ConstInfoVisitor {
   template <typename T>
   const OperatorInfo & operator() (const T&) const {
     throw std::logic_error("Trying to access info on number");
@@ -54,7 +54,7 @@ struct ConstInfoVisitor : public boost::static_visitor<const OperatorInfo &>{
   const OperatorInfo & operator() (const OperatorInfo &info) const {return info;}
 };
 
-struct NumberVisitor : public boost::static_visitor<ComplexNumber>{
+struct NumberVisitor {
   template <typename T>
   ComplexNumber operator() (const T&) const {
     throw std::logic_error("Trying to access value on operator");
@@ -62,7 +62,7 @@ struct NumberVisitor : public boost::static_visitor<ComplexNumber>{
   ComplexNumber operator() (const ComplexNumber &value) const {return value;}
 };
 
-struct NamedNumberVisitor : public boost::static_visitor<NamedNumber>{
+struct NamedNumberVisitor {
   template <typename T>
   NamedNumber operator() (const T&) const {
     throw std::logic_error("Trying to access value on operator");
@@ -78,7 +78,7 @@ struct isAVisitor {
 };
 
 template <class T>
-struct getAsVisitor : boost::static_visitor<T &> {
+struct getAsVisitor {
   T & operator() (T &t) const {
     return t;
   }
@@ -94,7 +94,7 @@ struct Operator {
   ordering_value order;  // when sorting this determines greater than or equal to
   //OperatorInfo info;     // should be unique for each operator TODO make const
   // if this is set operator is a number, comutators are automatically assumed zero, op_id is irelevant
-  boost::variant<ComplexNumber, OperatorInfo, NamedNumber, CompositeNumber> data;
+  std::variant<ComplexNumber, OperatorInfo, NamedNumber, CompositeNumber> data;
 
   Operator() = default;
   Operator(ordering_value order, OperatorInfo info) :
@@ -108,39 +108,39 @@ struct Operator {
 
 
   std::string name() const {
-    return boost::apply_visitor(NameVisitor<OperatorInfo>{}, data);
+    return std::visit(NameVisitor<OperatorInfo>{}, data);
   }
 
   bool is_number() const {
-    return boost::apply_visitor(IsNumberVisitor<OperatorInfo>{}, data);
+    return std::visit(IsNumberVisitor<OperatorInfo>{}, data);
   }
 
   bool is_evaluated_number() const {
-    return boost::apply_visitor(hasValueVisitor<OperatorInfo>{}, data);
+    return std::visit(hasValueVisitor<OperatorInfo>{}, data);
   }
 
   bool is_composite_number() const {
-    return boost::apply_visitor(isAVisitor<CompositeNumber>(), data);
+    return std::visit(isAVisitor<CompositeNumber>(), data);
   }
 
   CompositeNumber & composite_number() {
-    return boost::apply_visitor(getAsVisitor<CompositeNumber>(), data);
+    return std::visit(getAsVisitor<CompositeNumber>(), data);
   }
 
   ComplexNumber value() const {
-    return boost::apply_visitor(NumberVisitor{}, data);
+    return std::visit(NumberVisitor{}, data);
   }
 
   OperatorInfo & info() {
-    return boost::apply_visitor(InfoVisitor<OperatorInfo>{}, data);
+    return std::visit(InfoVisitor<OperatorInfo>{}, data);
   }
 
   const OperatorInfo & info() const {
-    return boost::apply_visitor(ConstInfoVisitor<OperatorInfo>{}, data);
+    return std::visit(ConstInfoVisitor<OperatorInfo>{}, data);
   }
 
   NamedNumber named_number() const {
-    return boost::apply_visitor(NamedNumberVisitor{}, data);
+    return std::visit(NamedNumberVisitor{}, data);
   }
 
   bool operator<(Operator other) const {

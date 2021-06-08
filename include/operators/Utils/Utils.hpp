@@ -66,7 +66,7 @@ struct ConjugateVisitor {
 
 template <class OperatorInfo>
 Operator<OperatorInfo> hermition_conjugate(Operator<OperatorInfo> op) {
-  boost::apply_visitor(ConjugateVisitor<OperatorInfo>{}, op.data);
+  std::visit(ConjugateVisitor<OperatorInfo>{}, op.data);
   return op;
 }
 
