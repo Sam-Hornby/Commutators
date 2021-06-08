@@ -112,17 +112,6 @@ struct DefaultBogTransformFunctions : public BogTransformFunctionsBase<Info> {
   }
 };
 
-template <class Info>
-auto FermionDefaultTransforms() {
-  return DefaultBogTransformFunctions<Info>(OperatorType::FERMION);
-}
-template <class Info>
-auto BosonDefaultTransforms() {
-  return DefaultBogTransformFunctions<Info>(OperatorType::BOSON);
-}
-
-
-
 // For testing only 
 template <OperatorType op_type_test>
 struct GenericInfoBogTransform : public DefaultBogTransformFunctions<GenericInfo> {
