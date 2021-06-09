@@ -3,7 +3,7 @@
 #include <Expression/Operator.hpp>
 #include <Expression/Infos/Fock1D.hpp>
 #include <Expression/Expression.hpp>
-
+#include <Utils/Utils.hpp>
 
 namespace py = pybind11;
 
@@ -50,6 +50,14 @@ Expression<Fock1DInfo> create_state_vector(short int x, short int state, Type ty
   return {{{Operator<Fock1DInfo>(order, Fock1DInfo(x, state, type, 'v'))}}};
 }
 
+Expression<Fock1DInfo> create_vacuum_state() {
+  return create_state_vector(0, 0, Type::STATE_VECTOR);
+}
+
+Expression<Fock1DInfo> conjugate(const Expression<Fock1DInfo> &in) {
+  return hermition_conjugate(in);
+}
+
 PYBIND11_MODULE(FockOperators, handle) {
 
   py::enum_<Type>(handle, "FockType")
@@ -72,6 +80,8 @@ PYBIND11_MODULE(FockOperators, handle) {
   handle.def("named_number", &named_number_<Fock1DInfo>);
   handle.def("fock_op", &create_fock_op);
   handle.def("state_vector", &create_state_vector);
+  handle.def("vacuum_state", &create_vacuum_state);
+  handle.def("hermitian_conjugate", &conjugate);
 
   // Think maybe should use factories instead of constructors to help create numbers
 

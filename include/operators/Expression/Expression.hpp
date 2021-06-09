@@ -40,7 +40,6 @@ public:
   Expression<OperatorInfo> __add__(const Expression<OperatorInfo> &other) const;
   Expression<OperatorInfo> __mul__(const Expression<OperatorInfo> &other) const;
   Expression<OperatorInfo> __sub__(const Expression<OperatorInfo> &other) const;
-  
 
 };
 

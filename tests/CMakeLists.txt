@@ -17,7 +17,7 @@ link_directories(${operators_SOURCE_DIR}/lib/operators)
 
 function(add_operators_test name)
   add_executable(${name} ${name}.cpp)
-  add_test(NAME ${name}
+  add_test(NAME ${name}_cpp
            COMMAND ${name}
            WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
 
@@ -39,7 +39,7 @@ add_operators_test(TransformTests)
 
 
 add_operators_test(LoggingTest)
-SET_TESTS_PROPERTIES(LoggingTest
+SET_TESTS_PROPERTIES(LoggingTest_cpp
     PROPERTIES ENVIRONMENT "OPERATORS_LOG_LEVEL=TRACE")
 
 add_operators_test(BogoliubovTests)

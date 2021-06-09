@@ -18,4 +18,11 @@ def test_constructing():
 
   assert str(e - d) == "(<2,0|) + (-1.000000 * c_2!)"
 
+  v = FockOperators.vacuum_state()
+  assert str(v) == "|0>"
+  assert str(FockOperators.hermitian_conjugate(v)) == "<0|"
+  assert str(FockOperators.hermitian_conjugate(d)) == "c_2"
+  assert str(FockOperators.hermitian_conjugate(
+               FockOperators.hermitian_conjugate(d))) == str(d)
+
   
