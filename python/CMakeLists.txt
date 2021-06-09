@@ -6,3 +6,5 @@ endfunction()
 
 add_python_operators_test(BasicTest)
 
+add_python_operators_test(EvaluateTest)
+

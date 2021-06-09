@@ -24,6 +24,12 @@ void set_to_one(typename vector_type<Operator<OperatorInfo>>::iterator it, const
   }
 }
 
+template <class Info>
+void assertInRange(typename vector_type<Operator<Info>>::iterator start,
+                   vector_type<Operator<Info>> & exp) {
+  assert(start >= exp.begin());
+  assert(start < exp.end());
+}
 
 // if every state in the expression is orthognal (and you are not generating any new ones) can zero all inner products
 // between different states and set to one inner product of identical states. Assumes that the value of the operator
@@ -32,6 +38,7 @@ template <class OperatorInfo>
 bool all_states_orthognal(typename vector_type<Operator<OperatorInfo>>::iterator start,
                           vector_type<Operator<OperatorInfo>> & exp) {
   assert(start != exp.end());
+  assertInRange<OperatorInfo>(start, exp);
   if (is_hc_state_vector(*start)) {
     const auto & info = start->info();
     if ((start + 1) != exp.end() and is_state_vector(*(start + 1))) {
@@ -52,9 +59,11 @@ bool all_states_orthognal(typename vector_type<Operator<OperatorInfo>>::iterator
 template <class OperatorInfo>
 bool anihilate_vacuum(typename vector_type<Operator<OperatorInfo>>::iterator start,
                       vector_type<Operator<OperatorInfo>> & exp) {
+  assertInRange<OperatorInfo>(start, exp);
   if (start + 1 == exp.end()) {
     return false;
   }
+  assertInRange<OperatorInfo>(start + 1, exp);
   if (start->is_number() or (start + 1)->is_number()) {
     return false;
   }
@@ -77,9 +86,11 @@ template <class OperatorInfo>
 bool fermion_dual_occupation(typename vector_type<Operator<OperatorInfo>>::iterator start,
                              vector_type<Operator<OperatorInfo>> & exp) {
   // for fermions a * a = 0 and a! * a! = 0 (from fact anti comutator is zero)
+  assertInRange<OperatorInfo>(start, exp);
   if (start + 1 == exp.end()) {
     return false;
   }
+  assertInRange<OperatorInfo>(start + 1, exp);
   if (start->is_number() or (start + 1)->is_number()) {
     return false;
   }
@@ -91,6 +102,24 @@ bool fermion_dual_occupation(typename vector_type<Operator<OperatorInfo>>::itera
     return true;
   }
   return false;
+}
+
+template <class Info>
+using SubstIt = typename vector_type<Operator<Info>>::iterator;
+template <class Info>
+using SubstVec = vector_type<Operator<Info>>&;
+
+template <class Info>
+bool default_boson_subs(SubstIt<Info> start, SubstVec<Info> exp) {
+  return anihilate_vacuum<Fock1DInfo>(start, exp) or
+         all_states_orthognal<Fock1DInfo>(start, exp);
+}
+
+template <class Info>
+bool default_fermion_subs(SubstIt<Info> start, SubstVec<Info> exp) {
+  return anihilate_vacuum<Fock1DInfo>(start, exp) or
+         all_states_orthognal<Fock1DInfo>(start, exp) or
+         fermion_dual_occupation<Fock1DInfo>(start, exp);
 }
 
 } // end name space

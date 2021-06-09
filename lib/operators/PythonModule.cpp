@@ -4,12 +4,20 @@
 #include <Expression/Infos/Fock1D.hpp>
 #include <Expression/Expression.hpp>
 #include <Utils/Utils.hpp>
+#include <Comutators/BosonComutators.hpp>
+#include <Expression/Evaluate.hpp>
+#include <Substitutions/Substitutions.hpp>
+#include <Expression/Ordering.hpp>
+
 
 namespace py = pybind11;
 
 namespace operators {
 
 namespace {
+
+using PyType = Expression<Fock1DInfo>;
+
 
 char get_as_char(std::string n) {
   if (n.size() != 1) {
@@ -54,8 +62,22 @@ Expression<Fock1DInfo> create_vacuum_state() {
   return create_state_vector(0, 0, Type::STATE_VECTOR);
 }
 
-Expression<Fock1DInfo> conjugate(const Expression<Fock1DInfo> &in) {
+Expression<Fock1DInfo> conjugate(Expression<Fock1DInfo> in) {
   return hermition_conjugate(in);
+}
+
+
+
+PyType normal_order_exp(PyType in, bool fermions) {
+  auto sort_using = fermions ? SortUsing::ANTICOMMUTATORS :
+                               SortUsing::COMMUTATORS;
+  auto res = normal_order(in);
+  if (fermions) {
+    return evaluate<Fock1DInfo>(res, boson_commutator<Fock1DInfo>,
+                               default_fermion_subs<Fock1DInfo>, sort_using);
+  }
+  return evaluate<Fock1DInfo>(res, boson_commutator<Fock1DInfo>,
+                               default_boson_subs<Fock1DInfo>, sort_using);
 }
 
 PYBIND11_MODULE(FockOperators, handle) {
@@ -82,6 +104,7 @@ PYBIND11_MODULE(FockOperators, handle) {
   handle.def("state_vector", &create_state_vector);
   handle.def("vacuum_state", &create_vacuum_state);
   handle.def("hermitian_conjugate", &conjugate);
+  handle.def("normal_order", &normal_order_exp);
 
   // Think maybe should use factories instead of constructors to help create numbers
 

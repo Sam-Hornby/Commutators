@@ -27,10 +27,13 @@ static void add_terms_from_comutator(vector_type<vector_type<Operator<OperatorIn
                                         [&](const Operator<OperatorInfo> &op) {
           return op.is_evaluated_number() and op.value() == ComplexNumber(1.0);
         });
+    assert(sorted_terms[term_index].size() > 1); // Shouldn;t be commuting single  term
+    const bool no_other_terms = sorted_terms[term_index].size() == 2U;
+
     // as commuter has value means new addition term must be added
     sorted_terms.push_back(vector_type<Operator<OperatorInfo>>());
     auto & new_term = sorted_terms.back();
-    if (all_numbers and (not all_one)) {
+    if (all_numbers and (no_other_terms or (not all_one))) {
       // numbers commute so send straight to the front. if they are one don't bother
       new_term.insert(new_term.end(), mul_term.begin(), mul_term.end());
     }
@@ -43,6 +46,7 @@ static void add_terms_from_comutator(vector_type<vector_type<Operator<OperatorIn
     }
     // insert all terms after the 2 non commuting terms
     new_term.insert(new_term.end(), sorted_terms[term_index].begin() + i + 2, sorted_terms[term_index].end());
+
   }
 }
 

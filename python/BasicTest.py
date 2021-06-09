@@ -9,7 +9,7 @@ def test_constructing():
 
   assert float(str(FockOperators.number(7))) == 7
   assert str(FockOperators.named_number("z") == "z")
-  d = FockOperators.fock_op(2, creation, "c");
+  d = FockOperators.fock_op(2, creation, "c")
   e = FockOperators.state_vector(2, 0, hc_vector)
 
   f = e + d
@@ -25,4 +25,5 @@ def test_constructing():
   assert str(FockOperators.hermitian_conjugate(
                FockOperators.hermitian_conjugate(d))) == str(d)
 
-  
+if __name__ == "__main__":
+  test_constructing()
