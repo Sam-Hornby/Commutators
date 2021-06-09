@@ -31,12 +31,6 @@ struct hasValueVisitor {
 };
 
 template <class OperatorInfo>
-struct NameVisitor {
-  template <typename T>
-  std::string operator() (const T &a) const {return a.name();}
-};
-
-template <class OperatorInfo>
 struct InfoVisitor {
   template <typename T>
   OperatorInfo & operator() (const T &) const {
@@ -108,7 +102,7 @@ struct Operator {
 
 
   std::string name() const {
-    return std::visit(NameVisitor<OperatorInfo>{}, data);
+    return std::visit([&] (const auto &d) {return d.name();}, data);
   }
 
   bool is_number() const {
