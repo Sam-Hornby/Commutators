@@ -269,7 +269,7 @@ static OperatorPairs<InfoA> get_bog_operators(const Expression<InfoA> &exp,
       }
     }
   }
-  assert(std::all_of(already_found.begin(), already_found.end(), [] (bool a) {return a}));
+  assert(std::all_of(already_found.begin(), already_found.end(), [] (bool a) {return a;}));
   return result;
 }
 
