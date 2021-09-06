@@ -7,35 +7,30 @@ namespace operators {
 // perform substitutions zone
 //----------------------------------------------------------------------------------------------------------------------
 
-template <class OperatorInfo>
+template <class OperatorInfo, typename F>
 static bool bubble_subs(vector_type<Operator<OperatorInfo>> &exp,
-                       std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
-                                          vector_type<Operator<OperatorInfo>> &)> subst) {
+                        F subst) {
   bool madeSub = false;
   for (auto it = exp.begin(); it != exp.end(); ++it) {
-    if (subst(it, exp)) {
-      madeSub = true;
-    }
+    madeSub |= subst(it, exp);
   }
   return madeSub;
 }
 
-template <class OperatorInfo>
+template <class OperatorInfo, typename F>
 static vector_type<Operator<OperatorInfo>>
-perform_mul_subs(const vector_type<Operator<OperatorInfo>> & term,
-              std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
-                                 vector_type<Operator<OperatorInfo>> &)> subst) {
+perform_mul_subs(vector_type<Operator<OperatorInfo>> & term,
+                 F subst) {
   spdlog::trace("perform_mul_subs begin");
-  vector_type<Operator<OperatorInfo>> exp = term;
+  vector_type<Operator<OperatorInfo>> exp = std::move(term);
   while(bubble_subs(exp, subst));
   spdlog::trace("perform_mul_subs end");
   return exp;
 }
 
-template <class OperatorInfo>
-Expression<OperatorInfo> perform_multiplication_substitutions(const Expression<OperatorInfo> &expr,
-                  std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
-                                     vector_type<Operator<OperatorInfo>> &)> subst) {
+template <class OperatorInfo, typename F>
+Expression<OperatorInfo> perform_multiplication_substitutions(Expression<OperatorInfo> expr,
+                                                              F subst) {
   spdlog::debug("performMultiplicationSubstitutions begin");
   Expression<OperatorInfo> final_exp(vector_type<vector_type<Operator<OperatorInfo>>>(expr.expression.size()));
   for (unsigned i = 0; i < expr.expression.size(); ++i) {

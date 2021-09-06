@@ -19,9 +19,7 @@ namespace operators {
 // after the substitution phase call simplify numbers to remove them
 template <class OperatorInfo>
 void set_to_one(typename vector_type<Operator<OperatorInfo>>::iterator it, const std::size_t n) {
-  for (std::size_t i = 0; i < n; ++i) {
-    *(it + i) = Operator<OperatorInfo>(1.0);
-  }
+  std::fill(it, it + n, Operator<OperatorInfo>(1.0));
 }
 
 template <class Info>
@@ -47,7 +45,6 @@ bool all_states_orthognal(typename vector_type<Operator<OperatorInfo>>::iterator
         set_to_one<OperatorInfo>(start + 1, 1);
       } else {
         *start = Operator<OperatorInfo>(0);
-        set_to_one<OperatorInfo>(start + 1, 1);
       }
       return true;
     }
@@ -71,7 +68,6 @@ bool anihilate_vacuum(typename vector_type<Operator<OperatorInfo>>::iterator sta
   bool anihilate_st = is_anihilation_op(*start) and (start + 1)->info().isVacuumState();
   if (anihilate_hc or anihilate_st) {
     *start = Operator<OperatorInfo>(0);
-    set_to_one<OperatorInfo>(start + 1, 1);
     return true;
   }
   return false;
@@ -98,7 +94,6 @@ bool fermion_dual_occupation(typename vector_type<Operator<OperatorInfo>>::itera
   bool cre = is_creation_op<OperatorInfo>(*start) and is_creation_op<OperatorInfo>(*(start + 1));
   if ((ani or cre) and start->info().match((start + 1)->info())) {
     *start = Operator<OperatorInfo>(0);
-    set_to_one<OperatorInfo>(start + 1, 1);
     return true;
   }
   return false;

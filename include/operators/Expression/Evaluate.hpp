@@ -11,12 +11,11 @@ namespace operators {
 //----------------------------------------------------------------------------------------------------------------------
 // all at once zone
 //----------------------------------------------------------------------------------------------------------------------
-template <class OperatorInfo>
+template <class OperatorInfo, typename SubstitutionCallable>
 static Expression<OperatorInfo>
 interleaved_sort_sub_simple(Expression<OperatorInfo> exp,
       std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
-      std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
-                         vector_type<Operator<OperatorInfo>> &)> subst,
+      SubstitutionCallable subst,
       const SortUsing s) {
 
   // the thinking behind this approach is the bubble pass will ensure that the
@@ -43,19 +42,18 @@ interleaved_sort_sub_simple(Expression<OperatorInfo> exp,
       madeChanges |= bubble_pass(i, exp.expression, commute, s);
     }
     spdlog::info("Size of expression {}", exp.expression.size());
-    exp = perform_multiplication_substitutions<OperatorInfo>(exp, subst);
+    exp = perform_multiplication_substitutions<OperatorInfo, SubstitutionCallable>(std::move(exp), subst);
     exp = simplify_multiplications(exp);
     spdlog::info("Size of expression {}", exp.expression.size());
   }
   return exp;
 }
 
-template <class OperatorInfo>
+template <class OperatorInfo, typename SubstitutionCallable>
 Expression<OperatorInfo> interleaved_evaluate(
       const Expression<OperatorInfo> &expr,
       std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
-      std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
-                         vector_type<Operator<OperatorInfo>> &)> subst,
+      SubstitutionCallable subst,
       const SortUsing s = SortUsing::COMMUTATORS)  {
 
    return interleaved_sort_sub_simple(expr, commute, subst, s);
@@ -69,12 +67,11 @@ static void log_expression(const Expression<OperatorInfo> & exp, const std::stri
   spdlog::info("After step {}: {}", prefix, exp.print(false));
 }
 
-template <class OperatorInfo>
+template <class OperatorInfo, typename SubstitutionCallable>
 Expression<OperatorInfo>
 evaluate(const Expression<OperatorInfo> &input,
         std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
-        std::function<bool(typename vector_type<Operator<OperatorInfo>>::iterator,
-                           vector_type<Operator<OperatorInfo>> &)> subst,
+        SubstitutionCallable subst,
         const SortUsing s = SortUsing::COMMUTATORS) {
   // simplify numbers is much faster than the other functions and can make the the other functions run faster so call
   // it frequently
