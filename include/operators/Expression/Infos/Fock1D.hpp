@@ -4,6 +4,29 @@
 namespace operators {
 
 
+/*
+N = a!a
+
+bosons:
+Na! = a! * a * a! = a! (a a!) + a!(a! a - a!a)
+                  = a! (a! a + a a! - a!a)
+                  = a!N + a!(a a! - a!a)
+                  = a!N + a![a, a!]
+
+[N,a!] = [a, a!]
+
+General:
+{A, B} = AB + BA
+AB = -BA + {A, B} 
+
+Fermions:
+Na! = a!(a a!) = a!(-a! a + {a, a!})
+               = -a! N + a!
+
+number op has same {anti}-comutator relations as fock ops
+
+*/
+
 struct Fock1DInfo {
   short int x_coordinate;
   short int state = 0;   // This field is only used for state not creation/anihilation ops
@@ -16,6 +39,8 @@ struct Fock1DInfo {
   Fock1DInfo(int x_coordinate, int state, Type type) : x_coordinate(x_coordinate), state(state), type(type) {}
   Fock1DInfo(int x_coordinate, int state, Type type, char symbol) :
       x_coordinate(x_coordinate), state(state), type(type), symbol(symbol) {}
+  Fock1DInfo(int x_coordinate, char symbol, Type type) :
+      Fock1DInfo(x_coordinate, 0, type, symbol) {}
   Fock1DInfo() = default;
 
   std::string name() const {

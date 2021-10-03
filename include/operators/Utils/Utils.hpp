@@ -15,9 +15,10 @@ inline Operator<OperatorInfo> vacuum_state() {
   return Operator<OperatorInfo>(ordering_value(0), OperatorInfo::vacuumState());
 }
 
-inline Operator<Fock1DInfo> creation_op(const int info_value) {
+inline Operator<Fock1DInfo> creation_op(const int info_value,
+                                        const char sym = 'a') {
   return Operator<Fock1DInfo>(ordering_value(0),
-                  Fock1DInfo(info_value, Type::CREATION_OPERATOR));
+                  Fock1DInfo(info_value, 0, Type::CREATION_OPERATOR, sym));
 }
 
 inline Operator<Fock1DInfo> anihilation_op(const int info_value) {
@@ -25,24 +26,40 @@ inline Operator<Fock1DInfo> anihilation_op(const int info_value) {
                   Fock1DInfo(info_value, Type::ANIHILATION_OPERATOR));
 }
 
-inline Expression<Fock1DInfo> normalised_n_occupied_state(unsigned n, unsigned creation_op_index) {
-  Expression<Fock1DInfo> exp;
-  exp.expression.push_back({vacuum_state<Fock1DInfo>()});
+template <class Info>
+Expression<Info> normalised_n_occupied_state(unsigned n, int creation_op_index) {
+  Expression<Info> exp;
+  exp.expression.push_back({vacuum_state<Info>()});
   double normalisation_factor = 1.0 / std::sqrt(tgamma(static_cast<double>(n + 1)));
   for (unsigned i = 0; i < n; ++i) {
     exp = creation_op(creation_op_index) * exp;
   }
-  return number<Fock1DInfo>(normalisation_factor) * exp;
+  return number<Info>(normalisation_factor) * exp;
 }
 
-inline Expression<Fock1DInfo> normalised_n_occupied_ops(unsigned n, unsigned creation_op_index) {
-  Expression<Fock1DInfo> exp;
-  exp.expression.push_back({number<Fock1DInfo>(1.0)});
+/*template <class Info>
+Expression<Info> normalised_n_occupied_ops(unsigned n, int creation_op_index,
+                                           const char sym = 'a') {
+  Expression<Info> exp;
+  exp.expression.push_back({number<Info>(1.0)});
   double normalisation_factor = 1.0 / std::sqrt(tgamma(static_cast<double>(n + 1)));
   for (unsigned i = 0; i < n; ++i) {
-    exp = creation_op(creation_op_index) * exp;
+    exp = creation_op(creation_op_index, sym) * exp;
   }
-  return number<Fock1DInfo>(normalisation_factor) * exp;
+  return number<Info>(normalisation_factor) * exp;
+}*/
+
+template <class Info, class... Args>
+Expression<Info> normalised_n_occupied_ops(unsigned n, Args... args) {
+  Info info(args..., Type::CREATION_OPERATOR);
+  Operator<Info> op(ordering_value(0), info);
+  Expression<Info> exp;
+  exp.expression.push_back({number<Info>(1.0)});
+  double normalisation_factor = 1.0 / std::sqrt(tgamma(static_cast<double>(n + 1)));
+  for (unsigned i = 0; i < n; ++i) {
+    exp = op * exp;
+  }
+  return number<Info>(normalisation_factor) * exp;
 }
 namespace {
 

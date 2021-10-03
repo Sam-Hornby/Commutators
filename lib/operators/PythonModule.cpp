@@ -50,6 +50,10 @@ Expression<Fock1DInfo> create_fock_op(short int x_coordinate,
                                          get_as_char(symbol)))}}};
 }
 
+PyType create_normalised_ops(unsigned n, short int x, std::string sym) {
+  return normalised_n_occupied_ops<Fock1DInfo>(n, x, get_as_char(sym));
+}
+
 Expression<Fock1DInfo> create_state_vector(short int x, short int state, Type type) {
   if (not isVectorType(type)) {
     throw std::logic_error("Can only use vector types for this create function");
@@ -101,6 +105,7 @@ PYBIND11_MODULE(FockOperators, handle) {
   handle.def("number", &number_<Fock1DInfo>);
   handle.def("named_number", &named_number_<Fock1DInfo>);
   handle.def("fock_op", &create_fock_op);
+  handle.def("n_normalised_fock_ops", &create_normalised_ops);
   handle.def("state_vector", &create_state_vector);
   handle.def("vacuum_state", &create_vacuum_state);
   handle.def("hermitian_conjugate", &conjugate);
