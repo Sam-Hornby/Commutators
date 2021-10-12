@@ -19,5 +19,5 @@ mkdir build
 cd build
 cmake .. -GNinja
 ninja
-ctest tests
+ctest tests -j2
 ```
