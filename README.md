@@ -12,7 +12,7 @@ Has dependencies [boost, spdlog, pybind11, pytest]
 ```
 virtualenv -p python3 operators_venv
 source operators_venv/bin/activate
-pip install pytest
+pip install pytest wheel setuptools
 git clone --recurse-submodules https://github.com/Sam-Hornby/Commutators.git
 cd Commutators
 mkdir build
