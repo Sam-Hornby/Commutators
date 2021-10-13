@@ -24,6 +24,7 @@ function(add_operators_test name)
 endfunction()
 
 add_subdirectory(Examples)
+add_subdirectory(python)
 
 add_operators_test(PrintTests)
 

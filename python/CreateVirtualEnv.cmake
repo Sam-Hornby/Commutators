@@ -110,7 +110,8 @@ function(CreateVirtualEnv TARGET)
     endif ()
 
     if (ARG_OUT_PYTHON_EXE)
-        set(${ARG_OUT_PYTHON_EXE} ${PYTHON} PARENT_SCOPE)
+        #set(${ARG_OUT_PYTHON_EXE} ${PYTHON} PARENT_SCOPE)
+        SET(${ARG_OUT_PYTHON_EXE} ${PYTHON} CACHE INTERNAL "v_python")
     endif ()
 
     if (ARG_OUT_BINARY_DIR)
