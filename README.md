@@ -3,16 +3,15 @@ C++ lib for commuting operators and some python bindings
 
 # Installation
 
-Has dependencies [boost, spdlog, pybind11, pytest]
+Has dependencies [boost, spdlog, pybind11, virtualenv]
  - for boost `apt install libboost-all-dev` should be enough
  - for spdlog and pybind I've added them as submodules so shouldn't
    have to do anything to get them
- - for pytest pip install. I suggest a virtualenv as good practice
+ - for testing python api I manually create a virtualenv and run
+   the tests inside this environment. warning gets deleted and rebuild
+   when running ninja.
 
 ```
-virtualenv -p python3 operators_venv
-source operators_venv/bin/activate
-pip install pytest wheel setuptools
 git clone --recurse-submodules https://github.com/Sam-Hornby/Commutators.git
 cd Commutators
 mkdir build
