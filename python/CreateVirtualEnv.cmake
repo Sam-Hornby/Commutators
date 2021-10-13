@@ -72,7 +72,8 @@ function(CreateVirtualEnv TARGET)
         set(PYTHON ${BIN_DIR}/python)
     endif ()
 
-    set(INSTALL_CMD ${BIN_DIR}/pip install --disable-pip-version-check -U --force-reinstall)
+    #set(INSTALL_CMD ${BIN_DIR}/pip install --disable-pip-version-check -U --force-reinstall)
+    set(INSTALL_CMD ${BIN_DIR}/pip install)
 
     if (ARG_REQUIREMENTS_TXT)
         set(REQUIREMENTS -r ${ARG_REQUIREMENTS_TXT})
@@ -81,7 +82,6 @@ function(CreateVirtualEnv TARGET)
     set(REQUIREMENTS ${REQUIREMENTS} "${ARG_REQUIREMENTS}")
 
     if (REQUIREMENTS)
-        #set(INSTALL_CMD ${BIN_DIR}/pip install --disable-pip-version-check)
         set(INSTALL_CMD ${INSTALL_CMD} ${REQUIREMENTS})
     else()
         set(INSTALL_CMD "")
@@ -95,17 +95,11 @@ function(CreateVirtualEnv TARGET)
     add_custom_command(OUTPUT ${CFG_FILE}
                        COMMAND virtualenv -p python3 ${VENV}
                        DEPENDS rm_target ${ARG_EXTRA_DEPENDS})
-    #add_custom_command(
-    #        OUTPUT ${CFG_FILE}
-    #        COMMAND python3 -m venv ${VENV}
-    #)
-            #COMMAND ${Python3_EXECUTABLE} -m venv ${VENV}
-    #)
+
     set(OUTPUT_FILE ${VENV}/environment.txt)
     add_custom_command(
             OUTPUT ${OUTPUT_FILE}
             COMMAND ${INSTALL_CMD}
-            COMMAND ${BIN_DIR}/pip freeze > ${OUTPUT_FILE}
             DEPENDS ${CFG_FILE} ${ARG_SOURCES} ${ARG_REQUIREMENTS_TXT}
     )
 
