@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Expression/Expression.hpp>
 #include "iostream"
+#include <Expression/Expression.hpp>
 
 namespace operators {
 
@@ -12,12 +12,8 @@ struct Sum {
   Sum() = default;
   Sum(Expression<OperatorInfo> exp) : exp(std::move(exp)) {}
 
-  std::string print() const {
-    return "\u03A3[" + exp.print(false) + "]";
-  }
-  void print_out() {
-    std::cout << this->print();
-  }
+  std::string print() const { return "\u03A3[" + exp.print(false) + "]"; }
+  void print_out() { std::cout << this->print(); }
 };
 
 template <class OperatorInfo>
@@ -26,13 +22,8 @@ struct Product {
   Product() = default;
   Product(Expression<OperatorInfo> exp) : exp(std::move(exp)) {}
 
-  std::string print() const {
-    return "\u03A0[" + exp.print(false) + "]";
-  }
-  void print_out() {
-    std::cout << this->print();
-  }
+  std::string print() const { return "\u03A0[" + exp.print(false) + "]"; }
+  void print_out() { std::cout << this->print(); }
 };
 
-
-}
+} // namespace operators
