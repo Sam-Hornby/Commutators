@@ -1,13 +1,12 @@
 #include <Expression/Expression.hpp>
-#include <NestedExpressions/Sum.hpp>
-#include <sstream>
-#include <iomanip>
-#include <Expression/struct_ids.hpp>
 #include <Expression/Infos/Fock1D.hpp>
 #include <Expression/Infos/GenericInfo.hpp>
+#include <Expression/struct_ids.hpp>
+#include <NestedExpressions/Sum.hpp>
+#include <iomanip>
+#include <sstream>
 #define BOOST_TEST_MODULE Print
 #include <boost/test/included/unit_test.hpp>
-
 
 using namespace operators;
 
@@ -78,17 +77,19 @@ BOOST_AUTO_TEST_CASE(multiply_expressions) {
 
   std::stringstream ss;
   exp.print(ss);
-  BOOST_CHECK_EQUAL(ss.str(), "(A * D * F) + (B * D * F) + (C * D * F) + (A * E) + (B * E) + (C * E)\n");
+  BOOST_CHECK_EQUAL(ss.str(), "(A * D * F) + (B * D * F) + (C * D * F) + (A * "
+                              "E) + (B * E) + (C * E)\n");
 }
 
 BOOST_AUTO_TEST_CASE(imaginary_numbers) {
-  Expression<GenericInfo> exp = {{{Operator<GenericInfo>(ImaginaryNumber(1.0))}}};
+  Expression<GenericInfo> exp = {
+      {{Operator<GenericInfo>(ImaginaryNumber(1.0))}}};
   std::stringstream ss;
   exp.print(ss);
   BOOST_CHECK_EQUAL(ss.str(), "1.000000 * i\n");
 
   exp = im_number<GenericInfo>(3.0) * number<GenericInfo>(2.0) *
-              Operator<GenericInfo>(ordering_value(0), GenericInfo("A"));
+        Operator<GenericInfo>(ordering_value(0), GenericInfo("A"));
   std::stringstream ss2;
   exp.print(ss2);
   BOOST_CHECK_EQUAL(ss2.str(), "3.000000 * i * 2.000000 * A\n");
@@ -97,18 +98,15 @@ BOOST_AUTO_TEST_CASE(imaginary_numbers) {
 BOOST_AUTO_TEST_CASE(named_numbers) {
   Expression<GenericInfo> exp = {{{Operator<GenericInfo>(NamedNumber('t'))}}};
   BOOST_CHECK_EQUAL(exp.print(true), "t\n");
-  exp = Operator<GenericInfo>(NamedNumber('t'))
-        * number<GenericInfo>(2)
-        * Operator<GenericInfo>(ordering_value(0), GenericInfo("A"));
+  exp = Operator<GenericInfo>(NamedNumber('t')) * number<GenericInfo>(2) *
+        Operator<GenericInfo>(ordering_value(0), GenericInfo("A"));
   BOOST_CHECK_EQUAL(exp.print(false), "t * 2.000000 * A");
-      
 }
 
 BOOST_AUTO_TEST_CASE(SumPrint) {
   Expression<GenericInfo> exp;
-  exp = Operator<GenericInfo>(NamedNumber('t'))
-        * number<GenericInfo>(2)
-        * Operator<GenericInfo>(ordering_value(0), GenericInfo("A"));
+  exp = Operator<GenericInfo>(NamedNumber('t')) * number<GenericInfo>(2) *
+        Operator<GenericInfo>(ordering_value(0), GenericInfo("A"));
   exp = exp + number<GenericInfo>(10);
   Product<GenericInfo> prod(exp);
   Sum<GenericInfo> sum(std::move(exp));

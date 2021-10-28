@@ -12,4 +12,3 @@ BOOST_AUTO_TEST_CASE(Logging) {
   spdlog::error("Err");
   spdlog::critical("critical");
 }
- 

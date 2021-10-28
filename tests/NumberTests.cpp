@@ -1,7 +1,7 @@
 #include <Expression/Expression.hpp>
-#include <Expression/Operator.hpp>
-#include <Expression/Infos/GenericInfo.hpp>
 #include <Expression/Infos/Fock1D.hpp>
+#include <Expression/Infos/GenericInfo.hpp>
+#include <Expression/Operator.hpp>
 #include <Expression/Simplify.hpp>
 #include <Numbers/CompositeNumberExpressions.hpp>
 #include <sstream>
@@ -9,7 +9,6 @@
 #include <boost/test/included/unit_test.hpp>
 
 using namespace operators;
-
 
 BOOST_AUTO_TEST_CASE(empty) {
   Expression<Fock1DInfo> exp;
@@ -29,17 +28,20 @@ BOOST_AUTO_TEST_CASE(single) {
 }
 
 BOOST_AUTO_TEST_CASE(two_numbers) {
-  Expression<Fock1DInfo> exp = Operator<Fock1DInfo>(5) * Operator<Fock1DInfo>(7);
+  Expression<Fock1DInfo> exp =
+      Operator<Fock1DInfo>(5) * Operator<Fock1DInfo>(7);
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
   BOOST_CHECK_EQUAL(ss.str(), "35.000000\n");
 }
 
-
 BOOST_AUTO_TEST_CASE(operators_and_numbers) {
-  Expression<GenericInfo> exp = Operator<GenericInfo>(ordering_value(0), GenericInfo("A")) * Operator<GenericInfo>(4) *
-                    Operator<GenericInfo>(ordering_value(0), GenericInfo("B")) * Operator<GenericInfo>(9);
+  Expression<GenericInfo> exp =
+      Operator<GenericInfo>(ordering_value(0), GenericInfo("A")) *
+      Operator<GenericInfo>(4) *
+      Operator<GenericInfo>(ordering_value(0), GenericInfo("B")) *
+      Operator<GenericInfo>(9);
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
@@ -47,8 +49,9 @@ BOOST_AUTO_TEST_CASE(operators_and_numbers) {
 }
 
 BOOST_AUTO_TEST_CASE(operator_and_1) {
-  auto exp = Operator<GenericInfo>(ordering_value(0), GenericInfo("A")) * Operator<GenericInfo>(1)
-             * Operator<GenericInfo>(ordering_value(0), GenericInfo("B"));
+  auto exp = Operator<GenericInfo>(ordering_value(0), GenericInfo("A")) *
+             Operator<GenericInfo>(1) *
+             Operator<GenericInfo>(ordering_value(0), GenericInfo("B"));
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
@@ -65,8 +68,11 @@ BOOST_AUTO_TEST_CASE(single_one) {
 }
 
 BOOST_AUTO_TEST_CASE(zero) {
-  Expression<GenericInfo> exp = Operator<GenericInfo>(ordering_value(0), GenericInfo("A")) * Operator<GenericInfo>(0) *
-                    Operator<GenericInfo>(ordering_value(0), GenericInfo("B")) * Operator<GenericInfo>(9);
+  Expression<GenericInfo> exp =
+      Operator<GenericInfo>(ordering_value(0), GenericInfo("A")) *
+      Operator<GenericInfo>(0) *
+      Operator<GenericInfo>(ordering_value(0), GenericInfo("B")) *
+      Operator<GenericInfo>(9);
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
@@ -76,7 +82,8 @@ BOOST_AUTO_TEST_CASE(zero) {
 BOOST_AUTO_TEST_CASE(addition_and_multiply) {
   Expression<GenericInfo> exp;
   const auto A = Operator<GenericInfo>(ordering_value(0), GenericInfo("A"));
-  exp = exp + A + (Operator<GenericInfo>(0) * A) + (A * Operator<GenericInfo>(1) * A) + (A * A * A);
+  exp = exp + A + (Operator<GenericInfo>(0) * A) +
+        (A * Operator<GenericInfo>(1) * A) + (A * A * A);
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
@@ -84,7 +91,8 @@ BOOST_AUTO_TEST_CASE(addition_and_multiply) {
 }
 
 BOOST_AUTO_TEST_CASE(addition) {
-  Expression<Fock1DInfo> exp = Operator<Fock1DInfo>(6) + Operator<Fock1DInfo>(7);
+  Expression<Fock1DInfo> exp =
+      Operator<Fock1DInfo>(6) + Operator<Fock1DInfo>(7);
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
@@ -112,7 +120,8 @@ BOOST_AUTO_TEST_CASE(opperator_addition_multiply) {
 BOOST_AUTO_TEST_CASE(opperator_addition_multiply_2) {
   Operator<GenericInfo> A(ordering_value(0), GenericInfo("A"));
   Operator<GenericInfo> B(ordering_value(0), GenericInfo("B"));
-  Expression<GenericInfo> exp = (A * B * Operator<GenericInfo>(2)) + (Operator<GenericInfo>(6) * A * B);
+  Expression<GenericInfo> exp =
+      (A * B * Operator<GenericInfo>(2)) + (Operator<GenericInfo>(6) * A * B);
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
@@ -122,7 +131,8 @@ BOOST_AUTO_TEST_CASE(opperator_addition_multiply_2) {
 BOOST_AUTO_TEST_CASE(opperator_addition_multiply_3) {
   Operator<GenericInfo> A(ordering_value(0), GenericInfo("A"));
   Operator<GenericInfo> B(ordering_value(0), GenericInfo("B"));
-  Expression<GenericInfo> exp = (A * B * Operator<GenericInfo>(2)) + (Operator<GenericInfo>(6) * B * A);
+  Expression<GenericInfo> exp =
+      (A * B * Operator<GenericInfo>(2)) + (Operator<GenericInfo>(6) * B * A);
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
@@ -132,10 +142,9 @@ BOOST_AUTO_TEST_CASE(opperator_addition_multiply_3) {
 BOOST_AUTO_TEST_CASE(opperator_addition_multiply_4) {
   Operator<GenericInfo> A(ordering_value(0), GenericInfo("A"));
   Operator<GenericInfo> B(ordering_value(0), GenericInfo("B"));
-  Expression<GenericInfo> exp = (A * B * Operator<GenericInfo>(2))
-                    + (A * B * Operator<GenericInfo>(0))
-                    + (B * A * Operator<GenericInfo>(1))
-                    + (Operator<GenericInfo>(6) * A * B);
+  Expression<GenericInfo> exp =
+      (A * B * Operator<GenericInfo>(2)) + (A * B * Operator<GenericInfo>(0)) +
+      (B * A * Operator<GenericInfo>(1)) + (Operator<GenericInfo>(6) * A * B);
   exp = simplify_numbers(exp);
   std::stringstream ss;
   exp.print(ss);
@@ -194,19 +203,16 @@ BOOST_AUTO_TEST_CASE(named_numbers) {
   exp = named_number<GenericInfo>('t') + named_number<GenericInfo>('t');
   exp = simplify_numbers(exp);
   BOOST_CHECK_EQUAL(exp.print(false), "2.000000 * t");
-  exp = number<GenericInfo>(7)
-      + named_number<GenericInfo>('a')
-      + Operator<GenericInfo>(ordering_value(0), GenericInfo("A"))
-      + (named_number<GenericInfo>('a') * number<GenericInfo>(5));
+  exp = number<GenericInfo>(7) + named_number<GenericInfo>('a') +
+        Operator<GenericInfo>(ordering_value(0), GenericInfo("A")) +
+        (named_number<GenericInfo>('a') * number<GenericInfo>(5));
   exp = simplify_numbers(exp);
   BOOST_CHECK_EQUAL(exp.print(false), "(7.000000) + (6.000000 * a) + (A)");
-  exp = number<GenericInfo>(7)
-      * named_number<GenericInfo>('a')
-      * Operator<GenericInfo>(ordering_value(0), GenericInfo("A"))
-      * named_number<GenericInfo>('a');
+  exp = number<GenericInfo>(7) * named_number<GenericInfo>('a') *
+        Operator<GenericInfo>(ordering_value(0), GenericInfo("A")) *
+        named_number<GenericInfo>('a');
   exp = simplify_numbers(exp);
   BOOST_CHECK_EQUAL(exp.print(false), "7.000000 * a * A * a");
-  
 }
 
 BOOST_AUTO_TEST_CASE(composite_numbers) {
@@ -214,8 +220,7 @@ BOOST_AUTO_TEST_CASE(composite_numbers) {
   const auto a_ = NamedNumberExpr::create(NamedNumber('a'));
   const auto op_t = Operator<GenericInfo>(t_);
   const auto op_a = Operator<GenericInfo>(a_);
-  Expression<GenericInfo> exp =
-      {{{Operator<GenericInfo>(t_)}}};
+  Expression<GenericInfo> exp = {{{Operator<GenericInfo>(t_)}}};
   exp = simplify_numbers(exp);
   BOOST_CHECK_EQUAL(exp.print(false), "t");
   exp = op_t * op_a;
@@ -228,17 +233,13 @@ BOOST_AUTO_TEST_CASE(composite_numbers) {
   exp = op_t + op_t;
   exp = simplify_numbers(exp);
   BOOST_CHECK_EQUAL(exp.print(false), "2.000000 * t");
-  exp = number<GenericInfo>(7)
-      + op_a
-      + Operator<GenericInfo>(ordering_value(0), GenericInfo("A"))
-      + (op_a * number<GenericInfo>(5));
+  exp = number<GenericInfo>(7) + op_a +
+        Operator<GenericInfo>(ordering_value(0), GenericInfo("A")) +
+        (op_a * number<GenericInfo>(5));
   exp = simplify_numbers(exp);
   BOOST_CHECK_EQUAL(exp.print(false), "(7.000000) + (6.000000 * a) + (A)");
-  exp = number<GenericInfo>(7)
-      * op_a
-      * Operator<GenericInfo>(ordering_value(0), GenericInfo("A"))
-      * op_a;
+  exp = number<GenericInfo>(7) * op_a *
+        Operator<GenericInfo>(ordering_value(0), GenericInfo("A")) * op_a;
   exp = simplify_numbers(exp);
   BOOST_CHECK_EQUAL(exp.print(false), "7.000000 * a * A * a");
-  
 }
