@@ -2,14 +2,14 @@
 
 #include <Expression/Expression.hpp>
 
-
 namespace operators {
 
 template <class InfoA, class InfoB>
-Expression<InfoB> transform_expression(const Expression<InfoA> & input,
-                                       std::function<Expression<InfoB>(const Operator<InfoA> &)> transf) {
+Expression<InfoB> transform_expression(
+    const Expression<InfoA> &input,
+    std::function<Expression<InfoB>(const Operator<InfoA> &)> transf) {
   Expression<InfoB> new_exp;
-  for (const auto & mul_term : input.expression) {
+  for (const auto &mul_term : input.expression) {
     if (mul_term.empty()) {
       continue;
     }
@@ -23,13 +23,13 @@ Expression<InfoB> transform_expression(const Expression<InfoA> & input,
 }
 
 template <class InfoA, class InfoB>
-Expression<InfoB>
-only_apply_to_operators(std::function<Expression<InfoB>(const Operator<InfoA> &)> transf,
-                        const Operator<InfoA> & A) {
+Expression<InfoB> only_apply_to_operators(
+    std::function<Expression<InfoB>(const Operator<InfoA> &)> transf,
+    const Operator<InfoA> &A) {
   if (A.is_number()) {
     return {{{Operator<InfoB>(A.value())}}};
   }
   return transf(A);
 }
 
-}
+} // namespace operators
