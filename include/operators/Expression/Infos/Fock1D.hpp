@@ -3,7 +3,6 @@
 
 namespace operators {
 
-
 /*
 N = a!a
 
@@ -17,7 +16,7 @@ Na! = a! * a * a! = a! (a a!) + a!(a! a - a!a)
 
 General:
 {A, B} = AB + BA
-AB = -BA + {A, B} 
+AB = -BA + {A, B}
 
 Fermions:
 Na! = a!(a a!) = a!(-a! a + {a, a!})
@@ -29,18 +28,21 @@ number op has same {anti}-comutator relations as fock ops
 
 struct Fock1DInfo {
   short int x_coordinate;
-  short int state = 0;   // This field is only used for state not creation/anihilation ops
+  short int state =
+      0; // This field is only used for state not creation/anihilation ops
   Type type = Type::UNSPECIFIED;
   // TODO make const
   char symbol = 'a';
 
   Fock1DInfo(int x_coordinate) : x_coordinate(x_coordinate) {}
-  Fock1DInfo(int x_coordinate, Type type) : x_coordinate(x_coordinate), type(type) {}
-  Fock1DInfo(int x_coordinate, int state, Type type) : x_coordinate(x_coordinate), state(state), type(type) {}
-  Fock1DInfo(int x_coordinate, int state, Type type, char symbol) :
-      x_coordinate(x_coordinate), state(state), type(type), symbol(symbol) {}
-  Fock1DInfo(int x_coordinate, char symbol, Type type) :
-      Fock1DInfo(x_coordinate, 0, type, symbol) {}
+  Fock1DInfo(int x_coordinate, Type type)
+      : x_coordinate(x_coordinate), type(type) {}
+  Fock1DInfo(int x_coordinate, int state, Type type)
+      : x_coordinate(x_coordinate), state(state), type(type) {}
+  Fock1DInfo(int x_coordinate, int state, Type type, char symbol)
+      : x_coordinate(x_coordinate), state(state), type(type), symbol(symbol) {}
+  Fock1DInfo(int x_coordinate, char symbol, Type type)
+      : Fock1DInfo(x_coordinate, 0, type, symbol) {}
   Fock1DInfo() = default;
 
   std::string name() const {
@@ -65,12 +67,11 @@ struct Fock1DInfo {
   }
 
   bool operator==(Fock1DInfo other) const {
-    return x_coordinate == other.x_coordinate and state == other.state && type == other.type;
+    return x_coordinate == other.x_coordinate and state == other.state &&
+           type == other.type;
   }
 
-  bool operator!=(Fock1DInfo other) const {
-    return not (*this == other);
-  }
+  bool operator!=(Fock1DInfo other) const { return not(*this == other); }
   bool operator<(Fock1DInfo other) const {
     return std::tie(x_coordinate, state, type) <
            std::tie(other.x_coordinate, other.state, other.type);
@@ -84,7 +85,7 @@ struct Fock1DInfo {
   bool isHCVacuumState() const {
     return type == Type::HC_STATE_VECTOR and state == 0;
   }
-  bool match(const Fock1DInfo & other) const {
+  bool match(const Fock1DInfo &other) const {
     if (isFockOpType(type) and isFockOpType(other.type)) {
       return x_coordinate == other.x_coordinate;
     }
@@ -93,12 +94,11 @@ struct Fock1DInfo {
     }
     return false;
   }
-  Type get_type() const {return type;}
+  Type get_type() const { return type; }
 
   void complex_conjugate() {
     this->type = Fock0DInfo::conjugate_type(this->type);
   }
-
 };
 
-}
+} // namespace operators
