@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Operator.hpp"
 #include "Expression.hpp"
+#include "Operator.hpp"
 #include <Utils/Utils.hpp>
 
 namespace operators {
@@ -21,10 +21,10 @@ Operator<OperatorInfo> order_op(Operator<OperatorInfo> op) {
 }
 
 template <class OperatorInfo>
-Expression<OperatorInfo> normal_order(const Expression<OperatorInfo> & exp) {
+Expression<OperatorInfo> normal_order(const Expression<OperatorInfo> &exp) {
   auto ordered = exp;
-  for (auto & mul_term : ordered.expression) {
-    for (auto & op : mul_term) {
+  for (auto &mul_term : ordered.expression) {
+    for (auto &op : mul_term) {
       if (op.is_number()) {
         continue;
       }
@@ -35,19 +35,17 @@ Expression<OperatorInfo> normal_order(const Expression<OperatorInfo> & exp) {
 }
 
 template <class OperatorInfo>
-Expression<OperatorInfo> numbers_first(const Expression<OperatorInfo> & exp) {
+Expression<OperatorInfo> numbers_first(const Expression<OperatorInfo> &exp) {
   auto ordered = exp;
-  for (auto & mul_term : ordered.expression) {
-    for (auto & op : mul_term) {
+  for (auto &mul_term : ordered.expression) {
+    for (auto &op : mul_term) {
       if (op.is_number()) {
         continue;
       }
       op.order = ordering_value(0);
     }
   }
-  return ordered; 
+  return ordered;
 }
 
-} // end namespace
-
-
+} // namespace operators
