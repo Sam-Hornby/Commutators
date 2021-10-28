@@ -1,9 +1,8 @@
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
 #include <vector>
-
 
 namespace operators {
 
@@ -20,40 +19,32 @@ struct CompositeNumberBase {
   virtual CompositeNumber simplify() const = 0;
 };
 
-
 struct CompositeNumber {
   std::unique_ptr<CompositeNumberBase> expr;
-  
-  explicit CompositeNumber(std::unique_ptr<CompositeNumberBase> expr) :
-    expr(std::move(expr)) {}
 
+  explicit CompositeNumber(std::unique_ptr<CompositeNumberBase> expr)
+      : expr(std::move(expr)) {}
 
   CompositeNumber(CompositeNumber &&) = default;
-  CompositeNumber(const CompositeNumber &other) : expr(other.expr->clone()) {} 
-  CompositeNumber& operator=(CompositeNumber other) {
+  CompositeNumber(const CompositeNumber &other) : expr(other.expr->clone()) {}
+  CompositeNumber &operator=(CompositeNumber other) {
     if (this != &other) {
       std::swap(this->expr, other.expr);
     }
     return *this;
   }
 
-  std::string name() const {
-    return expr->name();
-  }
+  std::string name() const { return expr->name(); }
   bool operator==(const CompositeNumber &other) const {
     return *expr == *other.expr;
   }
-  bool operator!= (const CompositeNumber &other) const {
-    return not (*this == other);
+  bool operator!=(const CompositeNumber &other) const {
+    return not(*this == other);
   }
   bool operator<(const CompositeNumber &other) const {
     return *expr < *other.expr;
   }
-  CompositeNumber simplify() const {
-    return expr->simplify();
-  }
-
+  CompositeNumber simplify() const { return expr->simplify(); }
 };
 
-
-}
+} // namespace operators
