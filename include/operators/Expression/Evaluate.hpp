@@ -5,18 +5,18 @@
 #include "Sort.hpp"
 #include <Expression/Substitutions.hpp>
 
-
 namespace operators {
 
 //----------------------------------------------------------------------------------------------------------------------
 // all at once zone
 //----------------------------------------------------------------------------------------------------------------------
 template <class OperatorInfo, typename SubstitutionCallable>
-static Expression<OperatorInfo>
-interleaved_sort_sub_simple(Expression<OperatorInfo> exp,
-      std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
-      SubstitutionCallable subst,
-      const SortUsing s) {
+static Expression<OperatorInfo> interleaved_sort_sub_simple(
+    Expression<OperatorInfo> exp,
+    std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &,
+                                           const Operator<OperatorInfo> &)>
+        commute,
+    SubstitutionCallable subst, const SortUsing s) {
 
   // the thinking behind this approach is the bubble pass will ensure that the
   // last item is the highest, so in theory if there is one annihilation op this
@@ -42,7 +42,9 @@ interleaved_sort_sub_simple(Expression<OperatorInfo> exp,
       madeChanges |= bubble_pass(i, exp.expression, commute, s);
     }
     spdlog::info("Size of expression {}", exp.expression.size());
-    exp = perform_multiplication_substitutions<OperatorInfo, SubstitutionCallable>(std::move(exp), subst);
+    exp = perform_multiplication_substitutions<OperatorInfo,
+                                               SubstitutionCallable>(
+        std::move(exp), subst);
     exp = simplify_multiplications(exp);
     spdlog::info("Size of expression {}", exp.expression.size());
   }
@@ -51,30 +53,33 @@ interleaved_sort_sub_simple(Expression<OperatorInfo> exp,
 
 template <class OperatorInfo, typename SubstitutionCallable>
 Expression<OperatorInfo> interleaved_evaluate(
-      const Expression<OperatorInfo> &expr,
-      std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
-      SubstitutionCallable subst,
-      const SortUsing s = SortUsing::COMMUTATORS)  {
+    const Expression<OperatorInfo> &expr,
+    std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &,
+                                           const Operator<OperatorInfo> &)>
+        commute,
+    SubstitutionCallable subst, const SortUsing s = SortUsing::COMMUTATORS) {
 
-   return interleaved_sort_sub_simple(expr, commute, subst, s);
+  return interleaved_sort_sub_simple(expr, commute, subst, s);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-
 template <class OperatorInfo>
-static void log_expression(const Expression<OperatorInfo> & exp, const std::string & prefix) {
+static void log_expression(const Expression<OperatorInfo> &exp,
+                           const std::string &prefix) {
   spdlog::info("After step {}: {}", prefix, exp.print(false));
 }
 
 template <class OperatorInfo, typename SubstitutionCallable>
 Expression<OperatorInfo>
 evaluate(const Expression<OperatorInfo> &input,
-        std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &, const Operator<OperatorInfo> &)> commute,
-        SubstitutionCallable subst,
-        const SortUsing s = SortUsing::COMMUTATORS) {
-  // simplify numbers is much faster than the other functions and can make the the other functions run faster so call
-  // it frequently
+         std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &,
+                                                const Operator<OperatorInfo> &)>
+             commute,
+         SubstitutionCallable subst,
+         const SortUsing s = SortUsing::COMMUTATORS) {
+  // simplify numbers is much faster than the other functions and can make the
+  // the other functions run faster so call it frequently
 
   spdlog::critical("Start evaluation: Simplift numbers");
   log_expression(input, "Start");
@@ -89,4 +94,4 @@ evaluate(const Expression<OperatorInfo> &input,
   return exp;
 }
 
-}
+} // namespace operators
