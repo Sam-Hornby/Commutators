@@ -261,9 +261,11 @@ static OperatorPairs<InfoA> get_bog_operators(const Expression<InfoA> &exp,
       const unsigned index = transformFunctions.get_index(op.info());
       if (transformFunctions.get_type(op.info()) == Type::CREATION_OPERATOR) {
         result.creation_ops[index] = op;
+        already_found[index] = true;
       } else if (transformFunctions.get_type(op.info())
                           == Type::ANIHILATION_OPERATOR) {
         result.anihilation_ops[index] = op;
+        already_found[2 + index] = true;
       } else {
         std::abort();
       }

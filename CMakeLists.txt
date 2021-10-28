@@ -21,6 +21,7 @@ if(COMPILER_IS_GCC_COMPATIBLE)
   else()
     message(FATAL_ERROR "Compiler c++17 problems")
   endif()
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG")
 endif()
 
 
