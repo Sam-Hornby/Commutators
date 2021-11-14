@@ -25,6 +25,7 @@ endfunction()
 
 add_subdirectory(Examples)
 add_subdirectory(python)
+add_subdirectory(benchmarks)
 
 add_operators_test(PrintTests)
 

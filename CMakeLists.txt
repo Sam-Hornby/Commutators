@@ -24,11 +24,13 @@ if(COMPILER_IS_GCC_COMPATIBLE)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG")
 endif()
 
+set(BENCHMARK_ENABLE_GTEST_TESTS OFF)
 
 include(GNUInstallDirs)
 
 add_subdirectory(pybind11)
 add_subdirectory(spdlog)
+add_subdirectory(benchmark)
 add_subdirectory(lib)
 add_subdirectory(python)
 add_subdirectory(tests)
