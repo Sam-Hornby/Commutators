@@ -42,6 +42,14 @@ static void multiplication_benchmark(benchmark::State& state) {
 
 BENCHMARK(multiplication_benchmark);
 
+static void simplify_benchmark(benchmark::State& state) {
+  for (auto _ : state) {
+    auto new_exp = simplify_numbers(large_exp);
+  }
+}
+
+BENCHMARK(simplify_benchmark);
+
 static void evaluate_benchmark(benchmark::State& state) {
   Expression<Fock1DInfo> expression =
       normalised_n_occupied_ops<Fock1DInfo>(2 * state.range(0), 0) *
