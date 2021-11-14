@@ -3,7 +3,6 @@
 #include <Expression/Expression.hpp>
 #include <Expression/Operator.hpp>
 #include <Utils/Utils.hpp>
-#include <boost/container/small_vector.hpp>
 #include <spdlog/spdlog.h>
 #include <vector>
 
