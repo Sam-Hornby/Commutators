@@ -14,6 +14,34 @@
 
 using namespace operators;
 
+static Expression<Fock1DInfo> create_number_expression() {
+  Expression<Fock1DInfo> expression;
+  for (int i = 0; i < 10; ++i) {
+    for (int j = 0; j < 10; ++j) {
+      expression = expression + number<Fock1DInfo>(5);
+    }
+  }
+  return expression;
+}
+
+const auto large_exp = create_number_expression();
+
+static void addition_benchmark(benchmark::State& state) {
+  for (auto _ : state) {
+    auto new_exp = large_exp + number<Fock1DInfo>(1);
+  }
+}
+
+BENCHMARK(addition_benchmark);
+
+static void multiplication_benchmark(benchmark::State& state) {
+  for (auto _ : state) {
+    auto new_exp = large_exp * number<Fock1DInfo>(1);
+  }
+}
+
+BENCHMARK(multiplication_benchmark);
+
 static void evaluate_benchmark(benchmark::State& state) {
   Expression<Fock1DInfo> expression =
       normalised_n_occupied_ops<Fock1DInfo>(2 * state.range(0), 0) *
