@@ -3,11 +3,11 @@
 #include "Logging.hpp"
 #include "Operator.hpp"
 #include <algorithm>
-#include <boost/container/small_vector.hpp>
 #include <iostream>
 #include <map>
 #include <sstream>
 #include <vector>
+#include <absl/container/inlined_vector.h>
 
 namespace operators {
 
@@ -25,7 +25,7 @@ enum class SortUsing {
 // AB = -BA + {A, B}
 
 template <class T>
-using vector_type = boost::container::small_vector<T, 1>;
+using vector_type = absl::InlinedVector<T, 1>;
 
 template <class OperatorInfo>
 class Expression {

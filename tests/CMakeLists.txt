@@ -13,11 +13,12 @@ set_directory_properties(PROPERTIES LABELS operators)
 
 include_directories(${operators_SOURCE_DIR}/include/operators
                     ${Boost_INCLUDE_DIRS}
-	            ${operators_SOURCE_DIR}/spdlog/include)
-link_directories(${operators_SOURCE_DIR}/lib/operators)
+	                ${operators_SOURCE_DIR}/spdlog/include
+                    ${operators_SOURCE_DIR}/abseil-cpp)
 
 set(TEST_LINK_LIBRARIES
-      benchmark::benchmark)
+      benchmark::benchmark
+      ${LIB_LINK_LIBRARIES})
 
 function(add_operators_test name)
   add_executable(${name} ${name}.cpp)
