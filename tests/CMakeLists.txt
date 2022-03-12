@@ -14,7 +14,8 @@ set_directory_properties(PROPERTIES LABELS operators)
 include_directories(${operators_SOURCE_DIR}/include/operators
                     ${Boost_INCLUDE_DIRS}
 	                ${operators_SOURCE_DIR}/spdlog/include
-                    ${operators_SOURCE_DIR}/abseil-cpp)
+                    ${operators_SOURCE_DIR}/abseil-cpp
+                    ${operators_SOURCE_DIR}/mimalloc/include)
 
 set(TEST_LINK_LIBRARIES
       benchmark::benchmark

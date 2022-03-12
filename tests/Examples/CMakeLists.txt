@@ -1,4 +1,3 @@
 add_operators_test(HarmonicOscilator)
 add_operators_test(SimpleFermions)
 add_operators_test(Bogoliubov)
-

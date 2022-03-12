@@ -8,6 +8,7 @@
 #include <sstream>
 #include <vector>
 #include <absl/container/inlined_vector.h>
+#include <mimalloc.h>
 
 namespace operators {
 
@@ -25,7 +26,7 @@ enum class SortUsing {
 // AB = -BA + {A, B}
 
 template <class T>
-using vector_type = absl::InlinedVector<T, 1>;
+using vector_type = absl::InlinedVector<T, 1, mi_stl_allocator<T>>;
 
 template <class OperatorInfo>
 class Expression {

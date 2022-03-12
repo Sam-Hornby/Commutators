@@ -30,6 +30,12 @@ set(BENCHMARK_ENABLE_GTEST_TESTS OFF)
 set(ABSL_PROPAGATE_CXX_STD ON)
 set(ABSL_BUILD_TESTING OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+set(mimalloc_DIR "${CMAKE_CURRENT_SOURCE_DIR}/mimalloc/cmake")
+set(MI_OVERRIDE OFF CACHE BOOL "" FORCE)
+set(MI_OSX_INTERPOSE OFF CACHE BOOL "" FORCE)
+set(MI_OSX_ZONE OFF CACHE BOOL "" FORCE)
+set(MI_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+
 
 include(GNUInstallDirs)
 
@@ -40,6 +46,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
 add_subdirectory(pybind11)
 add_subdirectory(spdlog)
 add_subdirectory(benchmark)
+add_subdirectory(mimalloc)
 
 set(LIB_LINK_LIBRARIES
       absl::base
@@ -53,7 +60,8 @@ set(LIB_LINK_LIBRARIES
       absl::numeric
       absl::flat_hash_map
       absl::flat_hash_set
-      absl::inlined_vector)
+      absl::inlined_vector
+      mimalloc-static)
 
 # My subdirectories
 add_subdirectory(lib)
