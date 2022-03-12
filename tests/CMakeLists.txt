@@ -16,12 +16,15 @@ include_directories(${operators_SOURCE_DIR}/include/operators
 	            ${operators_SOURCE_DIR}/spdlog/include)
 link_directories(${operators_SOURCE_DIR}/lib/operators)
 
+set(TEST_LINK_LIBRARIES
+      benchmark::benchmark)
+
 function(add_operators_test name)
   add_executable(${name} ${name}.cpp)
+  target_link_libraries(${name} ${TEST_LINK_LIBRARIES})
   add_test(NAME ${name}_cpp
            COMMAND ${name}
            WORKING_DIRECTORY ${CMAKE_CURRENT_BUILD_DIR})
-
 endfunction()
 
 add_subdirectory(Examples)
