@@ -8,7 +8,7 @@ def test_constructing():
   assert str(creation) == "FockType.CREATION_OPERATOR"
 
   assert float(str(FockOperators.number(7))) == 7
-  assert str(FockOperators.named_number("z") == "z")
+  assert str(FockOperators.named_number("z")) == "z"
   d = FockOperators.fock_op(2, creation, "c")
   e = FockOperators.state_vector(2, 0, hc_vector)
 

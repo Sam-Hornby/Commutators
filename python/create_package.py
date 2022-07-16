@@ -34,8 +34,8 @@ def create_pip_package(install_directory_path):
   subprocess.run([
                       sys.executable,
                       setup_script,
-                      'install',
-                      '--install-lib',
+                      'build',
+                      '-b',
                       f'{install_directory_path}',
                       'bdist_wheel',
                   ],
@@ -58,6 +58,7 @@ def create_virtualenv():
   return venv_dir
 
 def install_packages(venv_path, operators_package):
+  print("Creating venv")
   venv_binary = os.path.join(venv_path, "bin/python3")
   subprocess.run([
     f'{venv_binary}',
