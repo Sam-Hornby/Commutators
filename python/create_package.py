@@ -51,14 +51,19 @@ def create_pip_package(install_directory_path):
 
 def create_virtualenv():
   src_dir = os.path.dirname(os.path.abspath(__file__))
-  venv_dir = os.path.abspath(src_dir + "/../build/comutators_venv")
+  venv_dir = os.path.abspath(src_dir + "/../build/operators_venv")
   if not os.path.exists(venv_dir):
     os.makedirs(venv_dir)
   venv.create(venv_dir, with_pip=True)
   return venv_dir
 
+other_pip_dependencies  = [
+  "pytest",
+  "wheel",
+  "setuptools",
+]
+
 def install_packages(venv_path, operators_package):
-  print("Creating venv")
   venv_binary = os.path.join(venv_path, "bin/python3")
   subprocess.run([
     f'{venv_binary}',
@@ -66,10 +71,21 @@ def install_packages(venv_path, operators_package):
     'pip',
     'install',
     f'{operators_package}',
-    '--force-reinstall'
+    '--force-reinstall',
   ],
   stdout=sys.stdout,
   stderr=sys.stderr)
+
+  for dep in other_pip_dependencies:
+    subprocess.run([
+      f'{venv_binary}',
+      '-m',
+      'pip',
+      'install',
+      f'{dep}',
+    ],
+    stdout=sys.stdout,
+    stderr=sys.stderr)
 
 if __name__ == "__main__":
   check_configuation()
