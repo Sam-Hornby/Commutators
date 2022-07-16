@@ -1,10 +1,8 @@
-from setuptools import setup
-from setuptools.dist import Distribution
-#from setuptools import sandbox
 import os
 import shutil
 import subprocess
 import sys
+import venv
 
 def check_configuation():
   # check that the build directory exists
@@ -33,22 +31,49 @@ def create_install_directory():
 def create_pip_package(install_directory_path):
   src_dir = os.path.dirname(os.path.abspath(__file__))
   setup_script = os.path.join(src_dir, "setup.py")
-  command = f'install --install-lib {install_directory_path} bdist_wheel'
-  print(command)
-  subprocess.run([sys.executable,
-                   setup_script,
-                   'install',
-                   '--install-lib',
-                   f'{install_directory_path}',
-                   'bdist_wheel'])
+  subprocess.run([
+                      sys.executable,
+                      setup_script,
+                      'install',
+                      '--install-lib',
+                      f'{install_directory_path}',
+                      'bdist_wheel',
+                  ],
+                  cwd=install_directory_path,
+                  stdout=sys.stdout,
+                  stderr=sys.stderr)
+  # Check sucessfully created and return path to install
+  for folder, _, files in os.walk(install_directory_path):
+    for name in files:
+      if name.endswith('.whl'):
+        return os.path.join(folder, name)
+  raise Exception("Could not find .whl file")
 
-def create_virtualenv(install_path, operators_package):
-  # create virtualenv
-  # install pip packages
-  return None
+def create_virtualenv():
+  src_dir = os.path.dirname(os.path.abspath(__file__))
+  venv_dir = os.path.abspath(src_dir + "/../build/comutators_venv")
+  if not os.path.exists(venv_dir):
+    os.makedirs(venv_dir)
+  venv.create(venv_dir, with_pip=True)
+  return venv_dir
+
+def install_packages(venv_path, operators_package):
+  venv_binary = os.path.join(venv_path, "bin/python3")
+  subprocess.run([
+    f'{venv_binary}',
+    '-m',
+    'pip',
+    'install',
+    f'{operators_package}',
+    '--force-reinstall'
+  ],
+  stdout=sys.stdout,
+  stderr=sys.stderr)
 
 if __name__ == "__main__":
   check_configuation()
   install_directory_path = create_install_directory()
   pip_package_path = create_pip_package(install_directory_path)
-  create_virtualenv(install_directory_path, pip_package_path)
+  venv_path = create_virtualenv()
+  install_packages(venv_path, pip_package_path)
+

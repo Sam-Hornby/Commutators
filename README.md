@@ -5,6 +5,7 @@ C++ lib for commuting operators and some python bindings
 
 Has dependencies [boost, spdlog, pybind11, virtualenv]
  - for boost `apt install libboost-all-dev` should be enough (only used for tests).
+ - need to ensure have venv module with `apt-get install python3-venv`
  - for spdlog, pybind, abseil and mimalloc I've added them as submodules so shouldn't
    have to do anything to get them.
  - for testing python api I manually create a virtualenv and run
