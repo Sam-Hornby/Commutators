@@ -14,6 +14,8 @@ Has dependencies [boost, spdlog, pybind11, virtualenv, setuptools]
    when running ninja.
 
 ```
+sudo apt install libboost-all-dev python3-venv ninja-build
+pip install setuptools wheel
 git clone --recurse-submodules https://github.com/Sam-Hornby/Commutators.git
 cd Commutators
 mkdir build
