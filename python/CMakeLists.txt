@@ -1,5 +1,3 @@
-include(${operators_SOURCE_DIR}/python/CreateVirtualEnv.cmake)
-
 
 add_custom_target(fock_wheel
                    ALL
