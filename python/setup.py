@@ -22,38 +22,19 @@ from setuptools import setup
 from setuptools.dist import Distribution
 import os
 
-#DISTNAME = "FockModule"
-#DESCRIPTION = ""
-#MAINTAINER = "sam h"
-#MAINTAINER_EMAIL = "samhornby0@gmail.com"
-#URL = ""
-#LICENSE = ""
-#DOWNLOAD_URL = ""
-#VERSION = '1.0'
-#PYTHON_VERSION = (3, 6)
-
-
-# Tested with wheel v0.29.0
 class BinaryDistribution(Distribution):
     """Distribution which always forces a binary package with platform name"""
     def has_ext_modules(foo):
         return True
 
-
-binary_directory = os.path.abspath("../lib/operators")
+src_dir = os.path.dirname(os.path.abspath(__file__))
+binary_directory = src_dir + "/../build/lib/operators"
 
 setup(name="FockModule",
       description="",
       maintainer="Sam H",
       maintainer_email="samhornby0@gmail.com",
-      #url=URL,
-      #license=LICENSE,
-      #download_url=DOWNLOAD_URL,
-      #version=(3, 6),
       packages=["FockModule"],
       package_dir={"FockModule": binary_directory},
-
-      # Include pre-compiled extension
-      #package_data={"FockModule": ["FockModule/FockOperators.cpython-36m-x86_64-linux-gnu.so"]},
       package_data={"FockModule": [binary_directory + "/FockOperators.cpython-36m-x86_64-linux-gnu.so"]},
       distclass=BinaryDistribution)
