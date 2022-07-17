@@ -50,6 +50,28 @@ Expression<OperatorInfo> commute_numbers(
   }
   return commute(A, B);
 }
+// Takes a comuator of operators and extends it commute all operators
+// that don't have matching state. Should only be applied in situations
+// where all non matching operators commute.
+template <class OperatorInfo, class Comutator>
+Expression<OperatorInfo> commute_non_matching(
+      const Operator<OperatorInfo> &A, const Operator<OperatorInfo> &B,
+      Comutator commute) {
+  if (!A.info().match(B.info())) {
+    return zero_commutator<OperatorInfo>();
+  }
+  return commute(A, B);
+}
+// Wrap comutator. A function that makes a commutator commute all
+// numbers and non matching operators
+template <class OperatorInfo, class Comutator>
+Expression<OperatorInfo> wrap_commutator(const Operator<OperatorInfo> &A, const Operator<OperatorInfo> &B,
+                                         Comutator commute) {
+  auto tmp = [] (const Operator<OperatorInfo> &A, const Operator<OperatorInfo> &B) {
+    return commute_non_matching<OperatorInfo>(A, B, commute);
+  };
+  return commute_numbers<OperatorInfo>(A, B, tmp);
+}
 
 // Commute all
 // ---------------------------------------------------------------------------------------------------------------------

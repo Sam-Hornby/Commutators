@@ -94,6 +94,9 @@ struct Fock1DInfo {
     if (isVectorType(type) and isVectorType(other.type)) {
       return state == other.state and x_coordinate == other.x_coordinate;
     }
+    if (type == other.type and type == Type::SPIN_OPERATORS) {
+      return x_coordinate == other.x_coordinate;
+    }
     return false;
   }
   Type get_type() const { return type; }

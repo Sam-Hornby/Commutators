@@ -9,6 +9,7 @@ enum class Type : std::uint8_t {
   HC_STATE_VECTOR,      // eg <0|
   CREATION_OPERATOR,    // fock space creation operator
   ANIHILATION_OPERATOR, // fock space anihilation operator (hc of creation)
+  SPIN_OPERATORS,       // Sx,Sy,Sz (maybe add S+, S-)
   UNSPECIFIED,          // all other operators
 };
 
@@ -30,6 +31,7 @@ struct Fock0DInfo {
       return Type::ANIHILATION_OPERATOR;
     case Type::ANIHILATION_OPERATOR:
       return Type::CREATION_OPERATOR;
+    case Type::SPIN_OPERATORS:
     case Type::UNSPECIFIED:
       return type;
     }
@@ -44,15 +46,14 @@ struct Fock0DInfo {
   std::string name() const {
     std::string result;
     if (isFockOpType(type)) {
-      result += (std::to_string(symbol) + "_0");
-      if (type == Type::CREATION_OPERATOR) {
-        result += "!";
-      }
-      return result;
+      return std::to_string(symbol) + "_0"
+          + (type == Type::CREATION_OPERATOR ? "!" : "");
     } else if (type == Type::STATE_VECTOR) {
       return "|0>";
     } else if (type == Type::HC_STATE_VECTOR) {
       return "<0|";
+    } else if (type == Type::SPIN_OPERATORS) {
+      return std::string("S") + std::to_string(symbol);
     } else {
       std::abort();
     }
@@ -69,6 +70,10 @@ struct Fock0DInfo {
       return true;
     }
     if (isVectorType(type) and isVectorType(other.type)) {
+      return true;
+    }
+    if (type == Type::SPIN_OPERATORS and
+        other.type == Type::SPIN_OPERATORS) {
       return true;
     }
     return false;
