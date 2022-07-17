@@ -55,13 +55,11 @@ static void add_terms_from_comutator(
 }
 
 // also used in evaluate
-template <class OperatorInfo>
+template <class OperatorInfo, typename Commutator>
 bool bubble_pass(
     const std::size_t term_index,
     vector_type<vector_type<Operator<OperatorInfo>>> &sorted_terms,
-    std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &,
-                                           const Operator<OperatorInfo> &)>
-        commute,
+    Commutator commute,
     const SortUsing sortUsing) {
   bool swap_performed = false;
   int sign = 1;
@@ -87,12 +85,10 @@ bool bubble_pass(
   }
   return swap_performed;
 }
-template <class OperatorInfo>
+template <class OperatorInfo, typename Commutator>
 static Expression<OperatorInfo> sort_multiply_term(
     const vector_type<Operator<OperatorInfo>> &term,
-    std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &,
-                                           const Operator<OperatorInfo> &)>
-        commute,
+    Commutator commute,
     const SortUsing sortUsing) {
   Expression<OperatorInfo> sorted_terms(
       vector_type<vector_type<Operator<OperatorInfo>>>(1));
@@ -109,12 +105,10 @@ static Expression<OperatorInfo> sort_multiply_term(
   return sorted_terms;
 }
 
-template <class OperatorInfo>
+template <class OperatorInfo, typename Commutator>
 Expression<OperatorInfo>
 sort(const Expression<OperatorInfo> &expr,
-     std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &,
-                                            const Operator<OperatorInfo> &)>
-         commute,
+     Commutator commute,
      const SortUsing sortUsing = SortUsing::COMMUTATORS) {
   spdlog::debug("Sorting exprssion begin");
   // addition is assumed to always be comutative

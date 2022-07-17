@@ -41,12 +41,10 @@ bool either_is_number(const Operator<OperatorInfo> &A,
 // Takes a comutator of operators and extends it to commute all numbers
 // As simplify of expressions assumes all numbers commute best to wrap all
 // comutators with this function
-template <class OperatorInfo>
+template <class OperatorInfo, class Comutator>
 Expression<OperatorInfo> commute_numbers(
     const Operator<OperatorInfo> &A, const Operator<OperatorInfo> &B,
-    std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &,
-                                           const Operator<OperatorInfo> &)>
-        commute) {
+    Comutator commute) {
   if (either_is_number(A, B)) {
     return zero_commutator<OperatorInfo>();
   }

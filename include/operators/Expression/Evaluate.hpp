@@ -10,12 +10,10 @@ namespace operators {
 //----------------------------------------------------------------------------------------------------------------------
 // all at once zone
 //----------------------------------------------------------------------------------------------------------------------
-template <class OperatorInfo, typename SubstitutionCallable>
+template <class OperatorInfo, typename SubstitutionCallable, typename Commutator>
 static Expression<OperatorInfo> interleaved_sort_sub_simple(
     Expression<OperatorInfo> exp,
-    std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &,
-                                           const Operator<OperatorInfo> &)>
-        commute,
+    Commutator commute,
     SubstitutionCallable subst, const SortUsing s) {
 
   // the thinking behind this approach is the bubble pass will ensure that the
@@ -51,12 +49,10 @@ static Expression<OperatorInfo> interleaved_sort_sub_simple(
   return exp;
 }
 
-template <class OperatorInfo, typename SubstitutionCallable>
+template <class OperatorInfo, typename SubstitutionCallable, typename Commutator>
 Expression<OperatorInfo> interleaved_evaluate(
     const Expression<OperatorInfo> &expr,
-    std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &,
-                                           const Operator<OperatorInfo> &)>
-        commute,
+    Commutator commute,
     SubstitutionCallable subst, const SortUsing s = SortUsing::COMMUTATORS) {
 
   return interleaved_sort_sub_simple(expr, commute, subst, s);
@@ -70,12 +66,10 @@ static void log_expression(const Expression<OperatorInfo> &exp,
   spdlog::info("After step {}: {}", prefix, exp.print(false));
 }
 
-template <class OperatorInfo, typename SubstitutionCallable>
+template <class OperatorInfo, typename SubstitutionCallable, typename Commutator>
 Expression<OperatorInfo>
 evaluate(const Expression<OperatorInfo> &input,
-         std::function<Expression<OperatorInfo>(const Operator<OperatorInfo> &,
-                                                const Operator<OperatorInfo> &)>
-             commute,
+         Commutator commute,
          SubstitutionCallable subst,
          const SortUsing s = SortUsing::COMMUTATORS) {
   // simplify numbers is much faster than the other functions and can make the
