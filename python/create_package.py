@@ -9,13 +9,15 @@ def check_configuation():
   src_dir = os.path.dirname(os.path.abspath(__file__))
   build_dir = os.path.abspath(src_dir + "/../build")
   if not os.path.exists(build_dir):
-    raise Exception(f"Expected build dir at: {build_dir}")
+    raise Exception(f'Expected build dir at: {build_dir}')
   # check the binary produced exists
-  cython_binding_path = os.path.join(
+  cython_bin_dir = os.path.join(
             build_dir,
-            "lib/operators/FockOperators.cpython-36m-x86_64-linux-gnu.so")
-  if not os.path.exists(cython_binding_path):
-    raise Exception(f"Expected to find binary at: f{cython_binding_path}")
+            "lib/operators")
+  for listing in os.listdir(cython_bin_dir):
+    if listing.startswith("FockOperators.cpython") and listing.endswith(".so"):
+      return # we found it
+  raise Exception(f'Expected to find binary in: {cython_bin_dir}')
 
 # Create empty directory to create wheel in, delete directory
 # if it already exists

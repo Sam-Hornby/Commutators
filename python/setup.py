@@ -27,14 +27,24 @@ class BinaryDistribution(Distribution):
     def has_ext_modules(foo):
         return True
 
-src_dir = os.path.dirname(os.path.abspath(__file__))
-binary_directory = src_dir + "/../build/lib/operators"
+def find_binary_dir():
+    src_dir = os.path.dirname(os.path.abspath(__file__))
+    return src_dir + "/../build/lib/operators"
+
+def find_pybind_output():
+    bin_dir = find_binary_dir()
+    for cand in os.listdir(bin_dir):
+        print(cand)
+        if cand.startswith("FockOperators.cpython") and cand.endswith(".so"):
+            return os.path.join(bin_dir, cand)
+    raise Exception(f'Could not find pybind output in {bin_dir}')
+
 
 setup(name="FockModule",
       description="",
       maintainer="Sam H",
       maintainer_email="samhornby0@gmail.com",
       packages=["FockModule"],
-      package_dir={"FockModule": binary_directory},
-      package_data={"FockModule": [binary_directory + "/FockOperators.cpython-36m-x86_64-linux-gnu.so"]},
+      package_dir={"FockModule": find_binary_dir()},
+      package_data={"FockModule": [find_pybind_output()]},
       distclass=BinaryDistribution)
