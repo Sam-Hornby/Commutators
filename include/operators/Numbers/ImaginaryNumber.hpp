@@ -26,7 +26,7 @@ struct ComplexNumber {
       return std::to_string(value.imag()) + " * i";
     }
     return "(" + std::to_string(value.real()) + " + " +
-           std::to_string(value.imag()) + "i)";
+           std::to_string(value.imag()) + " * i)";
   }
 };
 

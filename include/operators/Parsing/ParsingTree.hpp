@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <unordered_set>
 #include <absl/types/span.h>
 #include <absl/strings/str_cat.h>
 #include <Utils/Utils.hpp>
@@ -43,8 +44,46 @@ create_function_node(std::string name, std::vector<std::unique_ptr<TreeNodeBase>
   return std::make_unique<FunctionNode>(std::move(name), std::move(args));
 }
 
+
+const std::unordered_set<std::string> supported_ops {
+  "+",
+  "-",
+  "*",
+  "/",
+  "!",
+  "**",
+  "exp",
+  "\u221A", // root
+};
+
+bool is_digit(std::string_view token) {
+  return (token[0] >= '0' and token[0] <= '9') or token[0] == 'i';
+}
+
+template <class T>
+std::unique_ptr<TreeNodeBase> create_var_node_from_token(std::string_view token) {
+  if (supported_ops.contains(token)) {
+    throw std::logic_error("Trying to create variable from function token");
+  }
+  // fist check if it is a digit, if so create a number
+  if (is_digit(token)) {
+    // create complex number
+    return;
+  }
+  if (token[0] == '[') {
+    // create named number
+    return;
+  }
+  if (token[0] == '{') {
+    // create composite number
+    return;
+  }
+  // last option left if operator
+  return;
+}
+
 // -------------------------------------------------------------------------------
-// Itaration utils
+// Iteration utils
 // -------------------------------------------------------------------------------
 
 template <class Visitor, class VarType, class RetType>
