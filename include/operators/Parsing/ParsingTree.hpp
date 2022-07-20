@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <absl/types/span.h>
+#include <absl/strings/str_cat.h>
 
 namespace operators {
 
@@ -103,14 +104,14 @@ struct EvaluateVisitor {
     } else if (node.name == "**") {
       assert(args.size() == 2);
       // Need to check that second arg evaluates to an int
-      std::abort();
+      throw std::logic_error("Don't support ** yet");
     } else if (node.name == "!") {
       assert(args.size() == 1);
       std::abort(); // need to create conjugate operator
     }
     // TODO list is:
     //   - root, exp, ^2
-    std::abort();
+    throw std::logic_error(absl::StrCat("Don't support operator ", node.name));
   }
   T handle_variable(const VariableNode & node) const {
     return node.variable;
