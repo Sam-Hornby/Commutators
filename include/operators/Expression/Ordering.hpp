@@ -16,6 +16,8 @@ Operator<OperatorInfo> order_op(Operator<OperatorInfo> op) {
     op.order = ordering_value(100);
   } else if (is_creation_op<OperatorInfo>(op)) {
     op.order = ordering_value(-100);
+  } else if (op.info().type == Type::SPIN_OPERATORS) {
+    op.order = 0;
   }
   return op;
 }

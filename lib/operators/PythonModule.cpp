@@ -89,6 +89,7 @@ PYBIND11_MODULE(FockOperators, handle) {
       .value("HC_STATE_VECTOR", Type::HC_STATE_VECTOR)
       .value("CREATION_OPERATOR", Type::CREATION_OPERATOR)
       .value("ANIHILATION_OPERATOR", Type::ANIHILATION_OPERATOR)
+      .value("SPIN_OPERATOR", Type::SPIN_OPERATORS)
       .value("UNSPECIFIED", Type::UNSPECIFIED)
       .export_values();
 

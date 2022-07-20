@@ -35,6 +35,8 @@ add_subdirectory(benchmarks)
 
 add_operators_test(PrintTests)
 
+add_operators_test(ParseTests)
+
 add_operators_test(SortTests)
 
 add_operators_test(Commutators)

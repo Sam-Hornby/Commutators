@@ -67,7 +67,7 @@ Expression<OperatorInfo> commute_non_matching(
 template <class OperatorInfo, class Comutator>
 Expression<OperatorInfo> wrap_commutator(const Operator<OperatorInfo> &A, const Operator<OperatorInfo> &B,
                                          Comutator commute) {
-  auto tmp = [] (const Operator<OperatorInfo> &A, const Operator<OperatorInfo> &B) {
+  auto tmp = [&] (const Operator<OperatorInfo> &A, const Operator<OperatorInfo> &B) {
     return commute_non_matching<OperatorInfo>(A, B, commute);
   };
   return commute_numbers<OperatorInfo>(A, B, tmp);

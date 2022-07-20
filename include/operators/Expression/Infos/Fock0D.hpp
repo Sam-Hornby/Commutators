@@ -46,7 +46,7 @@ struct Fock0DInfo {
   std::string name() const {
     std::string result;
     if (isFockOpType(type)) {
-      return std::to_string(symbol) + "_0"
+      return std::string(1, symbol) + "_0"
           + (type == Type::CREATION_OPERATOR ? "!" : "");
     } else if (type == Type::STATE_VECTOR) {
       return "|0>";
