@@ -4,6 +4,7 @@
 #include <vector>
 #include <absl/types/span.h>
 #include <absl/strings/str_cat.h>
+#include <Utils/Utils.hpp>
 
 namespace operators {
 
@@ -107,7 +108,7 @@ struct EvaluateVisitor {
       throw std::logic_error("Don't support ** yet");
     } else if (node.name == "!") {
       assert(args.size() == 1);
-      std::abort(); // need to create conjugate operator
+      return hermition_conjugate(args[0]);
     }
     // TODO list is:
     //   - root, exp, ^2
