@@ -1,0 +1,41 @@
+
+# spin operators
+- spin operators:
+  - adding new operator type:
+    - put in match functions etc # maybe done
+    - deal with in commutators # maybe done
+    - expose to python
+  - holstein primakov transform
+  - tests:
+    - unit type from python
+    - physical examples
+
+# create expression from string
+- parsing:
+  - error checking
+  - tokeniser
+  - ast creation
+  - expression creation
+  - testing
+
+# create basis transform
+- create basis transform:
+  - create transform
+  - add tests
+
+# examples tasks
+- physical examples:
+  - weakly interacting bose gas
+  - more from 4th year
+
+# misc improvements
+- improvements:
+  - take order id out of Operator struct
+  - create equality operatorish thing for expressions
+  - sort additionterms in simplify 
+  - test hermitian conj better
+  - remove O(n^2) with recursive * ops instead of inserting straight into the vector
+  - deal with and test ops/comutations with different symbols
+  - have a create from string function
+  - reuse more between fock1d and 0d:
+    - current idea, have the infos, then a coord struct
