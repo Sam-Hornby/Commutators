@@ -36,6 +36,6 @@
   - test hermitian conj better
   - remove O(n^2) with recursive * ops instead of inserting straight into the vector
   - deal with and test ops/comutations with different symbols
-  - have a create from string function
+  - stop creating the pip package on incremental builds
   - reuse more between fock1d and 0d:
     - current idea, have the infos, then a coord struct
