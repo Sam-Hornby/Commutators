@@ -36,8 +36,35 @@ struct ParsingInfo {
 
 const ParsingInfo parsing_info;
 
+bool brackets_are_valid(const std::string & input) {
+  std::vector<char> expected;
+  for (auto c : input) {
+    if (c == '(') {
+        expected.push_back(')');
+    } else if (c == '{') {
+        expected.push_back('}');
+    } else if (c == '[') {
+        expected.push_back(']');
+    } else if (c == ')' or c == ']' or c == '}') {
+        if (expected.empty()) {
+            return false;
+        }
+        if (expected.back() != c) {
+            return false;
+        }
+        expected.pop_back();
+    } else {
+      continue; // don't care about any other char
+    }
+  }
+  return expected.empty();
+}
+
 void check_input(const std::string & input) {
-  // check brackets
+  if (!brackets_are_valid(input)) {
+    throw std::logic_error("Mismatched brackets");
+  }
+
 }
 
 bool end_of_current_token(std::string::const_iterator it) {
