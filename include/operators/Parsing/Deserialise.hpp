@@ -7,6 +7,7 @@
 #include <vector>
 #include <absl/strings/str_join.h>
 #include <cctype>
+#include "ParsingTree.hpp"
 
 namespace operators {
 // Function to take a string a return an expression from it
@@ -92,19 +93,30 @@ std::vector<std::string_view> tokenise_exp(const std::string & input) {
   return result;
 }
 
-// For now just support *,+,(,) and forget about root, square etc
-template <class OperatorInfo>
-Expression<OperatorInfo> from_string(std::string input) {
-  check_input(input);
-  auto tokens = tokenise_exp(input);
-  spdlog::debug("Tokens : {}", absl::StrJoin(tokens, ","));
-  // Shunting yard algorithm to transform expression to postfix version
+// Shunting yard algorithm to transform expression to postfix version
   // rules are:
   //   - operands are pushed to queue instantly
   //   - ( is pushed onto stack
   //   - ) process all symbols on stack until hit ( then discard
   //   - 
+template <class Info>
+std::unique_ptr<TreeNodeBase>
+shunting_yard(const std::vector<std::string_view> & tokens) {
+  if (tokens.empty() or true) {
+    return create_variable_node(Expression<Info>());
+  }
   return {};
+}
+
+// For now just support *,+,(,) and forget about root, square etc
+template <class Info>
+Expression<Info> from_string(std::string input) {
+  check_input(input);
+  auto tokens = tokenise_exp(input);
+  spdlog::debug("Tokens: {}", absl::StrJoin(tokens, ","));
+  auto ast = shunting_yard<Info>(tokens);
+  spdlog::debug("AST: {}", print_tree<Expression<Info>>(*ast));
+  return create_expression<Expression<Info>>(*ast);
 }
 
 

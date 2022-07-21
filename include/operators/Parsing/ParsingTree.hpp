@@ -45,7 +45,7 @@ create_function_node(std::string name, std::vector<std::unique_ptr<TreeNodeBase>
 }
 
 
-const std::unordered_set<std::string> supported_ops {
+const std::unordered_set<std::string_view> supported_ops {
   "+",
   "-",
   "*",
@@ -62,11 +62,12 @@ bool is_digit(std::string_view token) {
 
 template <class T>
 std::unique_ptr<TreeNodeBase> create_var_node_from_token(std::string_view token) {
-  if (supported_ops.contains(token)) {
+  if (supported_ops.count(token)) {
     throw std::logic_error("Trying to create variable from function token");
   }
+  std::abort();
   // fist check if it is a digit, if so create a number
-  if (is_digit(token)) {
+  /*if (is_digit(token)) {
     // create complex number
     return;
   }
@@ -79,7 +80,7 @@ std::unique_ptr<TreeNodeBase> create_var_node_from_token(std::string_view token)
     return;
   }
   // last option left if operator
-  return;
+  return;*/
 }
 
 // -------------------------------------------------------------------------------
@@ -88,11 +89,13 @@ std::unique_ptr<TreeNodeBase> create_var_node_from_token(std::string_view token)
 
 template <class Visitor, class VarType, class RetType>
 RetType apply_visitor(const TreeNodeBase & node, Visitor visitor = Visitor()) {
-  const FunctionNode * fnode = dynamic_cast<const FunctionNode *>(&node);
+  const FunctionNode * fnode =
+        dynamic_cast<const FunctionNode *>(&node);
   if (fnode) {
     return visitor.handle_function(*fnode);
   }
-  const VariableNode<VarType> * vnode = dynamic_cast<const VariableNode<T> *>(&node);
+  const VariableNode<VarType> * vnode =
+          dynamic_cast<const VariableNode<VarType> *>(&node);
   if (vnode) {
     return visitor.handle_variable(*vnode);
   }
@@ -115,7 +118,7 @@ template <class Before, class After>
 void dfs_walk(const TreeNodeBase & node, Before before, After after) {
   before(node);
   for (const auto & child : get_children(node)) {
-    dfs_walk(*child, f);
+    dfs_walk(*child, before, after);
   }
   after(node);
 }
@@ -140,7 +143,8 @@ struct EvaluateVisitor {
       return args[0] * args[1];
     } else if (node.name == "/") {
       assert(args.size() == 2);
-      return args[0] / args[1];
+      std::abort();
+      //return args[0] / args[1];
     } else if (node.name == "**") {
       assert(args.size() == 2);
       // Need to check that second arg evaluates to an int
@@ -153,7 +157,7 @@ struct EvaluateVisitor {
     //   - root, exp, ^2
     throw std::logic_error(absl::StrCat("Don't support operator ", node.name));
   }
-  T handle_variable(const VariableNode & node) const {
+  T handle_variable(const VariableNode<T> & node) const {
     return node.variable;
   }
 };
@@ -162,9 +166,9 @@ template <class T>
 T create_expression(const TreeNodeBase & root) {
   std::vector<T> args;
   for (const auto & child : get_children(root)) {
-    args.emplace_back(create_expression(*child));
+    args.emplace_back(create_expression<T>(*child));
   }
-  return apply_visitor(root, EvaluateVisitor<T>(std::move(args)));
+  return apply_visitor<EvaluateVisitor<T>, T, T>(root, EvaluateVisitor<T>(std::move(args)));
 }
 
 // -------------------------------------------------------------------------------
@@ -186,7 +190,7 @@ std::string print_tree(const TreeNodeBase & node) {
   std::string result;
   dfs_walk(node,
            [&] (const TreeNodeBase &node) {
-              result.append(apply_visitor<NameVisitor<T>>(node));
+              result.append(apply_visitor<NameVisitor<T>, T, std::string>(node));
               result.push_back('(');
             },
             [&] (const TreeNodeBase & node) {
