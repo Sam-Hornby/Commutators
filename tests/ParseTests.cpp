@@ -35,11 +35,11 @@ const std::vector<InputAndResult> test_cases = {
   {"", {}},
   {"5", {{{number<Fock0DInfo>(5)}}}},
   {"-a", number<Fock0DInfo>(-1) * anihilation_op()},
-  {"a!**3", creation_op() * creation_op() * creation_op()},
   {"a*b!+c_0*(d_0 + e!)",
       anihilation_op('a') * creation_op('b') + anihilation_op('c')
       * (anihilation_op('d') + creation_op('e'))},
   {"[a]", {{{named_number<Fock0DInfo>('a')}}}},
+  {"a!**3", creation_op() * creation_op() * creation_op()},
   //{Sz}, ...
   //{"{[a]}", ...}, 
   //{"{[a]! * 5}", ...},

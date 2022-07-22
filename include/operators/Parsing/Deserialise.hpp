@@ -181,6 +181,7 @@ struct TokenAndInfo {
   }
 };
 
+template<class Info>
 struct SYAContext {
   bool named_number = false;
   bool composite_number = false;
@@ -190,13 +191,18 @@ struct SYAContext {
   std::string to_string() const {
     return absl::StrCat("SYAContext: ",
                         named_number, ", ",
-                        composite_number, ", ",
-                        absl::StrJoin(operator_stack, ",", ToStringFormatter{}), ", ",
-                        operand_stack.size());
+                        composite_number, ", [",
+                        absl::StrJoin(operator_stack, ",", ToStringFormatter{}), "], ",
+                        operand_stack.size(), ", {",
+                        absl::StrJoin(operand_stack, ",", ApplyFormatter([] (const auto & n) {
+                          return print_tree<Expression<Info>>(*n);
+                        })), "}"
+                      );
   }
 };
 
-void apply_to_operands(SYAContext & context,
+template <class Info>
+void apply_to_operands(SYAContext<Info> & context,
         std::string_view token, OpInfo info) {
   auto & operand_stack = context.operand_stack;
   if (operand_stack.size() < info.num_operands) {
@@ -211,8 +217,17 @@ void apply_to_operands(SYAContext & context,
   operand_stack.emplace_back(create_function_node(token, std::move(args)));
 }
 
+template <class Info>
+bool can_push(const SYAContext<Info> & context, std::string_view token, OpInfo info) {
+  return context.operator_stack.empty() or
+         context.operator_stack.back().token == "(" or
+         (info.precidence > context.operator_stack.back().info.precidence) or
+         (info.precidence == context.operator_stack.back().info.precidence and !info.left_bind);
+}
+
+template <class Info>
 void SYAHandleOp(
-      SYAContext & context, std::string_view token,
+      SYAContext<Info> & context, std::string_view token,
       OpInfo info) {
   if (info.num_operands == 1 and info.left_bind) {
     // special case and just apply imediately
@@ -221,18 +236,16 @@ void SYAHandleOp(
     return;
   }
 
-  if (context.operator_stack.empty() or
-      (info.precidence > context.operator_stack.back().info.precidence) or
-      (info.precidence == context.operator_stack.back().info.precidence and
-            !info.left_bind)) {
-    context.operator_stack.emplace_back(TokenAndInfo{token, info});
-  } else {
-    std::abort();
+  while(!can_push(context, token, info)) {
+    auto [t, op_info] = context.operator_stack.back();
+    apply_to_operands(context, t, op_info);
+    context.operator_stack.pop_back();
   }
+  context.operator_stack.emplace_back(TokenAndInfo{token, info});
 }
 
 template <class Info>
-void handle_operand(SYAContext & context, std::string_view token) {
+void handle_operand(SYAContext<Info> & context, std::string_view token) {
   Expression<Info> result;
   if (context.named_number) {
     result = create_named_number_from_string<Info>(token);
@@ -247,10 +260,29 @@ void handle_operand(SYAContext & context, std::string_view token) {
   context.operand_stack.emplace_back(create_variable_node(std::move(result)));
 }
 
-void flush_operator_stack(SYAContext & context) {
+template <class Info>
+void flush_operator_stack(SYAContext<Info> & context) {
   while (context.operator_stack.size()) {
     auto [token, info] = context.operator_stack.back();
     apply_to_operands(context, token, info);
+    context.operator_stack.pop_back();
+  }
+}
+
+bool is_open_bracket(const std::string_view token) {
+  return token[0] == '(' or token[0] == '[' or token[0] == '{';
+}
+
+template <class Info>
+void handle_bracket(SYAContext<Info> & context, const std::string_view token) {
+  if (is_open_bracket(token)) {
+    context.operator_stack.emplace_back(TokenAndInfo{token, {}});
+  } else {
+    while(!is_open_bracket(context.operator_stack.back().token)) {
+      auto [t, info] = context.operator_stack.back();
+      apply_to_operands(context, t, info);
+      context.operator_stack.pop_back();
+    }
     context.operator_stack.pop_back();
   }
 }
@@ -263,12 +295,12 @@ shunting_yard(const std::vector<std::string_view> & tokens) {
     return create_variable_node(Expression<Info>());
   }
 
-  SYAContext context;
+  SYAContext<Info> context;
   for (const auto & token : tokens) {
     spdlog::debug("SYA next: {}, context: {}", token, context.to_string());
     if (parsing_info.is_bracket(token)) {
       // handle bracket
-      std::abort();
+      handle_bracket<Info>(context, token);
     } else if (parsing_info.get_op_info(token)) {
       SYAHandleOp(context, token, *parsing_info.get_op_info(token));
     } else {

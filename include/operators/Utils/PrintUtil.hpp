@@ -42,4 +42,14 @@ class ToStringFormatter {
   }
 };
 
+template <class F>
+struct ApplyFormatter {
+  ApplyFormatter(F f) : f(std::move(f)) {}
+  F f;
+  template <class T>
+  void operator() (std::string * out, const T& t) const {
+    return absl::AlphaNumFormatter()(out, f(t));
+  }
+};
+
 }
