@@ -127,8 +127,9 @@ void dfs_walk(const TreeNodeBase & node, Before before, After after) {
 // Evaluation utils
 // -------------------------------------------------------------------------------
 
-template <class T>
+template <class Info>
 struct EvaluateVisitor {
+  using T = Expression<Info>;
   std::vector<T> args;
   EvaluateVisitor(std::vector<T> args) : args(std::move(args)) {}
   T handle_function(const FunctionNode & node) {
@@ -145,6 +146,9 @@ struct EvaluateVisitor {
       assert(args.size() == 2);
       std::abort();
       //return args[0] / args[1];
+    } else if (node.name == "#") {
+      assert(args.size() == 1);
+      return number<Info>(-1) * args[0];
     } else if (node.name == "**") {
       assert(args.size() == 2);
       // Need to check that second arg evaluates to an int
@@ -162,13 +166,15 @@ struct EvaluateVisitor {
   }
 };
 
-template <class T>
-T create_expression(const TreeNodeBase & root) {
-  std::vector<T> args;
+template <class Info>
+Expression<Info> create_expression(const TreeNodeBase & root) {
+  std::vector<Expression<Info>> args;
   for (const auto & child : get_children(root)) {
-    args.emplace_back(create_expression<T>(*child));
+    args.emplace_back(create_expression<Info>(*child));
   }
-  return apply_visitor<EvaluateVisitor<T>, T, T>(root, EvaluateVisitor<T>(std::move(args)));
+  using T = Expression<Info>;
+  return apply_visitor<EvaluateVisitor<Info>, T, T>(
+        root, EvaluateVisitor<Info>(std::move(args)));
 }
 
 // -------------------------------------------------------------------------------

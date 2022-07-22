@@ -34,12 +34,14 @@ struct OpInfo {
 // TODO deal with unary minus
 struct ParsingInfo {
   const std::string brackets{"()[]{}"};
-  const std::string special_chars = brackets + "+*-/!";
+  const std::string special_chars = brackets + "+*-/!#";
+  const std::string unary_minus{"([{+*-/"};
   const std::unordered_map<std::string_view, OpInfo> op_infos = {
     {"+", {10, 2, true}},
     {"-", {10, 2, true}},
     {"*", {20, 2, true}},
     {"/", {20, 2, true}},
+    {"#", {25, 1, false}}, // unary minus
     {"**", {30, 2, false}},
     {"!", {40, 1, true}},
     {"root", {40, 1, false}},
@@ -54,15 +56,20 @@ struct ParsingInfo {
     return it->second;
   }
 
-  bool is_bracket(std::string_view token) const {
-    return absl::c_any_of(brackets, [&] (char s) {
-      return s == token[0];
-    });
-  }
-  bool token_end(char c) const {
-    return absl::c_any_of(special_chars, [&] (char s) {
+  static bool any_of_helper(const std::string & set, char c) {
+    return absl::c_any_of(set, [&] (char s) {
       return s == c;
     });
+  }
+
+  bool is_bracket(std::string_view token) const {
+    return any_of_helper(brackets, token[0]);
+  }
+  bool token_end(char c) const {
+    return any_of_helper(special_chars, c);
+  }
+  bool can_affect_minus(char c) const {
+    return any_of_helper(unary_minus, c);
   }
 };
 
@@ -149,6 +156,21 @@ std::vector<std::string_view> tokenise_exp(const std::string & input) {
   remove_whitespace(result);
   find_pow_operators(result);
   return result;
+}
+
+void find_unary_minus(std::vector<std::string_view> & tokens) {
+  if (tokens.size() and tokens[0] == "-") {
+    tokens[0] = std::string_view("#");;
+  }
+  for (std::size_t i = 1; i < tokens.size(); ++i) {
+    if (tokens[i] == "-") {
+      const auto & prev = tokens[i-1];
+      if (prev.size() == 1 and parsing_info.can_affect_minus(prev[0])) {
+        // convert to unary minus
+        tokens[i] = std::string_view("#");
+      }
+    }
+  }
 }
 
 struct TokenAndInfo {
@@ -269,10 +291,11 @@ template <class Info>
 Expression<Info> from_string(std::string input) {
   check_input(input);
   auto tokens = tokenise_exp(input);
+  find_unary_minus(tokens);
   spdlog::debug("Tokens: {}", absl::StrJoin(tokens, ","));
   auto ast = shunting_yard<Info>(tokens);
   spdlog::debug("AST: {}", print_tree<Expression<Info>>(*ast));
-  return create_expression<Expression<Info>>(*ast);
+  return create_expression<Info>(*ast);
 }
 
 
