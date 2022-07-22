@@ -8,6 +8,8 @@
 #include <absl/strings/str_join.h>
 #include <cctype>
 #include "ParsingTree.hpp"
+#include "OperatorCreation.hpp"
+#include <Utils/PrintUtil.hpp>
 
 namespace operators {
 // Function to take a string a return an expression from it
@@ -23,10 +25,40 @@ namespace operators {
 //     - [named_number]
 //     - {composite number}
 
+struct OpInfo {
+  int precidence;
+  int num_operands;
+  bool left_bind;
+};
 
+// TODO deal with unary minus
 struct ParsingInfo {
-  const std::string special_chars{"+*-/!()[]{}"};
+  const std::string brackets{"()[]{}"};
+  const std::string special_chars = brackets + "+*-/!";
+  const std::unordered_map<std::string_view, OpInfo> op_infos = {
+    {"+", {10, 2, true}},
+    {"-", {10, 2, true}},
+    {"*", {20, 2, true}},
+    {"/", {20, 2, true}},
+    {"**", {30, 2, false}},
+    {"!", {40, 1, true}},
+    {"root", {40, 1, false}},
+    // brackets treated seperately
+  };
 
+  std::optional<OpInfo> get_op_info(std::string_view token) const {
+    auto it = op_infos.find(token);
+    if (it == op_infos.end()) {
+      return {};
+    }
+    return it->second;
+  }
+
+  bool is_bracket(std::string_view token) const {
+    return absl::c_any_of(brackets, [&] (char s) {
+      return s == token[0];
+    });
+  }
   bool token_end(char c) const {
     return absl::c_any_of(special_chars, [&] (char s) {
       return s == c;
@@ -64,7 +96,6 @@ void check_input(const std::string & input) {
   if (!brackets_are_valid(input)) {
     throw std::logic_error("Mismatched brackets");
   }
-
 }
 
 bool end_of_current_token(std::string::const_iterator it) {
@@ -120,19 +151,117 @@ std::vector<std::string_view> tokenise_exp(const std::string & input) {
   return result;
 }
 
+struct TokenAndInfo {
+  std::string_view token;
+  OpInfo info;
+  std::string to_string() const {
+    return std::string(token);
+  }
+};
+
+struct SYAContext {
+  bool named_number = false;
+  bool composite_number = false;
+  std::vector<TokenAndInfo> operator_stack;
+  std::vector<std::unique_ptr<TreeNodeBase>> operand_stack;
+
+  std::string to_string() const {
+    return absl::StrCat("SYAContext: ",
+                        named_number, ", ",
+                        composite_number, ", ",
+                        absl::StrJoin(operator_stack, ",", ToStringFormatter{}), ", ",
+                        operand_stack.size());
+  }
+};
+
+void apply_to_operands(SYAContext & context,
+        std::string_view token, OpInfo info) {
+  auto & operand_stack = context.operand_stack;
+  if (operand_stack.size() < info.num_operands) {
+    throw std::logic_error("Syntax err, operand stack too small");
+  }
+  std::vector<std::unique_ptr<TreeNodeBase>> args;
+  std::size_t begin = operand_stack.size() - info.num_operands;
+  for (std::size_t i = begin; i < operand_stack.size(); ++i) {
+    args.emplace_back(std::move(operand_stack[i]));
+  }
+  operand_stack.erase(operand_stack.begin() + begin, operand_stack.end());
+  operand_stack.emplace_back(create_function_node(token, std::move(args)));
+}
+
+void SYAHandleOp(
+      SYAContext & context, std::string_view token,
+      OpInfo info) {
+  if (info.num_operands == 1 and info.left_bind) {
+    // special case and just apply imediately
+    // not clear what happens with sqrt(a)!
+    apply_to_operands(context, token, info);
+    return;
+  }
+
+  if (context.operator_stack.empty() or
+      (info.precidence > context.operator_stack.back().info.precidence) or
+      (info.precidence == context.operator_stack.back().info.precidence and
+            !info.left_bind)) {
+    context.operator_stack.emplace_back(TokenAndInfo{token, info});
+  } else {
+    std::abort();
+  }
+}
+
+template <class Info>
+void handle_operand(SYAContext & context, std::string_view token) {
+  Expression<Info> result;
+  if (context.named_number) {
+    result = create_named_number_from_string<Info>(token);
+  } else if (context.composite_number) {
+    std::abort(); // don't know yet
+  } else if (token[0] >= '0' and token[0] <= '9') {
+    // assume is digit
+    result = {{{number<Info>(std::stod(std::string(token)))}}};
+  } else {
+    result = {{{create_operator_from_string<Info>(token)}}};
+  }
+  context.operand_stack.emplace_back(create_variable_node(std::move(result)));
+}
+
+void flush_operator_stack(SYAContext & context) {
+  while (context.operator_stack.size()) {
+    auto [token, info] = context.operator_stack.back();
+    apply_to_operands(context, token, info);
+    context.operator_stack.pop_back();
+  }
+}
+
 // Shunting yard algorithm to transform expression to postfix version
-  // rules are:
-  //   - operands are pushed to queue instantly
-  //   - ( is pushed onto stack
-  //   - ) process all symbols on stack until hit ( then discard
-  //   - 
 template <class Info>
 std::unique_ptr<TreeNodeBase>
 shunting_yard(const std::vector<std::string_view> & tokens) {
-  if (tokens.empty() or true) {
+  if (tokens.empty()) {
     return create_variable_node(Expression<Info>());
   }
-  return {};
+
+  SYAContext context;
+  for (const auto & token : tokens) {
+    spdlog::debug("SYA next: {}, context: {}", token, context.to_string());
+    if (parsing_info.is_bracket(token)) {
+      // handle bracket
+      std::abort();
+    } else if (parsing_info.get_op_info(token)) {
+      SYAHandleOp(context, token, *parsing_info.get_op_info(token));
+    } else {
+      handle_operand<Info>(context, token);
+    }
+  }
+  
+  // need to move function operators into
+  flush_operator_stack(context);
+
+  if (context.operand_stack.size() != 1) {
+    throw std::logic_error("Syntax error");
+  }
+  return std::move(context.operand_stack[0]);
+
 }
 
 // For now just support *,+,(,) and forget about root, square etc

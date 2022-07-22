@@ -24,9 +24,9 @@ struct VariableNode : TreeNodeBase {
 };
 
 struct FunctionNode : TreeNodeBase {
-  std::string name;
+  std::string_view name;
   std::vector<std::unique_ptr<TreeNodeBase>> args;
-  FunctionNode(std::string name, std::vector<std::unique_ptr<TreeNodeBase>> args) :
+  FunctionNode(std::string_view name, std::vector<std::unique_ptr<TreeNodeBase>> args) :
         name(std::move(name)), args(std::move(args)) {}
 };
 
@@ -40,7 +40,7 @@ std::unique_ptr<TreeNodeBase> create_variable_node(T var) {
 }
 
 std::unique_ptr<TreeNodeBase>
-create_function_node(std::string name, std::vector<std::unique_ptr<TreeNodeBase>> && args) {
+create_function_node(std::string_view name, std::vector<std::unique_ptr<TreeNodeBase>> && args) {
   return std::make_unique<FunctionNode>(std::move(name), std::move(args));
 }
 
@@ -178,7 +178,7 @@ T create_expression(const TreeNodeBase & root) {
 template <class T>
 struct NameVisitor {
   std::string handle_function(const FunctionNode & n) const {
-    return n.name;
+    return std::string(n.name);
   }
   std::string handle_variable(const VariableNode<T> & n) const {
     return n.variable.name();

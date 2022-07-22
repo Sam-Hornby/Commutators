@@ -43,6 +43,7 @@ struct Fock0DInfo {
   char symbol = 'a';
   Fock0DInfo() = default;
   Fock0DInfo(Type type) : type(type) {}
+  Fock0DInfo(Type type, char c) : type(type), symbol(c) {}
   std::string name() const {
     std::string result;
     if (isFockOpType(type)) {

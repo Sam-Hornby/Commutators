@@ -28,11 +28,18 @@ struct InputAndResult {
 };
 
 const std::vector<InputAndResult> test_cases = {
-  InputAndResult{"a_0", {{{anihilation_op()}}}},
-  InputAndResult{"a_0!", {{{creation_op()}}}},
-  InputAndResult{"c", {{{anihilation_op('c')}}}},
-  InputAndResult{"c!", {{{creation_op('c')}}}},
+  {"a_0", {{{anihilation_op()}}}},
+  {"a_0!", {{{creation_op()}}}},
+  {"c", {{{anihilation_op('c')}}}},
+  {"c!", {{{creation_op('c')}}}},
   {"", {}},
+  {"5", {{{number<Fock0DInfo>(5)}}}},
+  {"-a", number<Fock0DInfo>(-1) * anihilation_op()},
+  {"[a]", {{{named_number<Fock0DInfo>('a')}}}},
+  //{Sz}, ...
+  //{"{[a]}", ...}, 
+  //{"{[a]! * 5}", ...},
+  //{"{{b + c} * 5}", ...},
   {"a!**3", creation_op() * creation_op() * creation_op()},
   {"a*b!+c_0*(d_0 + e!)",
       anihilation_op('a') * creation_op('b') + anihilation_op('c')
@@ -54,6 +61,12 @@ const std::vector<std::string> fail_cases = {
   "(a + [b)]", // invalid bracket sequence
   "a + + b", // invalid sequence
   "a *** 3", // invalid operator
+  "[c * b]", // can't have op in named number
+  "[[a]]", // can't have nested named numbers
+  "[{a}]", // can't have composite inside named
+  "[name]", // only single char names allowed
+  "ab",
+  "Sm",
 };
 
 BOOST_AUTO_TEST_CASE(parse_failed) {
