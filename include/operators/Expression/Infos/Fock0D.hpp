@@ -54,7 +54,7 @@ struct Fock0DInfo {
     } else if (type == Type::HC_STATE_VECTOR) {
       return "<0|";
     } else if (type == Type::SPIN_OPERATORS) {
-      return std::string("S") + std::to_string(symbol);
+      return std::string("S") + std::string(1, symbol);
     } else {
       std::abort();
     }

@@ -7,7 +7,18 @@
 
 using namespace operators;
 
+const std::vector<char> allowed_axis = {'x', 'y', 'z'};
 
+Operator<Fock0DInfo> create_spin_operator(char axis) {
+  if (absl::c_none_of(allowed_axis, [&] (char c) {return c == axis;})) {
+    throw std::logic_error(
+        std::string("Axis must be one of x,y,z is: ")
+        + std::to_string(axis));
+  }
+  Fock0DInfo result(Type::SPIN_OPERATORS);
+  result.symbol = axis;
+  return Operator<Fock0DInfo>(ordering_value(0), result);
+}
 
 Operator<Fock0DInfo> creation_op(char c = 'a') {
   auto res = Operator<Fock0DInfo>(ordering_value(0),
@@ -39,6 +50,7 @@ const std::vector<InputAndResult> test_cases = {
       anihilation_op('a') * creation_op('b') + anihilation_op('c')
       * (anihilation_op('d') + creation_op('e'))},
   {"[a]", {{{named_number<Fock0DInfo>('a')}}}},
+  {"Sz * Sy", create_spin_operator('z') * create_spin_operator('y')},
   {"a!**3", creation_op() * creation_op() * creation_op()},
   //{Sz}, ...
   //{"{[a]}", ...}, 
