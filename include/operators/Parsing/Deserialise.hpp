@@ -183,8 +183,8 @@ struct TokenAndInfo {
 
 template<class Info>
 struct SYAContext {
-  bool named_number = false;
-  bool composite_number = false;
+  int named_number = 0;
+  int composite_number = 0;
   std::vector<TokenAndInfo> operator_stack;
   std::vector<std::unique_ptr<TreeNodeBase>> operand_stack;
 
@@ -229,6 +229,9 @@ template <class Info>
 void SYAHandleOp(
       SYAContext<Info> & context, std::string_view token,
       OpInfo info) {
+  if (context.named_number) {
+    throw std::logic_error("Can't have operators inside named number");
+  }
   if (info.num_operands == 1 and info.left_bind) {
     // special case and just apply imediately
     // not clear what happens with sqrt(a)!
@@ -284,6 +287,18 @@ void handle_bracket(SYAContext<Info> & context, const std::string_view token) {
       context.operator_stack.pop_back();
     }
     context.operator_stack.pop_back();
+  }
+  if (token == "[") {
+    if (context.named_number > 0) {
+      throw std::logic_error("Can't nest named numbers");
+    }
+    context.named_number++;
+  } else if (token == "]") {
+    context.named_number--;
+  } else if (token == "{") {
+    if (context.named_number > 0) {
+      throw std::logic_error("Can't nest named numbers");
+    }
   }
 }
 

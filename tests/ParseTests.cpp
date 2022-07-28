@@ -52,7 +52,7 @@ const std::vector<InputAndResult> test_cases = {
   {"[a]", {{{named_number<Fock0DInfo>('a')}}}},
   {"Sz * Sy", create_spin_operator('z') * create_spin_operator('y')},
   {"a!**3", creation_op() * creation_op() * creation_op()},
-  //{Sz}, ...
+  {"Sx", {{{create_spin_operator('x')}}}},
   //{"{[a]}", ...}, 
   //{"{[a]! * 5}", ...},
   //{"{{b + c} * 5}", ...},
@@ -80,10 +80,13 @@ const std::vector<std::string> fail_cases = {
   "[name]", // only single char names allowed
   "ab",
   "Sm",
+  "!(a)",
+  "a + (!b)",
 };
 
 BOOST_AUTO_TEST_CASE(parse_failed) {
   for (const auto & test : fail_cases) {
+    BOOST_TEST_MESSAGE(test);
     BOOST_CHECK_THROW(from_string<Fock0DInfo>(test),
                       std::logic_error);
   }
