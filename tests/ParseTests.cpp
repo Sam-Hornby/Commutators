@@ -73,6 +73,7 @@ const std::vector<std::string> fail_cases = {
   "(a + [b)]", // invalid bracket sequence
   "a + + b", // invalid sequence
   "a *** 3", // invalid operator
+  "a ** 3.5", // only int pows allowed
   "[c * b]", // can't have op in named number
   "[[a]]", // can't have nested named numbers
   "[{a}]", // can't have composite inside named

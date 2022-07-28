@@ -127,6 +127,38 @@ void dfs_walk(const TreeNodeBase & node, Before before, After after) {
 // Evaluation utils
 // -------------------------------------------------------------------------------
 
+template<class Info>
+Expression<Info> try_evaluate_pow(const Expression<Info> & A, const Expression<Info> & B) {
+  auto simple_b = simplify_numbers(B);
+  if (simple_b.expression.size() != 1 or simple_b.expression[0].size() != 1) {
+    throw std::logic_error("Only supports single number pow expressions");
+  }
+  const auto & op = simple_b.expression[0][0];
+  if (!op.is_evaluated_number()) {
+    throw std::logic_error("Only supports single number pow expressions");
+  }
+  const auto value = op.value().value;
+  if (value.imag() != 0) {
+    throw std::logic_error("Only support real pows");
+  }
+  double integer_part;
+  double decimal_part = std::modf(value.real(), &integer_part);
+  if (decimal_part != 0) {
+    throw std::logic_error("Only integer powers supports got remainder " + std::to_string(decimal_part));
+  }
+  if (integer_part < 0) {
+    throw std::logic_error("Only positive integers supports in pow");
+  }
+  if (static_cast<int>(integer_part) == 0) {
+    return {{{number<Info>(1)}}};
+  }
+  auto result = A;
+  for (int i = 1; i < static_cast<int>(integer_part); ++i) {
+    result = result * A;
+  }
+  return result;
+}
+
 template <class Info>
 struct EvaluateVisitor {
   using T = Expression<Info>;
@@ -152,11 +184,12 @@ struct EvaluateVisitor {
     } else if (node.name == "**") {
       assert(args.size() == 2);
       // Need to check that second arg evaluates to an int
-      throw std::logic_error("Don't support ** yet");
+      return try_evaluate_pow(args[0], args[1]);
     } else if (node.name == "!") {
       assert(args.size() == 1);
       return hermition_conjugate(args[0]);
     }
+    std::cout << node.name << " " << node.name.size() << std::endl;
     // TODO list is:
     //   - root, exp, ^2
     throw std::logic_error(absl::StrCat("Don't support operator ", node.name));
