@@ -82,6 +82,7 @@ const std::vector<std::string> fail_cases = {
   "Sm",
   "!(a)",
   "a + (!b)",
+  "a + ! b",
 };
 
 BOOST_AUTO_TEST_CASE(parse_failed) {

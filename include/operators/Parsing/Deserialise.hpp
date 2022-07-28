@@ -173,6 +173,44 @@ void find_unary_minus(std::vector<std::string_view> & tokens) {
   }
 }
 
+void remove_empty_brackets(std::vector<std::string_view> & tokens) {
+  bool made_change = true;
+  while (made_change) {
+    made_change = false;
+    for (std::size_t i = 1; i < tokens.size(); ++i) {
+      if ((tokens[i-1] == "(" and tokens[i] == ")") or
+          (tokens[i-1] == "[" and tokens[i] == "]") or
+          (tokens[i-1] == "{" and tokens[i] == "}")) {
+        tokens[i-1] = std::string_view();
+        tokens[i] = std::string_view();
+        made_change = true;
+      }
+    }
+    remove_whitespace(tokens);
+  }
+}
+
+void verify_conj(const std::vector<std::string_view> & tokens) {
+  if (tokens[0] == "!") {
+    throw std::logic_error("Can't conjugate nothing");
+  }
+  for (int i = 1; i < tokens.size(); ++i) {
+    if (tokens[i] != "!") {
+      continue;
+    }
+    if (tokens[i-1] == ")" or tokens[i-1] == "]" or
+        tokens[i-1] == "}") {
+      continue;
+    }
+    if (parsing_info.get_op_info(tokens[i-1]) or
+        parsing_info.is_bracket(tokens[i-1])) {
+      throw std::logic_error(
+          "Conjugate operator cannot follow " +
+              std::string(tokens[i-1]));
+    }
+  }
+}
+
 struct TokenAndInfo {
   std::string_view token;
   OpInfo info;
@@ -339,6 +377,8 @@ Expression<Info> from_string(std::string input) {
   check_input(input);
   auto tokens = tokenise_exp(input);
   find_unary_minus(tokens);
+  remove_empty_brackets(tokens);
+  verify_conj(tokens);
   spdlog::debug("Tokens: {}", absl::StrJoin(tokens, ","));
   auto ast = shunting_yard<Info>(tokens);
   spdlog::debug("AST: {}", print_tree<Expression<Info>>(*ast));
