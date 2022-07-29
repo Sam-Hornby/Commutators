@@ -6,6 +6,7 @@
 #include <Expression/Ordering.hpp>
 #include <Substitutions/Substitutions.hpp>
 #include <Utils/Utils.hpp>
+#include <Parsing/Deserialise.hpp>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -108,6 +109,7 @@ PYBIND11_MODULE(FockOperators, handle) {
   handle.def("vacuum_state", &create_vacuum_state);
   handle.def("hermitian_conjugate", &conjugate);
   handle.def("normal_order", &normal_order_exp);
+  handle.def("from_string", &from_string<Fock1DInfo>);
 
   // Think maybe should use factories instead of constructors to help create
   // numbers

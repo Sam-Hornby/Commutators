@@ -54,7 +54,9 @@ const std::vector<InputAndResult> test_cases = {
   {"a!**3", creation_op() * creation_op() * creation_op()},
   {"Sx", {{{create_spin_operator('x')}}}},
   {"a - () b", anihilation_op('a') + (number<Fock0DInfo>(-1) *anihilation_op('b'))},
-  {"a!*b-c*3", creation_op('a') * anihilation_op('b') - {{{anihilation_op('c')}}} * {{{number<Fock0DInfo>(3)}}}},
+  {"a!*b+c*3", creation_op('a') * anihilation_op('b') +
+              Expression<Fock0DInfo>({{anihilation_op('c')}}) *
+              Expression<Fock0DInfo>{{{number<Fock0DInfo>(3)}}}},
   //{"{[a]}", ...}, 
   //{"{[a]! * 5}", ...},
   //{"{{b + c} * 5}", ...},

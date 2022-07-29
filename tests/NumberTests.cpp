@@ -182,11 +182,11 @@ BOOST_AUTO_TEST_CASE(imaginary_numbers) {
 
   D = ComplexNumber(1, 1) * ComplexNumber(2, 3);
   BOOST_CHECK_EQUAL(D.value, std::complex<double>(-1.0, 5));
-  BOOST_CHECK_EQUAL(D.name(), "(-1.000000 + 5.000000i)");
+  BOOST_CHECK_EQUAL(D.name(), "(-1.000000 + 5.000000 * i)");
 
   D = ComplexNumber(3, 4) + ComplexNumber(7, 8);
   BOOST_CHECK_EQUAL(D.value, std::complex<double>(10, 12.0));
-  BOOST_CHECK_EQUAL(D.name(), "(10.000000 + 12.000000i)");
+  BOOST_CHECK_EQUAL(D.name(), "(10.000000 + 12.000000 * i)");
 }
 
 BOOST_AUTO_TEST_CASE(named_numbers) {
