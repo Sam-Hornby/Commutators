@@ -53,6 +53,8 @@ const std::vector<InputAndResult> test_cases = {
   {"Sz * Sy", create_spin_operator('z') * create_spin_operator('y')},
   {"a!**3", creation_op() * creation_op() * creation_op()},
   {"Sx", {{{create_spin_operator('x')}}}},
+  {"a - () b", anihilation_op('a') + (number<Fock0DInfo>(-1) *anihilation_op('b'))},
+  {"a!*b-c*3", creation_op('a') * anihilation_op('b') - {{{anihilation_op('c')}}} * {{{number<Fock0DInfo>(3)}}}},
   //{"{[a]}", ...}, 
   //{"{[a]! * 5}", ...},
   //{"{{b + c} * 5}", ...},
@@ -60,6 +62,7 @@ const std::vector<InputAndResult> test_cases = {
 
 BOOST_AUTO_TEST_CASE(parse_successful) {
   for (const auto & test_case : test_cases) {
+    BOOST_TEST_MESSAGE(test_case.input);
     auto result = from_string<Fock0DInfo>(test_case.input);
     BOOST_CHECK_EQUAL(result, test_case.result);
   }
@@ -82,7 +85,8 @@ const std::vector<std::string> fail_cases = {
   "Sm",
   "!(a)",
   "a + (!b)",
-  "a + ! b",
+  "a * ! b",
+  "a - () !b"
 };
 
 BOOST_AUTO_TEST_CASE(parse_failed) {
