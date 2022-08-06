@@ -83,6 +83,8 @@ PyType normal_order_exp(PyType in, bool fermions) {
                               default_boson_subs<Fock1DInfo>, sort_using);
 }
 
+template <> Expression<Fock1DInfo> from_string<Fock1DInfo>(std::string);
+
 PYBIND11_MODULE(FockOperators, handle) {
 
   py::enum_<Type>(handle, "FockType")

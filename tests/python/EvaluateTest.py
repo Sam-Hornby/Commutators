@@ -3,15 +3,21 @@ from FockModule import FockOperators
 
 def test_normal_order():
   creation = FockOperators.FockType(2)
-  a = FockOperators.fock_op(0, creation, "a")
-  a_d = FockOperators.hermitian_conjugate(a)
-  v = FockOperators.vacuum_state()
-  v_d = FockOperators.hermitian_conjugate(v)
+  #a = FockOperators.fock_op(0, creation, "a")
+  #a_d = FockOperators.hermitian_conjugate(a)
+  #v = FockOperators.vacuum_state()
+  #v_d = FockOperators.hermitian_conjugate(v)
+  v = FockOperators.from_string("|0>")
+  v_d = FockOperators.from_string("<0|")
 
-  N = a_d * a
-  N_d = a * a_d
+  N = FockOperators.from_string("a! * a")
+  N_d = FockOperators.from_string("a * a_d")
   V = N * v
   V2 = v_d * N * v
+  #N = a_d * a
+  #N_d = a * a_d
+  #V = N * v
+  #V2 = v_d * N * v
 
 
   ON = FockOperators.normal_order(N, False)
