@@ -35,6 +35,7 @@ struct Fock0DInfo {
     case Type::UNSPECIFIED:
       return type;
     }
+    std::abort();
   }
 
   // struct where only degree of freedom is energy value and only vacuum state
