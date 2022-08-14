@@ -83,7 +83,9 @@ PyType normal_order_exp(PyType in, bool fermions) {
                               default_boson_subs<Fock1DInfo>, sort_using);
 }
 
-template <> Expression<Fock1DInfo> from_string<Fock1DInfo>(std::string);
+PyType create_from_string(std::string input) {
+  return from_string<Fock1DInfo>(std::move(input));
+}
 
 PYBIND11_MODULE(FockOperators, handle) {
 
@@ -111,7 +113,7 @@ PYBIND11_MODULE(FockOperators, handle) {
   handle.def("vacuum_state", &create_vacuum_state);
   handle.def("hermitian_conjugate", &conjugate);
   handle.def("normal_order", &normal_order_exp);
-  handle.def("from_string", &from_string<Fock1DInfo>);
+  handle.def("from_string", &create_from_string);
 
   // Think maybe should use factories instead of constructors to help create
   // numbers

@@ -10,6 +10,7 @@
 #include "ParsingTree.hpp"
 #include "OperatorCreation.hpp"
 #include <Utils/PrintUtil.hpp>
+#include <Utils/Trace.hpp>
 
 namespace operators {
 // Function to take a string a return an expression from it
@@ -374,15 +375,15 @@ shunting_yard(const std::vector<std::string_view> & tokens) {
 // For now just support *,+,(,) and forget about root, square etc
 template <class Info>
 Expression<Info> from_string(std::string input) {
-  check_input(input);
-  auto tokens = tokenise_exp(input);
-  find_unary_minus(tokens);
-  remove_empty_brackets(tokens);
-  verify_conj(tokens);
+  TRACE(check_input(input));
+  auto tokens = TRACE(tokenise_exp(input));
+  TRACE(find_unary_minus(tokens));
+  TRACE(remove_empty_brackets(tokens));
+  TRACE(verify_conj(tokens));
   spdlog::debug("Tokens: {}", absl::StrJoin(tokens, ","));
-  auto ast = shunting_yard<Info>(tokens);
+  auto ast = TRACE(shunting_yard<Info>(tokens));
   spdlog::debug("AST: {}", print_tree<Expression<Info>>(*ast));
-  return create_expression<Info>(*ast);
+  return TRACE(create_expression<Info>(*ast));
 }
 
 

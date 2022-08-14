@@ -1,3 +1,6 @@
+
+set_directory_properties(PROPERTIES LABELS cpp_example)
+
 add_operators_test(HarmonicOscilator)
 add_operators_test(SimpleFermions)
 add_operators_test(Bogoliubov)

@@ -1,4 +1,7 @@
 
+
+set_directory_properties(PROPERTIES LABELS python_test)
+
 function(add_python_operators_test name)
    add_test(NAME ${name}_python
             COMMAND ${V_PYTHON} -m pytest -s ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py)

@@ -9,7 +9,7 @@ endmacro()
 
 find_package(Boost)
 
-set_directory_properties(PROPERTIES LABELS operators)
+set_directory_properties(PROPERTIES LABELS cpp_unit)
 
 include_directories(${operators_SOURCE_DIR}/include/operators
                     ${Boost_INCLUDE_DIRS}
