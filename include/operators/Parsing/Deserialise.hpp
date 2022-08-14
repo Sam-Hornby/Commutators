@@ -192,7 +192,7 @@ void remove_empty_brackets(std::vector<std::string_view> & tokens) {
 }
 
 void verify_conj(const std::vector<std::string_view> & tokens) {
-  if (tokens[0] == "!") {
+  if (tokens.size() and tokens[0] == "!") {
     throw std::logic_error("Can't conjugate nothing");
   }
   for (int i = 1; i < tokens.size(); ++i) {
