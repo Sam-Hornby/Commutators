@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Expression.hpp"
+#include <Utils/Trace.hpp>
 
 namespace operators {
 
@@ -12,21 +13,18 @@ namespace {
 template <class OperatorInfo>
 static vector_type<Operator<OperatorInfo>>
 simplify_multiply(const vector_type<Operator<OperatorInfo>> &mul_term) {
-  spdlog::trace("simplify single multiply begin");
   if (mul_term.empty()) {
     return mul_term;
   }
   vector_type<Operator<OperatorInfo>> simplified;
   simplified.push_back(Operator<OperatorInfo>(1));
   for (const auto &op : mul_term) {
-    spdlog::trace("iterating ops");
     if (op.is_evaluated_number()) {
       simplified[0].data = simplified[0].value() * op.value();
     } else {
       simplified.push_back(op);
     }
   }
-  spdlog::trace("Simply first term");
   if (simplified[0].is_evaluated_number() and
       simplified[0].value() == ComplexNumber(0)) {
     simplified.clear(); // if zero return empty vector
@@ -36,7 +34,6 @@ simplify_multiply(const vector_type<Operator<OperatorInfo>> &mul_term) {
       simplified[0].value() == ComplexNumber(1) and simplified.size() != 1) {
     simplified.erase(simplified.begin());
   }
-  spdlog::trace("simplify single multiply end");
   return simplified;
 }
 
@@ -137,7 +134,6 @@ struct ComparisonStruct {
 
 template <class OperatorInfo>
 static void simplify_additions(Expression<OperatorInfo> &exp) {
-  spdlog::trace("simplify additions begin");
   std::map<ComparisonStruct<OperatorInfo>, unsigned> unique_mul_terms;
   for (std::size_t i = 0; i < exp.expression.size(); ++i) {
     ComparisonStruct<OperatorInfo> comp(exp.expression[i]);
@@ -148,12 +144,10 @@ static void simplify_additions(Expression<OperatorInfo> &exp) {
       exp.expression[i].clear();
     }
   }
-  spdlog::trace("simplify additions end");
 }
 
 template <class OperatorInfo>
 static void removeEmptyVectors(Expression<OperatorInfo> &exp) {
-  spdlog::trace("remove empty vectors begin");
   Expression<OperatorInfo> new_exp;
   for (std::size_t add_index = 0; add_index < exp.expression.size();
        ++add_index) {
@@ -162,7 +156,6 @@ static void removeEmptyVectors(Expression<OperatorInfo> &exp) {
     }
   }
   exp = std::move(new_exp);
-  spdlog::trace("remove empty vectors end");
 }
 
 } // namespace
@@ -170,17 +163,15 @@ static void removeEmptyVectors(Expression<OperatorInfo> &exp) {
 template <class OperatorInfo>
 Expression<OperatorInfo>
 simplify_multiplications(const Expression<OperatorInfo> &expr) {
-  spdlog::trace("simplify multiplications begin");
   Expression<OperatorInfo> simplified;
   simplified.expression.resize(expr.expression.size());
 
   for (std::size_t add_index = 0; add_index < expr.expression.size();
        ++add_index) {
     simplified.expression[add_index] =
-        simplify_multiply(expr.expression[add_index]);
+        TRACE(simplify_multiply(expr.expression[add_index]));
   }
-  spdlog::trace("simplify multiplications end");
-  removeEmptyVectors(simplified);
+  TRACE(removeEmptyVectors(simplified));
   return simplified;
 }
 
@@ -201,10 +192,10 @@ simplify_composite_numbers(Expression<OperatorInfo> expr) {
 template <class OperatorInfo>
 Expression<OperatorInfo>
 simplify_numbers(const Expression<OperatorInfo> &expr) {
-  Expression<OperatorInfo> simplified = simplify_composite_numbers(expr);
-  simplified = simplify_multiplications(simplified);
-  simplify_additions(simplified);
-  removeEmptyVectors(simplified);
+  Expression<OperatorInfo> simplified = TRACE(simplify_composite_numbers(expr));
+  simplified = TRACE(simplify_multiplications(simplified));
+  TRACE(simplify_additions(simplified));
+  TRACE(removeEmptyVectors(simplified));
   return simplified;
 }
 

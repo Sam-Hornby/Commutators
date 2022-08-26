@@ -4,6 +4,7 @@
 #include "Simplify.hpp"
 #include "Sort.hpp"
 #include <Expression/Substitutions.hpp>
+#include <Utils/Trace.hpp>
 
 namespace operators {
 
@@ -40,10 +41,12 @@ static Expression<OperatorInfo> interleaved_sort_sub_simple(
       madeChanges |= bubble_pass(i, exp.expression, commute, s);
     }
     spdlog::info("Size of expression {}", exp.expression.size());
-    exp = perform_multiplication_substitutions<OperatorInfo,
+    exp = trace("perform_multiplication_substitutions", [&] () {
+      return perform_multiplication_substitutions<OperatorInfo,
                                                SubstitutionCallable>(
-        std::move(exp), subst);
-    exp = simplify_multiplications(exp);
+                std::move(exp), subst);
+    });
+    exp = TRACE(simplify_multiplications(exp));
     spdlog::info("Size of expression {}", exp.expression.size());
   }
   return exp;
@@ -77,12 +80,12 @@ evaluate(const Expression<OperatorInfo> &input,
 
   spdlog::critical("Start evaluation: Simplift numbers");
   log_expression(input, "Start");
-  auto exp = simplify_numbers(input);
+  auto exp = TRACE(simplify_numbers(input));
   log_expression(exp, "Simplify numbers 1");
   spdlog::critical("Interleaved evaluate");
-  exp = interleaved_evaluate(exp, commute, subst, s);
+  exp = TRACE(interleaved_evaluate(exp, commute, subst, s));
   spdlog::critical("Simplify multiplications");
-  exp = simplify_numbers(exp);
+  exp = TRACE(simplify_numbers(exp));
   log_expression(exp, "Simplify numbers 2");
   spdlog::critical("End");
   return exp;
