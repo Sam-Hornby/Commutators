@@ -28,21 +28,18 @@ number op has same {anti}-comutator relations as fock ops
 
 */
 
-struct Fock1DInfo {
+struct Fock1DInfo : public Fock0DInfo {
   short int x_coordinate;
-  short int state =
-      0; // This field is only used for state not creation/anihilation ops
-  Type type = Type::UNSPECIFIED;
-  // TODO make const
-  char symbol = 'a';
+  // This field is only used for state not creation/anihilation ops
+  short int state = 0;
 
   Fock1DInfo(int x_coordinate) : x_coordinate(x_coordinate) {}
   Fock1DInfo(int x_coordinate, Type type)
-      : x_coordinate(x_coordinate), type(type) {}
+      : Fock0DInfo(type), x_coordinate(x_coordinate) {}
   Fock1DInfo(int x_coordinate, int state, Type type)
-      : x_coordinate(x_coordinate), state(state), type(type) {}
+      : Fock0DInfo(type), x_coordinate(x_coordinate), state(state) {}
   Fock1DInfo(int x_coordinate, int state, Type type, char symbol)
-      : x_coordinate(x_coordinate), state(state), type(type), symbol(symbol) {}
+      : Fock0DInfo(type, symbol), x_coordinate(x_coordinate), state(state) {}
   Fock1DInfo(int x_coordinate, char symbol, Type type)
       : Fock1DInfo(x_coordinate, 0, type, symbol) {}
   Fock1DInfo() = default;
@@ -88,21 +85,11 @@ struct Fock1DInfo {
     return type == Type::HC_STATE_VECTOR and state == 0;
   }
   bool match(const Fock1DInfo &other) const {
-    if (isFockOpType(type) and isFockOpType(other.type)) {
-      return x_coordinate == other.x_coordinate;
+    if (x_coordinate != other.x_coordinate or state != other.state) {
+      return false;
     }
-    if (isVectorType(type) and isVectorType(other.type)) {
-      return state == other.state and x_coordinate == other.x_coordinate;
-    }
-    if (type == other.type and type == Type::SPIN_OPERATORS) {
-      return x_coordinate == other.x_coordinate;
-    }
-    return false;
-  }
-  Type get_type() const { return type; }
-
-  void complex_conjugate() {
-    this->type = Fock0DInfo::conjugate_type(this->type);
+    return static_cast<const Fock0DInfo&>(*this).match(
+            static_cast<const Fock0DInfo&>(other));
   }
 };
 

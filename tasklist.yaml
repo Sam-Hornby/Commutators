@@ -1,4 +1,9 @@
 
+# BUGs
+- bugs:
+  - matching logic is wrong as will lead to comuting eg <0| and c if orders wrong. same with spin
+  - and rename it to what it actually does instead of match
+
 # spin operators
 - spin operators:
   - adding new operator type:
