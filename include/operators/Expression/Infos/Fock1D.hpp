@@ -59,6 +59,9 @@ struct Fock1DInfo : public Fock0DInfo {
         result += (std::to_string(x_coordinate) + "," + std::to_string(state));
       }
       result += (type == Type::STATE_VECTOR ? ">" : "|");
+    } else if (type == Type::SPIN_OPERATORS) {
+      return std::string("S") + std::string(1, symbol) +
+                "_" + std::to_string(x_coordinate);
     } else {
       throw std::logic_error("No naming convention for unspecified");
     }

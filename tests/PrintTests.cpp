@@ -115,3 +115,9 @@ BOOST_AUTO_TEST_CASE(SumPrint) {
   BOOST_CHECK_EQUAL(sum.print(), "\u03A3[(t * 2.000000 * A) + (10.000000)]");
   BOOST_CHECK_EQUAL(prod.print(), "\u03A0[(t * 2.000000 * A) + (10.000000)]");
 }
+
+BOOST_AUTO_TEST_CASE(SpinOpsPrint) {
+  Expression<Fock1DInfo> exp = {{{Operator<Fock1DInfo>(ordering_value(0),
+                                  Fock1DInfo(3, 'z', Type::SPIN_OPERATORS))}}};
+  BOOST_CHECK_EQUAL(exp.name(), "Sz_3");
+}
