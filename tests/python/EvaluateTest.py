@@ -11,7 +11,7 @@ def test_normal_order():
   v_d = FockOperators.from_string("<0|")
 
   N = FockOperators.from_string("a! * a")
-  N_d = FockOperators.from_string("a * a_d")
+  N_d = FockOperators.from_string("a * a!")
   V = N * v
   V2 = v_d * N * v
   #N = a_d * a
